@@ -1,0 +1,59 @@
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  background-color: #1a1a1a;
+  color: white;
+  position: relative;
+  z-index: 1000;
+}
+
+.nav-links {
+  display: flex;
+  gap: 20px;
+  list-style: none;
+}
+
+.nav-links a {
+  color: white;
+  text-decoration: none;
+}
+
+/* Style du Burger */
+.burger {
+  display: none; /* Caché sur PC */
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.burger span {
+  width: 25px;
+  height: 3px;
+  background-color: white;
+  transition: 0.3s;
+}
+
+/* RESPONSIVE MOBILE */
+@media (max-width: 768px) {
+  .burger {
+    display: flex; /* Apparaît sur mobile */
+  }
+
+  .nav-links {
+    display: none; /* Cache les liens par défaut */
+    flex-direction: column;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: #1a1a1a;
+    padding: 20px;
+    text-align: center;
+  }
+
+  .nav-links.active {
+    display: flex; /* Affiche les liens quand on clique */
+  }
+}
