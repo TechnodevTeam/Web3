@@ -55,7 +55,7 @@ export default function EventList({ initialEvents }: EventListProps) {
             value={filterLocation} 
             onChange={(e) => setFilterLocation(e.target.value)}
           >
-            <option value="all">Toutes les villes</option>
+            <option value="all">Tous lieux</option>
             {locations.filter(l => l !== "all").map(loc => (
               <option key={loc} value={loc}>{loc}</option>
             ))}

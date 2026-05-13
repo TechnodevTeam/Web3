@@ -167,9 +167,40 @@ async function findSessionsByRoomId(roomId) {
   } catch (error) {
     return MOCK_SESSIONS.filter((s) => s.roomId === Number(roomId));
   }
+
+async function findAllRooms() {
+  const result = await db.query(`
+    SELECT
+      rooms.id,
+      rooms.name,
+
+      COALESCE(
+        json_agg(
+          DISTINCT jsonb_build_object(
+            'id', sessions.id,
+            'title', sessions.title,
+            'startTime', sessions.start_time,
+            'endTime', sessions.end_time
+          )
+        ) FILTER (WHERE sessions.id IS NOT NULL),
+        '[]'
+      ) AS sessions
+
+    FROM rooms
+
+    LEFT JOIN sessions
+      ON rooms.id = sessions.room_id
+
+    GROUP BY rooms.id
+
+    ORDER BY rooms.name
+  `);
+
+  return result.rows;
 }
 
 module.exports = {
   findAllRooms,
   findSessionsByRoomId,
+};
 };

@@ -1,0 +1,210 @@
+const db = require("../db");
+
+async function findSessionsByEventId(eventId) {
+  const result = await db.query(
+    `
+    SELECT
+      sessions.id,
+      sessions.event_id AS "eventId",
+      sessions.room_id AS "roomId",
+      sessions.title,
+      sessions.description,
+      sessions.start_time AS "startTime",
+      sessions.end_time AS "endTime",
+      sessions.capacity,
+      rooms.name AS "roomName",
+
+      CASE
+        WHEN CURRENT_TIMESTAMP BETWEEN sessions.start_time AND sessions.end_time
+        THEN true
+        ELSE false
+      END AS live,
+
+      COALESCE(
+        json_agg(
+          DISTINCT jsonb_build_object(
+            'id', speakers.id,
+            'fullName', speakers.full_name,
+            'photoUrl', speakers.photo_url,
+            'bio', speakers.bio,
+            'externalLinks', speakers.external_links
+          )
+        ) FILTER (WHERE speakers.id IS NOT NULL),
+        '[]'
+      ) AS speakers,
+
+      COALESCE(
+       json_agg(
+         DISTINCT jsonb_build_object(
+           'id', questions.id,
+           'content', questions.content,
+           'authorName', questions.author_name,
+            'upvotes', questions.upvotes,
+           'createdAt', questions.created_at,
+        
+           'answers',
+            COALESCE(
+             (
+                SELECT json_agg(
+                 jsonb_build_object(
+                    'id', qa.id,
+                    'content', qa.content,
+                   'createdAt', qa.created_at
+                  )
+               )
+                FROM question_answers qa
+               WHERE qa.question_id = questions.id
+             ),
+              '[]'
+            )
+          )
+       ) FILTER (WHERE questions.id IS NOT NULL),
+       '[]'
+      ) AS questions
+
+    FROM sessions
+
+    INNER JOIN rooms
+      ON sessions.room_id = rooms.id
+
+    LEFT JOIN session_speakers
+      ON sessions.id = session_speakers.session_id
+
+    LEFT JOIN speakers
+      ON session_speakers.speaker_id = speakers.id
+
+    LEFT JOIN questions
+      ON sessions.id = questions.session_id
+
+    WHERE sessions.event_id = $1
+
+    GROUP BY
+      sessions.id,
+      rooms.name
+
+    ORDER BY sessions.start_time
+    `,
+    [eventId]
+  );
+
+  return result.rows;
+}
+
+async function findSessionById(sessionId) {
+  const result = await db.query(
+    `
+    SELECT
+      sessions.id,
+      sessions.event_id AS "eventId",
+      sessions.room_id AS "roomId",
+      sessions.title,
+      sessions.description,
+      sessions.start_time AS "startTime",
+      sessions.end_time AS "endTime",
+      sessions.capacity,
+      rooms.name AS "roomName",
+      CASE
+        WHEN CURRENT_TIMESTAMP BETWEEN sessions.start_time AND sessions.end_time
+        THEN true
+        ELSE false
+      END AS live
+    FROM sessions
+    INNER JOIN rooms
+      ON sessions.room_id = rooms.id
+    WHERE sessions.id = $1
+    `,
+    [sessionId]
+  );
+
+  return result.rows[0];
+}
+
+async function findQuestionsBySessionId(sessionId) {
+  const result = await db.query(
+    `
+    SELECT
+      id,
+      session_id AS "sessionId",
+      content,
+      author_name AS "authorName",
+      upvotes,
+      created_at AS "createdAt"
+    FROM questions
+    WHERE session_id = $1
+    ORDER BY upvotes DESC, created_at ASC
+    `,
+    [sessionId]
+  );
+
+  return result.rows;
+}
+
+async function isSessionLive(sessionId) {
+  const result = await db.query(
+    `
+    SELECT
+      CASE
+        WHEN CURRENT_TIMESTAMP BETWEEN start_time AND end_time
+        THEN true
+        ELSE false
+      END AS live
+    FROM sessions
+    WHERE id = $1
+    `,
+    [sessionId]
+  );
+
+  if (result.rows.length === 0) {
+    return false;
+  }
+
+  return result.rows[0].live;
+}
+
+async function createQuestion(sessionId, content, authorName) {
+  const result = await db.query(
+    `
+    INSERT INTO questions (session_id, content, author_name)
+    VALUES ($1, $2, $3)
+    RETURNING
+      id,
+      session_id AS "sessionId",
+      content,
+      author_name AS "authorName",
+      upvotes,
+      created_at AS "createdAt"
+    `,
+    [sessionId, content, authorName]
+  );
+
+  return result.rows[0];
+}
+
+async function upvoteQuestion(questionId) {
+  const result = await db.query(
+    `
+    UPDATE questions
+    SET upvotes = upvotes + 1
+    WHERE id = $1
+    RETURNING
+      id,
+      session_id AS "sessionId",
+      content,
+      author_name AS "authorName",
+      upvotes,
+      created_at AS "createdAt"
+    `,
+    [questionId]
+  );
+
+  return result.rows[0];
+}
+
+module.exports = {
+  findSessionsByEventId,
+  findSessionById,
+  findQuestionsBySessionId,
+  isSessionLive,
+  createQuestion,
+  upvoteQuestion,
+};
