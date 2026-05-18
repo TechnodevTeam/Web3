@@ -2,126 +2,172 @@
 
 import { useEffect, useState } from "react";
 
-import { upvoteQuestion } from "@/app/services/questionService";
+import {
+  faArrowUp,
+} from "@fortawesome/free-solid-svg-icons";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-import {
-  faThumbsUp,
-} from "@fortawesome/free-solid-svg-icons";
-
-type Answer = {
-  id: number;
-  content: string;
-};
-
-type QuestionItemProps = {
-  question: {
-    id: number;
-    content: string;
-    authorName: string | null;
-    upvotes: number;
-    answers?: Answer[];
-  };
+type Props = {
+  question: any;
+  onUpvote?: (questionId: number) => void;
 };
 
 export default function QuestionItem({
   question,
-}: QuestionItemProps) {
+  onUpvote,
+}: Props) {
   const [upvotes, setUpvotes] = useState(
-    question.upvotes
+    question.upvotes || 0
   );
 
-  const [alreadyVoted, setAlreadyVoted] =
+  const [loading, setLoading] =
+    useState(false);
+
+  const [alreadyUpvoted, setAlreadyUpvoted] =
     useState(false);
 
   useEffect(() => {
-    const votedQuestions = JSON.parse(
-      localStorage.getItem("votedQuestions") || "[]"
-    );
+    const saved =
+      localStorage.getItem(
+        `upvoted-${question.id}`
+      );
 
-    if (votedQuestions.includes(question.id)) {
-      setAlreadyVoted(true);
+    if (saved) {
+      setAlreadyUpvoted(true);
     }
   }, [question.id]);
 
   async function handleUpvote() {
-    if (alreadyVoted) return;
+    if (alreadyUpvoted) {
+      return;
+    }
 
     try {
-      const updated =
-        await upvoteQuestion(question.id);
+      setLoading(true);
 
-      setUpvotes(updated.upvotes);
-
-      const votedQuestions = JSON.parse(
-        localStorage.getItem("votedQuestions") || "[]"
+      const response = await fetch(
+        `http://localhost:8080/questions/${question.id}/upvote`,
+        {
+          method: "POST",
+        }
       );
 
-      votedQuestions.push(question.id);
+      if (!response.ok) {
+        throw new Error(
+          "Erreur upvote"
+        );
+      }
+
+      const updatedQuestion =
+        await response.json();
+
+      setUpvotes(
+        updatedQuestion.upvotes
+      );
 
       localStorage.setItem(
-        "votedQuestions",
-        JSON.stringify(votedQuestions)
+        `upvoted-${question.id}`,
+        "true"
       );
 
-      setAlreadyVoted(true);
+      setAlreadyUpvoted(true);
+
+      if (onUpvote) {
+        onUpvote(question.id);
+      }
     } catch (error) {
       console.error(error);
+    } finally {
+      setLoading(false);
     }
   }
 
-  return (
-    <li className="fb-question-card">
-      <div className="fb-question-main">
-        <div className="fb-avatar">
-          {(question.authorName || "A")[0]}
-        </div>
+  function formatDate(value: string) {
+    return new Date(value).toLocaleString(
+      "fr-FR",
+      {
+        dateStyle: "short",
+        timeStyle: "short",
+      }
+    );
+  }
 
-        <div className="fb-question-bubble">
-          <strong>
-            {question.authorName || "Anonyme"}
-          </strong>
+  return (
+    <div className="question-facebook-card">
+      <div className="question-main">
+        <div className="question-bubble">
+          <div className="question-meta">
+            <strong>
+              {question.authorName ||
+                "Anonyme"}
+            </strong>
+
+            <span>•</span>
+
+            <span>
+              {formatDate(
+                question.createdAt
+              )}
+            </span>
+          </div>
 
           <p>{question.content}</p>
         </div>
       </div>
 
-      <div className="fb-question-actions">
+      <div className="question-actions">
         <button
-          onClick={handleUpvote}
-          disabled={alreadyVoted}
-          className={`fb-like-btn ${
-            alreadyVoted ? "liked" : ""
+          className={`upvote-button ${
+            alreadyUpvoted
+              ? "upvoted"
+              : ""
           }`}
+          onClick={handleUpvote}
+          disabled={
+            loading || alreadyUpvoted
+          }
         >
-          <FontAwesomeIcon icon={faThumbsUp} />
+          <FontAwesomeIcon
+            icon={faArrowUp}
+          />
 
-          {upvotes}
+          <span>
+            {alreadyUpvoted
+              ? "Déjà voté"
+              : "Upvote"}{" "}
+            • {upvotes}
+          </span>
         </button>
       </div>
 
       {question.answers &&
         question.answers.length > 0 && (
-          <div className="fb-answers">
-            {question.answers.map((answer) => (
-              <div
-                key={answer.id}
-                className="fb-answer"
-              >
-                <div className="fb-avatar admin">
-                  A
-                </div>
+          <div className="answers-list">
+            {question.answers.map(
+              (answer: any) => (
+                <div
+                  className="answer-card"
+                  key={answer.id}
+                >
+                  <div className="answer-header">
+                    <strong>
+                      Admin
+                    </strong>
 
-                <div className="fb-answer-bubble">
-                  <strong>Admin EventSync</strong>
+                    <span>
+                      {formatDate(
+                        answer.createdAt
+                      )}
+                    </span>
+                  </div>
 
                   <p>{answer.content}</p>
                 </div>
-              </div>
-            ))}
+              )
+            )}
           </div>
         )}
-    </li>
+    </div>
   );
 }

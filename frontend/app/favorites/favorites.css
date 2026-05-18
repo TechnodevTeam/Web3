@@ -1,0 +1,14 @@
+.favorites-page {
+  padding: 2rem;
+}
+
+.favorites-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.favorites-empty {
+  text-align: center;
+  margin-top: 4rem;
+}

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getSessionsByEventId } from "@/app/services/sessionService";
 import QuestionForm from "@/app/components/QuestionForm";
 import QuestionItem from "@/app/components/QuestionItem";
+import QuestionList from "@/app/components/QuestionList";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -145,12 +146,11 @@ export default async function EventSessionsPage({
                           <p>Aucune question pour cette session.</p>
                         ) : (
                           <ul className="question-list-small">
-                            {session.questions.map((question) => (
-                              <QuestionItem
-                                key={question.id}
-                                question={question}
-                              />
-                            ))}
+                            <QuestionList
+                             initialQuestions={
+                               session.questions || []
+                             }
+                            />
                           </ul>
                         )}
 

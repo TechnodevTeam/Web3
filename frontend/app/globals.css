@@ -1707,3 +1707,115 @@ a {
 
   background: transparent;
 }
+
+.question-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 0.9rem;
+  color: #65676b;
+
+  margin-top: 4px;
+}
+
+.question-actions {
+  margin-top: 10px;
+
+  display: flex;
+  align-items: center;
+}
+
+.upvote-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  border: none;
+
+  background: #f0f2f5;
+
+  padding: 10px 16px;
+
+  border-radius: 999px;
+
+  cursor: pointer;
+
+  font-weight: 600;
+
+  transition: 0.2s ease;
+}
+
+.upvote-button:hover {
+  background: #e4e6eb;
+  transform: scale(1.03);
+}
+
+.upvote-button svg {
+  font-size: 0.9rem;
+}
+
+.question-facebook-card {
+  background: white;
+
+  border-radius: 18px;
+
+  padding: 18px;
+
+  margin-bottom: 20px;
+
+  box-shadow:
+    0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.question-bubble {
+  background: #f0f2f5;
+
+  padding: 14px;
+
+  border-radius: 18px;
+}
+
+.question-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  font-size: 0.85rem;
+
+  color: #65676b;
+
+  margin-bottom: 8px;
+}
+
+.answers-list {
+  margin-top: 16px;
+
+  padding-left: 20px;
+}
+
+.answer-card {
+  background: #f7f7f7;
+
+  padding: 12px;
+
+  border-radius: 14px;
+
+  margin-top: 10px;
+}
+
+.answer-header {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 6px;
+
+  font-size: 0.85rem;
+
+  color: #666;
+}
+
+.upvote-button.upvoted {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
