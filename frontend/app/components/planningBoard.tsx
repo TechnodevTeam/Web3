@@ -1,7 +1,9 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { faSearch } from "@fortawesome/free-solid-svg-icons/faSearch";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 type Session = {
   id: number;
@@ -45,13 +47,17 @@ const getDateKey = (timestamp: string): string => {
 export default function PlanningBoard({ sessions = [], events = [] }: any) {
   const [search, setSearch] = useState("");
   const [selectedEvent, setSelectedEvent] = useState("all");
-  const [favorites, setFavorites] = useState<Set<number>>(() => {
+  const [favorites, setFavorites] = useState<Set<number>>(() => new Set());
+
+// Charger les favoris depuis localStorage uniquement côté client
+  useEffect(() => {
     if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("favoriteSessions");
-      return new Set(saved ? JSON.parse(saved) : []);
+     const saved = localStorage.getItem("favoriteSessions");
+      if (saved) {
+      setFavorites(new Set(JSON.parse(saved)));
+      }
     }
-    return new Set();
-  });
+  }, []);
 
   const safeSessions = Array.isArray(sessions) ? sessions : [];
   const safeEvents = Array.isArray(events) ? events : [];
@@ -121,18 +127,21 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
       </div>
 
       <div className="planning-filters">
-        <input
-          type="text"
-          placeholder="Rechercher..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
+        <div className="search-wrapper">
+          <FontAwesomeIcon icon={faSearch} className="search-icon" />
+          <input
+            type="text"
+            placeholder="Rechercher une session..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
         <select value={selectedEvent} onChange={(e) => setSelectedEvent(e.target.value)}>
           <option value="all">Tous les événements</option>
           {safeEvents.map((event: any) => (
             <option key={event.id} value={event.id}>
-              {event.title}
-            </option>
+             {event.title}
+           </option>
           ))}
         </select>
       </div>

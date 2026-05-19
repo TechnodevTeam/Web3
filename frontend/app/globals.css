@@ -1640,12 +1640,6 @@ a {
   }
 }
 
-
-
-
-
-
-
 .planning-page {
   max-width: 1200px;
   margin: 0 auto;
@@ -2115,4 +2109,321 @@ a {
   border-radius: 8px;
   font-size: 0.85rem;
   margin-bottom: 2rem;
+}
+
+/* Conteneur de la barre de recherche */
+.room-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: white;
+  padding: 8px 16px;
+  border-radius: 15px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04), 0 0 0 1px rgba(0, 0, 0, 0.02);
+  transition: box-shadow 0.2s ease, border-color 0.2s;
+  border: 1px solid #e2e8f0;
+  max-width: 400px;
+  margin-bottom: 32px;
+}
+
+.room-search:focus-within {
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1), 0 0 0 2px rgba(37, 99, 235, 0.2);
+  border-color: #3b82f6;
+}
+
+/* Icône de recherche */
+.room-search svg {
+  color: #94a3b8;
+  font-size: 1.1rem;
+  transition: color 0.2s;
+}
+
+.room-search:focus-within svg {
+  color: #3b82f6;
+}
+
+/* Champ de saisie */
+.room-search input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 1rem;
+  padding: 12px 0;
+  background: transparent;
+  color: #1e293b;
+}
+
+.room-search input::placeholder {
+  color: #cbd5e1;
+  font-weight: 400;
+}
+
+/* Responsive : sur petits écrans, la barre prend plus de largeur */
+@media (max-width: 640px) {
+  .room-search {
+    max-width: 100%;
+    margin-bottom: 24px;
+  }
+}
+
+/* ========== PLANNING MULTI-TRACK ========== */
+.planning-multitrack {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* En-tête */
+.planning-header {
+  margin-bottom: 2rem;
+}
+.planning-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+.planning-header p {
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+/* Barre de recherche et filtre */
+.planning-filters {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2rem;
+}
+.planning-filters input,
+.planning-filters select {
+  padding: 0.75rem 1rem;
+  border-radius: 15px;
+  border: 1px solid #e2e8f0;
+  background-color: white;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  outline: none;
+  flex: 1;
+  min-width: 200px;
+}
+.planning-filters input:focus,
+.planning-filters select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.1);
+}
+.planning-filters input::placeholder {
+  color: #94a3b8;
+}
+
+/* Groupes par date */
+.planning-date-group {
+  margin-bottom: 3rem;
+}
+.date-header {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  color: #0f172a;
+  border-left: 4px solid #3b82f6;
+  padding-left: 1rem;
+}
+
+/* Table planning */
+.overflow-x-auto {
+  overflow-x: auto;
+  border-radius: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+.planning-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  font-size: 0.9rem;
+}
+.planning-table th,
+.planning-table td {
+  border: 1px solid #e5e7eb;
+  padding: 0.75rem;
+  vertical-align: top;
+}
+.time-header,
+.room-header {
+  background-color: #f8fafc;
+  font-weight: 600;
+  text-align: center;
+  color: #1e293b;
+}
+.time-cell {
+  background-color: #f9fafb;
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+  width: 90px;
+}
+.session-cell {
+  min-width: 240px;
+  background-color: white;
+}
+
+/* Carte session */
+.session-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+.session-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+.session-title {
+  font-weight: 700;
+  color: #1e293b;
+  text-decoration: none;
+  font-size: 0.95rem;
+  line-height: 1.3;
+}
+.session-title:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+.favorite-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  color: #cbd5e1;
+  transition: color 0.2s, transform 0.1s;
+  padding: 0 0.25rem;
+}
+.favorite-btn.active {
+  color: #ef4444;
+}
+.favorite-btn:hover {
+  color: #ef4444;
+  transform: scale(1.05);
+}
+.session-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.75rem;
+  color: #475569;
+}
+.session-meta span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.session-speakers {
+  font-size: 0.75rem;
+  color: #3b82f6;
+  white-space: normal;
+  word-break: break-word;
+}
+.live-badge {
+  display: inline-block;
+  background-color: #dc2626;
+  color: white;
+  font-size: 0.7rem;
+  font-weight: bold;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+.session-description {
+  font-size: 0.8rem;
+  color: #4b5563;
+  margin: 0;
+  line-height: 1.4;
+}
+.empty-session {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 1rem;
+  min-height: 80px;
+}
+
+/* Debug (à supprimer en production) */
+.debug-section {
+  margin-top: 1.5rem;
+  padding: 0.75rem 1rem;
+  background-color: #fff3cd;
+  border: 1px solid #ffeeba;
+  border-radius: 0.75rem;
+  font-size: 0.8rem;
+  color: #856404;
+}
+.debug-section strong {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+.debug-section ul {
+  margin: 0;
+  padding-left: 1.5rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .planning-multitrack {
+    padding: 1rem;
+  }
+  .planning-filters {
+    flex-direction: column;
+  }
+  .planning-filters input,
+  .planning-filters select {
+    width: 100%;
+  }
+  .time-cell {
+    width: 70px;
+    font-size: 0.8rem;
+  }
+  .session-title {
+    font-size: 0.85rem;
+  }
+  .session-meta {
+    font-size: 0.7rem;
+  }
+}
+
+/* Wrapper pour l'icône + input */
+.search-wrapper {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #94a3b8;
+  pointer-events: none;
+  font-size: 1rem;
+}
+
+.search-wrapper input {
+  width: 100%;
+  padding: 0.75rem 1rem 0.75rem 2.5rem; /* espace à gauche pour l'icône */
+  border-radius: 10px;
+  border: 1px solid #e2e8f0;
+  background-color: white;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  outline: none;
+}
+
+.search-wrapper input:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.search-wrapper input::placeholder {
+  color: #94a3b8;
 }
