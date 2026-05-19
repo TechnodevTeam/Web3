@@ -1,3 +1,5 @@
+//services/session.service.js
+
 const sessionRepository = require("../repositories/session.repository");
 
 async function getSessionsByEventId(eventId) {
@@ -59,10 +61,15 @@ async function upvoteQuestion(questionId) {
   return question;
 }
 
+async function getAllSessions() {
+  return sessionRepository.findAllSessions();
+}
+
 module.exports = {
   getSessionsByEventId,
   getSessionById,
   getQuestionsBySessionId,
   createQuestion,
   upvoteQuestion,
+  getAllSessions,
 };

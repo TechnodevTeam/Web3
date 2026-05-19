@@ -1,3 +1,5 @@
+//services/event.service.js
+
 const eventRepository = require("../repositories/event.repository");
 
 async function getAllEvents() {

@@ -1,16 +1,16 @@
-const { Pool } = require("pg");
-require("dotenv").config();
+//db.js
 
-const db = new Pool({
+const { Pool } = require('pg');
+require('dotenv').config();
+
+const pool = new Pool({
   host: process.env.DB_HOST,
   port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
 });
 
-db.on('error', (err) => {
-  console.error('Erreur inattendue du client PostgreSQL', err);
-});
-
-module.exports = db;
+module.exports = {
+  query: (text, params) => pool.query(text, params),
+};

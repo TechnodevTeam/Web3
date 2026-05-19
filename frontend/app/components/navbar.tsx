@@ -10,6 +10,7 @@ import {
   faHeart,
   faUserShield,
   faCubes,
+  faCalendarDays,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function Navbar() {
@@ -52,6 +53,11 @@ export default function Navbar() {
         <Link href="/rooms" onClick={closeMenu}>
           <FontAwesomeIcon icon={faDoorOpen} className="nav-icon" />
           Salles
+        </Link>
+
+        <Link href="/planning">
+          <FontAwesomeIcon icon={faCalendarDays} />
+          Planning
         </Link>
 
         <Link href="/favorites" onClick={closeMenu}>

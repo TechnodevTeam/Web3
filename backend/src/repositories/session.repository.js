@@ -1,3 +1,5 @@
+//repositories/session.repository.js
+
 const db = require("../db");
 
 async function findSessionsByEventId(eventId) {
@@ -200,6 +202,30 @@ async function upvoteQuestion(questionId) {
   return result.rows[0];
 }
 
+async function findAllSessions() {
+  const result = await db.query(`
+    SELECT
+      sessions.id,
+      sessions.event_id AS "eventId",
+      events.title AS "eventTitle",   -- Ajout du titre de l'événement
+      sessions.room_id AS "roomId",
+      sessions.title,
+      sessions.description,
+      sessions.start_time AS "startTime",
+      sessions.end_time AS "endTime",
+      rooms.name AS "roomName",
+      CASE
+        WHEN CURRENT_TIMESTAMP BETWEEN sessions.start_time AND sessions.end_time
+        THEN true ELSE false
+      END AS live
+    FROM sessions
+    INNER JOIN rooms ON rooms.id = sessions.room_id
+    INNER JOIN events ON events.id = sessions.event_id   -- Jointure ajoutée
+    ORDER BY sessions.start_time
+  `);
+  return result.rows;
+}
+
 module.exports = {
   findSessionsByEventId,
   findSessionById,
@@ -207,4 +233,5 @@ module.exports = {
   isSessionLive,
   createQuestion,
   upvoteQuestion,
+  findAllSessions,
 };

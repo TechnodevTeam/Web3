@@ -1,3 +1,5 @@
+// event.routes.js
+
 const express = require("express");
 const eventController = require("../controllers/event.controller");
 const sessionController = require("../controllers/session.controller");

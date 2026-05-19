@@ -1,3 +1,5 @@
+//controllers/session.controller.js
+
 const sessionService = require("../services/session.service");
 
 async function getSessionsByEventId(req, res) {
@@ -127,10 +129,28 @@ async function upvoteQuestion(req, res) {
   }
 }
 
+async function getAllSessions(
+  req,
+  res
+) {
+  try {
+    const sessions =
+      await sessionService.getAllSessions();
+
+    res.json(sessions);
+  } catch (error) {
+    res.status(500).json({
+      message:
+        "Erreur chargement sessions",
+    });
+  }
+}
+
 module.exports = {
   getSessionsByEventId,
   getSessionById,
   getQuestionsBySessionId,
   createQuestion,
   upvoteQuestion,
+  getAllSessions,
 };

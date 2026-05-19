@@ -1,3 +1,5 @@
+//app/services/sessionService.ts
+
 type Speaker = {
   id: number;
   fullName: string;
@@ -17,6 +19,7 @@ type Question = {
 type Session = {
   id: number;
   eventId: number;
+  eventTitle?: string;
   roomId: number;
   title: string;
   description: string;
@@ -40,6 +43,23 @@ export async function getSessionsByEventId(
 
   if (!response.ok) {
     throw new Error("Erreur lors du chargement des sessions de l'événement");
+  }
+
+  return response.json();
+}
+
+export async function getAllSessions() {
+  const response = await fetch(
+    `${API_URL}/sessions`,
+    {
+      cache: "no-store",
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(
+      "Erreur chargement sessions"
+    );
   }
 
   return response.json();

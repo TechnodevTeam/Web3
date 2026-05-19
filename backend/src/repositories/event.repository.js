@@ -1,3 +1,5 @@
+//repositories/event.repository.js
+
 const db = require("../db");
 
 const MOCK_EVENTS = [
