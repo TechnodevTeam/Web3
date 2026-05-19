@@ -15,6 +15,33 @@ type Session = {
   speakers: { fullName: string }[];
 };
 
+// Fonction utilitaire pour formater une heure
+const formatHour = (value: string | null | undefined): string | null => {
+  if (!value) return null;
+  try {
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return null;
+    return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return null;
+  }
+};
+
+// Fonction pour formater une date complète (ex: "20 Mai 2026")
+const formatDate = (dateStr: string): string => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+// Extraire la date (YYYY-MM-DD) à partir d'un timestamp
+const getDateKey = (timestamp: string): string => {
+  return new Date(timestamp).toISOString().split("T")[0];
+};
+
 export default function PlanningBoard({ sessions = [], events = [] }: any) {
   const [search, setSearch] = useState("");
   const [selectedEvent, setSelectedEvent] = useState("all");
@@ -40,18 +67,6 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
     );
   }
 
-  // Fonction robuste pour formater une heure
-  const formatHour = (value: string | null | undefined): string | null => {
-    if (!value) return null;
-    try {
-      const d = new Date(value);
-      if (isNaN(d.getTime())) return null;
-      return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-    } catch {
-      return null;
-    }
-  };
-
   // Enrichir avec titre événement
   const sessionsWithEventTitle = safeSessions.map((session: any) => ({
     ...session,
@@ -70,43 +85,23 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
     });
   }, [sessionsWithEventTitle, search, selectedEvent]);
 
-  // Heures uniques (ignorer les null)
-  const timeSlots = useMemo(() => {
-    const times = filteredSessions
-      .map((s: any) => formatHour(s.startTime))
-      .filter((t): t is string => t !== null);
-    return Array.from(new Set(times)).sort((a, b) => a.localeCompare(b));
-  }, [filteredSessions]);
-
-  // Salles uniques (ignorer les null/undefined)
-  const rooms = useMemo(() => {
-    const roomSet = new Set(filteredSessions.map((s: any) => s.roomName).filter(Boolean));
-    return Array.from(roomSet).sort();
-  }, [filteredSessions]);
-
-  // Grille : [heure][salle] = session ou null
-  const grid = useMemo(() => {
-    const map: Record<string, Record<string, any>> = {};
-    timeSlots.forEach((time) => {
-      map[time] = {};
-      rooms.forEach((room) => {
-        map[time][room] = null;
-      });
-    });
+  // Regrouper les sessions par date (clé YYYY-MM-DD)
+  const groupedByDate = useMemo(() => {
+    const groups: Record<string, any[]> = {};
     filteredSessions.forEach((session: any) => {
-      const hour = formatHour(session.startTime);
-      if (hour && map[hour] && map[hour][session.roomName] === null) {
-        map[hour][session.roomName] = session;
-      }
+      if (!session.startTime) return;
+      const dateKey = getDateKey(session.startTime);
+      if (!groups[dateKey]) groups[dateKey] = [];
+      groups[dateKey].push(session);
     });
-    return map;
-  }, [filteredSessions, timeSlots, rooms]);
-
-  // Debug : sessions non placées dans la grille (pour aider à corriger)
-  const orphanSessions = filteredSessions.filter((session: any) => {
-    const hour = formatHour(session.startTime);
-    return !hour || !rooms.includes(session.roomName) || !grid[hour]?.[session.roomName];
-  });
+    // Trier les dates
+    const sortedDates = Object.keys(groups).sort();
+    const result: { dateKey: string; sessions: any[] }[] = sortedDates.map(dateKey => ({
+      dateKey,
+      sessions: groups[dateKey],
+    }));
+    return result;
+  }, [filteredSessions]);
 
   const toggleFavorite = (id: number) => {
     setFavorites((prev) => {
@@ -122,7 +117,7 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
     <section className="planning-multitrack">
       <div className="planning-header">
         <h1>Planning Multi-Track</h1>
-        <p>Sessions par horaires et salles</p>
+        <p>Sessions organisées par date, horaires et salles</p>
       </div>
 
       <div className="planning-filters">
@@ -142,79 +137,117 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
         </select>
       </div>
 
-      {timeSlots.length === 0 || rooms.length === 0 ? (
-        <p>Aucune donnée à afficher (timeSlots ou rooms vide).</p>
+      {groupedByDate.length === 0 ? (
+        <p>Aucune session correspondante.</p>
       ) : (
-        <>
-          <div className="overflow-x-auto">
-            <table className="planning-table">
-              <thead>
-                <tr>
-                  <th className="time-header">Horaire</th>
-                  {rooms.map((room) => (
-                    <th key={room} className="room-header">{room}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {timeSlots.map((time) => (
-                  <tr key={time}>
-                    <td className="time-cell">{time}</td>
-                    {rooms.map((room) => {
-                      const session = grid[time]?.[room];
-                      return (
-                        <td key={room} className="session-cell">
-                          {session ? (
-                            <div className="session-card">
-                              <div className="session-header">
-                                <Link href={`/sessions/${session.id}`} className="session-title">
-                                  {session.title}
-                                </Link>
-                                <button
-                                  className={`favorite-btn ${favorites.has(session.id) ? "active" : ""}`}
-                                  onClick={() => toggleFavorite(session.id)}
-                                >
-                                  ♥
-                                </button>
-                              </div>
-                              <div className="session-meta">
-                                <span>{formatHour(session.startTime)} - {formatHour(session.endTime)}</span>
-                                <span>📌 {session.roomName}</span>
-                              </div>
-                              {session.speakers?.length > 0 && (
-                                <div className="session-speakers">
-                                  🎤 {session.speakers.map((s: any) => s.fullName).join(", ")}
-                                </div>
-                              )}
-                              {session.live && <span className="live-badge">LIVE</span>}
-                              <p className="session-description">{session.description?.substring(0, 80)}...</p>
-                            </div>
-                          ) : (
-                            <span className="empty-session">—</span>
-                          )}
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        groupedByDate.map(({ dateKey, sessions: dateSessions }) => {
+          // Pour cette date, extraire les créneaux horaires (heures de début uniques)
+          const timeSlots = Array.from(
+            new Set(
+              dateSessions
+                .map((s: any) => formatHour(s.startTime))
+                .filter((t): t is string => t !== null)
+            )
+          ).sort((a, b) => a.localeCompare(b));
 
-          {/* Affichage debug des sessions non placées (à retirer plus tard) */}
-          {orphanSessions.length > 0 && (
-            <div className="debug-section">
-              <h3>Sessions non affichées dans la grille (vérifiez roomName ou startTime) :</h3>
-              <ul>
-                {orphanSessions.map((s: any) => (
-                  <li key={s.id}>
-                    <strong>{s.title}</strong> — salle: "{s.roomName}", heure: "{s.startTime}"
-                  </li>
-                ))}
-              </ul>
+          // Salles uniques pour cette date
+          const rooms = Array.from(
+            new Set(dateSessions.map((s: any) => s.roomName).filter(Boolean))
+          ).sort();
+
+          // Construire la grille [heure][salle] = session ou null
+          const grid: Record<string, Record<string, any>> = {};
+          timeSlots.forEach((time) => {
+            grid[time] = {};
+            rooms.forEach((room) => {
+              grid[time][room] = null;
+            });
+          });
+          dateSessions.forEach((session: any) => {
+            const hour = formatHour(session.startTime);
+            if (hour && grid[hour] && grid[hour][session.roomName] === null) {
+              grid[hour][session.roomName] = session;
+            }
+          });
+
+          // Sessions orphelines pour debug (optionnel)
+          const orphanSessions = dateSessions.filter((s: any) => {
+            const hour = formatHour(s.startTime);
+            return !hour || !rooms.includes(s.roomName) || !grid[hour]?.[s.roomName];
+          });
+
+          return (
+            <div key={dateKey} className="planning-date-group">
+              <h2 className="date-header">{formatDate(dateKey)}</h2>
+              <div className="overflow-x-auto">
+                <table className="planning-table">
+                  <thead>
+                    <tr>
+                      <th className="time-header">Horaire</th>
+                      {rooms.map((room) => (
+                        <th key={room} className="room-header">{room}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {timeSlots.map((time) => (
+                      <tr key={time}>
+                        <td className="time-cell">{time}</td>
+                        {rooms.map((room) => {
+                          const session = grid[time]?.[room];
+                          return (
+                            <td key={room} className="session-cell">
+                              {session ? (
+                                <div className="session-card">
+                                  <div className="session-header">
+                                    <Link href={`/sessions/${session.id}`} className="session-title">
+                                      {session.title}
+                                    </Link>
+                                    <button
+                                      className={`favorite-btn ${favorites.has(session.id) ? "active" : ""}`}
+                                      onClick={() => toggleFavorite(session.id)}
+                                    >
+                                      ♥
+                                    </button>
+                                  </div>
+                                  <div className="session-meta">
+                                    <span>{formatHour(session.startTime)} - {formatHour(session.endTime)}</span>
+                                    <span>📌 {session.roomName}</span>
+                                  </div>
+                                  {session.speakers?.length > 0 && (
+                                    <div className="session-speakers">
+                                      🎤 {session.speakers.map((s: any) => s.fullName).join(", ")}
+                                    </div>
+                                  )}
+                                  {session.live && <span className="live-badge">LIVE</span>}
+                                  <p className="session-description">{session.description?.substring(0, 80)}...</p>
+                                </div>
+                              ) : (
+                                <span className="empty-session">—</span>
+                              )}
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              {orphanSessions.length > 0 && (
+                <div className="debug-section">
+                  <strong>Sessions non affichées pour cette date :</strong>
+                  <ul>
+                    {orphanSessions.map((s: any) => (
+                      <li key={s.id}>
+                        {s.title} (salle: "{s.roomName}", heure: "{s.startTime}")
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
-          )}
-        </>
+          );
+        })
       )}
     </section>
   );
