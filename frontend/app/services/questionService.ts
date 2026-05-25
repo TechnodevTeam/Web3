@@ -1,5 +1,10 @@
-const API_URL =
-  process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") return ""; // Browser uses relative path
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // Vercel
+  return "http://localhost:3000"; // Local server
+};
+
+const API_URL = `${getBaseUrl()}/api`;
 
 type CreateQuestionPayload = {
   content: string;
@@ -10,39 +15,49 @@ export async function createQuestion(
   sessionId: number,
   payload: CreateQuestionPayload
 ) {
-  const response = await fetch(
-    `${API_URL}/sessions/${sessionId}/questions`,
-    {
-      method: "POST",
+  try {
+    const response = await fetch(
+      `${API_URL}/sessions/${sessionId}/questions`,
+      {
+        method: "POST",
 
-      headers: {
-        "Content-Type": "application/json",
-      },
+        headers: {
+          "Content-Type": "application/json",
+        },
 
-      body: JSON.stringify(payload),
+        body: JSON.stringify(payload),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+
+      throw new Error(error.message || error.error || "Erreur lors de la création de la question");
     }
-  );
 
-  if (!response.ok) {
-    const error = await response.json();
-
-    throw new Error(error.message);
+    return response.json();
+  } catch (error) {
+    console.error("Erreur createQuestion:", error);
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function upvoteQuestion(questionId: number) {
-  const response = await fetch(
-    `${API_URL}/questions/${questionId}/upvote`,
-    {
-      method: "PATCH",
+  try {
+    const response = await fetch(
+      `${API_URL}/questions/${questionId}/upvote`,
+      {
+        method: "PATCH",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Erreur lors de l'upvote");
     }
-  );
 
-  if (!response.ok) {
-    throw new Error("Erreur lors de l'upvote");
+    return response.json();
+  } catch (error) {
+    console.error("Erreur upvoteQuestion:", error);
+    throw error;
   }
-
-  return response.json();
 }

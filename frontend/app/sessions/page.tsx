@@ -1,14 +1,11 @@
 "use client";
-
 import { useState } from "react";
-
 type Session = {
   id: string;
   title: string;
   date: string;
   description: string;
 };
-
 const initialSessions: Session[] = [
   {
     id: "1",
@@ -23,33 +20,27 @@ const initialSessions: Session[] = [
     description: "Création d'une application décentralisée simple.",
   },
 ];
-
 export default function SessionsPage() {
   const [sessions, setSessions] = useState<Session[]>(initialSessions);
   const [title, setTitle] = useState("");
   const [date, setDate] = useState("");
   const [description, setDescription] = useState("");
-
   const handleAddSession = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
     if (!title || !date || !description) {
       return;
     }
-
     const newSession: Session = {
       id: String(Date.now()),
       title,
       date,
       description,
     };
-
     setSessions((current) => [newSession, ...current]);
     setTitle("");
     setDate("");
     setDescription("");
   };
-
   return (
     <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
       <h1>Sessions</h1>
@@ -88,7 +79,6 @@ export default function SessionsPage() {
           </button>
         </form>
       </section>
-
       <section>
         <h2>Liste des sessions</h2>
         {sessions.length === 0 ? (

@@ -1,5 +1,4 @@
 'use client';
-
 import { Admin, Resource, List, Datagrid, TextField, EmailField, DateField, Edit, SimpleForm, TextInput, Create, NumberInput, BooleanField, BooleanInput, DateInput } from 'react-admin';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -8,7 +7,6 @@ import { Button } from '@mui/material';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StatsCharts from './components/StatsCharts';
 import './admin.css';
-
 const theme = createTheme({
   palette: {
     mode: 'light',
@@ -48,53 +46,42 @@ const theme = createTheme({
     },
   },
 });
-
-// ============================================
-// DONNÉES UTILISATEURS (localStorage)
-// ============================================
-const getUsers = () => {
-  if (typeof window === 'undefined') return [];
-  const users = localStorage.getItem('users');
-  return users ? JSON.parse(users) : [];
-};
-
-// ============================================
-// COMPOSANT STATISTIQUES AVEC BOUTONS DE NAVIGATION
-// ============================================
 function DashboardStats({ refreshTrigger }: { refreshTrigger: number }) {
   const [stats, setStats] = useState({ users: 0, rooms: 0, events: 0 });
-
   const loadStats = () => {
-    const users = getUsers();
-    
-    fetch('/api/rooms')
+    fetch('/api/users')
       .then(res => res.json())
-      .then(rooms => {
-        fetch('/api/events')
+      .then(users => {
+        fetch('/api/rooms')
           .then(res => res.json())
-          .then(events => {
-            setStats({ 
-              users: users.length, 
-              rooms: rooms.length, 
-              events: events.length 
-            });
+          .then(rooms => {
+            fetch('/api/events')
+              .then(res => res.json())
+              .then(events => {
+                setStats({ 
+                  users: Array.isArray(users) ? users.length : 0, 
+                  rooms: Array.isArray(rooms) ? rooms.length : 0, 
+                  events: Array.isArray(events) ? events.length : 0 
+                });
+              })
+              .catch(() => {
+                setStats({ users: users.length, rooms: rooms.length, events: 0 });
+              });
           })
           .catch(() => {
-            setStats({ users: users.length, rooms: rooms.length, events: 0 });
+            setStats({ users: users.length, rooms: 0, events: 0 });
           });
       })
       .catch(() => {
-        setStats({ users: users.length, rooms: 0, events: 0 });
+        setStats({ users: 0, rooms: 0, events: 0 });
       });
   };
-
   useEffect(() => {
     loadStats();
   }, [refreshTrigger]);
-
   return (
     <div>
-      {/* Cartes statistiques */}
+      {}
       <div style={{ 
         display: 'flex', 
         gap: '20px', 
@@ -115,8 +102,7 @@ function DashboardStats({ refreshTrigger }: { refreshTrigger: number }) {
           <div style={{ color: '#94a3b8', marginTop: '8px', fontSize: '0.9rem' }}>📅 Événements</div>
         </div>
       </div>
-
-      {/* BOUTONS DE NAVIGATION VERS LES RESSOURCES */}
+      {}
       <div style={{ 
         display: 'flex', 
         gap: '16px', 
@@ -149,7 +135,6 @@ function DashboardStats({ refreshTrigger }: { refreshTrigger: number }) {
         >
           👥 Gérer les utilisateurs
         </a>
-        
         <a
           href="/admin#/rooms"
           style={{
@@ -175,7 +160,6 @@ function DashboardStats({ refreshTrigger }: { refreshTrigger: number }) {
         >
           🏢 Gérer les salles
         </a>
-        
         <a
           href="/admin#/events"
           style={{
@@ -205,160 +189,182 @@ function DashboardStats({ refreshTrigger }: { refreshTrigger: number }) {
     </div>
   );
 }
-
-// ============================================
-// DATA PROVIDER
-// ============================================
 const dataProvider = {
   getList: async (resource: string, params: any) => {
-    if (resource === 'users') {
-      const users = getUsers();
-      return { data: users, total: users.length };
-    }
-    if (resource === 'rooms') {
-      const response = await fetch('/api/rooms');
-      const rooms = await response.json();
-      return { data: rooms, total: rooms.length };
-    }
-    if (resource === 'events') {
-      const response = await fetch('/api/events');
-      const events = await response.json();
-      return { data: events, total: events.length };
+    try {
+      if (resource === 'users') {
+        const response = await fetch('/api/users');
+        if (!response.ok) throw new Error('Fetch failed');
+        const users = await response.json();
+        return { data: users, total: users.length };
+      }
+      if (resource === 'rooms') {
+        const response = await fetch('/api/rooms');
+        if (!response.ok) throw new Error('Fetch failed');
+        const rooms = await response.json();
+        return { data: rooms, total: rooms.length };
+      }
+      if (resource === 'events') {
+        const response = await fetch('/api/events');
+        if (!response.ok) throw new Error('Fetch failed');
+        const events = await response.json();
+        return { data: events, total: events.length };
+      }
+    } catch (error) {
+      console.error(`Error fetching ${resource}:`, error);
+      return { data: [], total: 0 };
     }
     return { data: [], total: 0 };
   },
-
   getOne: async (resource: string, params: any) => {
-    if (resource === 'users') {
-      const users = getUsers();
-      return { data: users.find((u: any) => u.id === params.id) };
-    }
-    if (resource === 'rooms') {
-      const response = await fetch(`/api/rooms/${params.id}`);
-      const room = await response.json();
-      return { data: room };
-    }
-    if (resource === 'events') {
-      const response = await fetch(`/api/events/${params.id}`);
-      const event = await response.json();
-      return { data: event };
+    try {
+      if (resource === 'users') {
+        const response = await fetch('/api/users');
+        const users = await response.json();
+        return { data: users.find((u: any) => u.id === params.id) };
+      }
+      if (resource === 'rooms') {
+        const response = await fetch(`/api/rooms/${params.id}`);
+        const room = await response.json();
+        return { data: room };
+      }
+      if (resource === 'events') {
+        const response = await fetch(`/api/events/${params.id}`);
+        const event = await response.json();
+        return { data: event };
+      }
+    } catch (error) {
+      console.error(`Error fetching one ${resource}:`, error);
+      return { data: null };
     }
     return { data: null };
   },
-
   getMany: async (resource: string, params: any) => {
-    if (resource === 'users') {
-      const users = getUsers();
-      return { data: users.filter((u: any) => params.ids.includes(u.id)) };
-    }
-    if (resource === 'rooms') {
-      const response = await fetch('/api/rooms');
-      const rooms = await response.json();
-      return { data: rooms.filter((r: any) => params.ids.includes(r.id)) };
-    }
-    if (resource === 'events') {
-      const response = await fetch('/api/events');
-      const events = await response.json();
-      return { data: events.filter((e: any) => params.ids.includes(e.id)) };
+    try {
+      if (resource === 'users') {
+        const response = await fetch('/api/users');
+        const users = await response.json();
+        return { data: users.filter((u: any) => params.ids.includes(u.id)) };
+      }
+      if (resource === 'rooms') {
+        const response = await fetch('/api/rooms');
+        const rooms = await response.json();
+        return { data: rooms.filter((r: any) => params.ids.includes(r.id)) };
+      }
+      if (resource === 'events') {
+        const response = await fetch('/api/events');
+        const events = await response.json();
+        return { data: events.filter((e: any) => params.ids.includes(e.id)) };
+      }
+    } catch (error) {
+      console.error(`Error fetching many ${resource}:`, error);
+      return { data: [] };
     }
     return { data: [] };
   },
-
   create: async (resource: string, params: any) => {
-    if (resource === 'users') {
-      const users = getUsers();
-      const newUser = { ...params.data, id: Date.now().toString(), createdAt: new Date().toISOString() };
-      users.push(newUser);
-      localStorage.setItem('users', JSON.stringify(users));
-      if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-      return { data: newUser };
-    }
-    if (resource === 'rooms') {
-      const response = await fetch('/api/rooms', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params.data)
-      });
-      const newRoom = await response.json();
-      if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-      return { data: newRoom };
-    }
-    if (resource === 'events') {
-      const response = await fetch('/api/events', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params.data)
-      });
-      const newEvent = await response.json();
-      if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-      return { data: newEvent };
+    try {
+      if (resource === 'users') {
+        const response = await fetch('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params.data)
+        });
+        const newUser = await response.json();
+        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+        return { data: newUser };
+      }
+      if (resource === 'rooms') {
+        const response = await fetch('/api/rooms', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params.data)
+        });
+        const newRoom = await response.json();
+        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+        return { data: newRoom };
+      }
+      if (resource === 'events') {
+        const response = await fetch('/api/events', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params.data)
+        });
+        const newEvent = await response.json();
+        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+        return { data: newEvent };
+      }
+    } catch (error) {
+      console.error(`Error creating ${resource}:`, error);
+      return { data: null };
     }
     return { data: null };
   },
-
   update: async (resource: string, params: any) => {
-    if (resource === 'users') {
-      const users = getUsers();
-      const index = users.findIndex((u: any) => u.id === params.id);
-      if (index !== -1) {
-        users[index] = { ...users[index], ...params.data };
-        localStorage.setItem('users', JSON.stringify(users));
+    try {
+      if (resource === 'users') {
+        const response = await fetch(`/api/users/${params.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params.data)
+        });
+        const updatedUser = await response.json();
+        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+        return { data: updatedUser };
       }
-      if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-      return { data: users[index] };
-    }
-    if (resource === 'rooms') {
-      const response = await fetch(`/api/rooms/${params.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params.data)
-      });
-      const updatedRoom = await response.json();
-      if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-      return { data: updatedRoom };
-    }
-    if (resource === 'events') {
-      const response = await fetch(`/api/events/${params.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(params.data)
-      });
-      const updatedEvent = await response.json();
-      if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-      return { data: updatedEvent };
+      if (resource === 'rooms') {
+        const response = await fetch(`/api/rooms/${params.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params.data)
+        });
+        const updatedRoom = await response.json();
+        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+        return { data: updatedRoom };
+      }
+      if (resource === 'events') {
+        const response = await fetch(`/api/events/${params.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params.data)
+        });
+        const updatedEvent = await response.json();
+        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+        return { data: updatedEvent };
+      }
+    } catch (error) {
+      console.error(`Error updating ${resource}:`, error);
+      return { data: params.data };
     }
     return { data: params.data };
   },
-
   delete: async (resource: string, params: any) => {
-    if (resource === 'users') {
-      const users = getUsers();
-      const filteredUsers = users.filter((u: any) => u.id !== params.id);
-      localStorage.setItem('users', JSON.stringify(filteredUsers));
-      if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-      return { data: { id: params.id } };
-    }
-    if (resource === 'rooms') {
-      await fetch(`/api/rooms/${params.id}`, { method: 'DELETE' });
-      if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-      return { data: { id: params.id } };
-    }
-    if (resource === 'events') {
-      await fetch(`/api/events/${params.id}`, { method: 'DELETE' });
-      if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+    try {
+      if (resource === 'users') {
+        await fetch(`/api/users/${params.id}`, { method: 'DELETE' });
+        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+        return { data: { id: params.id } };
+      }
+      if (resource === 'rooms') {
+        await fetch(`/api/rooms/${params.id}`, { method: 'DELETE' });
+        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+        return { data: { id: params.id } };
+      }
+      if (resource === 'events') {
+        await fetch(`/api/events/${params.id}`, { method: 'DELETE' });
+        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+        return { data: { id: params.id } };
+      }
+    } catch (error) {
+      console.error(`Error deleting ${resource}:`, error);
       return { data: { id: params.id } };
     }
     return { data: { id: params.id } };
   },
-
   getManyReference: async () => ({ data: [], total: 0 }),
   updateMany: async (resource: string, params: any) => ({ data: params.ids }),
   deleteMany: async (resource: string, params: any) => ({ data: params.ids }),
 };
-
-// ============================================
-// AUTH PROVIDER
-// ============================================
 const authProvider = {
   login: async () => {},
   logout: async () => {
@@ -366,15 +372,15 @@ const authProvider = {
     window.location.href = '/admin/login';
   },
   checkAuth: async () => {
+    if (typeof window === 'undefined') return;
     const user = localStorage.getItem('user');
     if (!user) {
       window.location.href = '/admin/login';
-      throw new Error('Non authentifié');
+      return;
     }
     const userData = JSON.parse(user);
     if (userData.role !== 'admin') {
       window.location.href = '/admin/login';
-      throw new Error('Non autorisé');
     }
   },
   checkError: async () => {},
@@ -387,10 +393,6 @@ const authProvider = {
     return { id: user.id, fullName: user.name || user.email };
   },
 };
-
-// ============================================
-// COMPOSANTS UTILISATEURS
-// ============================================
 const UserList = () => (
   <List>
     <Datagrid>
@@ -403,7 +405,6 @@ const UserList = () => (
     </Datagrid>
   </List>
 );
-
 const UserEdit = () => (
   <Edit>
     <SimpleForm>
@@ -414,7 +415,6 @@ const UserEdit = () => (
     </SimpleForm>
   </Edit>
 );
-
 const UserCreate = () => (
   <Create>
     <SimpleForm>
@@ -426,10 +426,6 @@ const UserCreate = () => (
     </SimpleForm>
   </Create>
 );
-
-// ============================================
-// COMPOSANTS SALLES
-// ============================================
 const RoomList = () => (
   <List>
     <Datagrid>
@@ -438,7 +434,6 @@ const RoomList = () => (
     </Datagrid>
   </List>
 );
-
 const RoomEdit = () => (
   <Edit>
     <SimpleForm>
@@ -446,7 +441,6 @@ const RoomEdit = () => (
     </SimpleForm>
   </Edit>
 );
-
 const RoomCreate = () => (
   <Create>
     <SimpleForm>
@@ -454,10 +448,6 @@ const RoomCreate = () => (
     </SimpleForm>
   </Create>
 );
-
-// ============================================
-// COMPOSANTS ÉVÉNEMENTS
-// ============================================
 const EventList = () => (
   <List>
     <Datagrid>
@@ -469,7 +459,6 @@ const EventList = () => (
     </Datagrid>
   </List>
 );
-
 const EventEdit = () => (
   <Edit>
     <SimpleForm>
@@ -481,7 +470,6 @@ const EventEdit = () => (
     </SimpleForm>
   </Edit>
 );
-
 const EventCreate = () => (
   <Create>
     <SimpleForm>
@@ -493,23 +481,16 @@ const EventCreate = () => (
     </SimpleForm>
   </Create>
 );
-
-// ============================================
-// BOUTON DE DÉCONNEXION
-// ============================================
 function LogoutButton() {
   const router = useRouter();
-
   const handleLogout = () => {
     localStorage.removeItem('user');
     router.push('/admin/login');
   };
-
   return (
     <Button
       onClick={handleLogout}
       variant="contained"
-      startIcon={<LogoutIcon />}
       sx={{
         position: 'fixed',
         bottom: 20,
@@ -524,6 +505,9 @@ function LogoutButton() {
         fontSize: '0.9rem',
         boxShadow: '0 4px 15px rgba(0, 0, 0, 0.2)',
         transition: 'all 0.3s ease',
+        display: 'flex',
+        alignItems: 'center',
+        gap: '8px',
         '&:hover': {
           transform: 'translateY(-2px)',
           boxShadow: '0 8px 25px rgba(212, 175, 55, 0.4)',
@@ -531,21 +515,24 @@ function LogoutButton() {
         },
       }}
     >
-      <LogoutIcon sx={{ mr: 0.5, fontSize: '1.1rem' }} />
+      <LogoutIcon sx={{ fontSize: '1.2rem' }} />
       Déconnexion
     </Button>
   );
 }
-
-// ============================================
-// PAGE ADMIN
-// ============================================
+function CustomDashboard({ statsRefresh }: { statsRefresh: number }) {
+  return (
+    <div style={{ padding: '20px' }}>
+      <DashboardStats refreshTrigger={statsRefresh} />
+      <StatsCharts />
+    </div>
+  );
+}
 export default function AdminPage() {
   const router = useRouter();
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
   const [statsRefresh, setStatsRefresh] = useState(0);
-
   useEffect(() => {
     (window as any).refreshDashboardStats = () => {
       setStatsRefresh(prev => prev + 1);
@@ -554,7 +541,6 @@ export default function AdminPage() {
       delete (window as any).refreshDashboardStats;
     };
   }, []);
-
   useEffect(() => {
     const user = localStorage.getItem('user');
     if (!user) {
@@ -569,21 +555,16 @@ export default function AdminPage() {
     }
     setLoading(false);
   }, [router]);
-
   if (loading) {
     return <div style={{ padding: '2rem', textAlign: 'center' }}>Chargement...</div>;
   }
-
   if (!isAuthenticated) return null;
-
   return (
     <ThemeProvider theme={theme}>
-      <DashboardStats refreshTrigger={statsRefresh} />
-      <StatsCharts />
       <Admin
         dataProvider={dataProvider as any}
         authProvider={authProvider as any}
-        layout={() => <></>}
+        dashboard={() => <CustomDashboard statsRefresh={statsRefresh} />}
       >
         <Resource
           name="users"

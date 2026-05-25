@@ -1,31 +1,23 @@
 'use client';
-
 import { useEffect, useState } from 'react';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-
 interface ChartData {
   name: string;
   count: number;
 }
-
 export default function StatsCharts() {
   const [eventsByMonth, setEventsByMonth] = useState<ChartData[]>([]);
   const [roomsData, setRoomsData] = useState<ChartData[]>([]);
   const [loading, setLoading] = useState(true);
-
   useEffect(() => {
     loadData();
   }, []);
-
   const loadData = async () => {
     try {
       const eventsRes = await fetch('/api/events');
       const events = await eventsRes.json();
-      
       const roomsRes = await fetch('/api/rooms');
       const rooms = await roomsRes.json();
-
-      // Compter les événements par mois
       const months: { [key: string]: number } = {};
       events.forEach((event: any) => {
         if (event.startDate) {
@@ -34,35 +26,25 @@ export default function StatsCharts() {
           months[month] = (months[month] || 0) + 1;
         }
       });
-      
       const eventsByMonthData = Object.entries(months).map(([name, count]) => ({ name, count }));
       setEventsByMonth(eventsByMonthData);
-
-      // Données pour les salles
       const disponibleCount = rooms.filter((r: any) => r.disponible !== false).length;
       const indisponibleCount = rooms.length - disponibleCount;
-      
       setRoomsData([
         { name: 'Disponibles', count: disponibleCount },
         { name: 'Indisponibles', count: indisponibleCount },
       ]);
-
     } catch (error) {
       console.error('Erreur chargement graphiques:', error);
     } finally {
       setLoading(false);
     }
   };
-
   const COLORS = ['#10b981', '#ef4444', '#d4af37', '#1e293b', '#3b82f6'];
-
-  // Calculer le total pour les pourcentages
   const totalRooms = roomsData.reduce((sum, item) => sum + item.count, 0);
-
   if (loading) {
     return <div style={{ textAlign: 'center', padding: '2rem' }}>Chargement des graphiques...</div>;
   }
-
   return (
     <div style={{ 
       display: 'grid', 
@@ -70,7 +52,7 @@ export default function StatsCharts() {
       gap: '24px',
       marginBottom: '30px'
     }}>
-      {/* Graphique 1 : Événements par mois */}
+      {}
       {eventsByMonth.length > 0 && (
         <div style={{ 
           background: 'white', 
@@ -92,8 +74,7 @@ export default function StatsCharts() {
           </ResponsiveContainer>
         </div>
       )}
-
-      {/* Graphique 2 : Répartition des salles - Version simplifiée sans label personnalisé */}
+      {}
       {roomsData.length > 0 && (
         <div style={{ 
           background: 'white', 
@@ -128,8 +109,7 @@ export default function StatsCharts() {
           </ResponsiveContainer>
         </div>
       )}
-
-      {/* Graphique 3 : Tendance des événements */}
+      {}
       {eventsByMonth.length > 0 && (
         <div style={{ 
           background: 'white', 

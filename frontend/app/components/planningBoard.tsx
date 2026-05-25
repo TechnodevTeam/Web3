@@ -1,10 +1,8 @@
 "use client";
-
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { faSearch } from "@fortawesome/free-solid-svg-icons/faSearch";
+import { faSearch, faTimes, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
 type Session = {
   id: number;
   title: string;
@@ -16,20 +14,16 @@ type Session = {
   live: boolean;
   speakers: { fullName: string }[];
 };
-
-// Fonction utilitaire pour formater une heure
-const formatHour = (value: string | null | undefined): string | null => {
-  if (!value) return null;
+const formatHour = (value: string | null | undefined): string => {
+  if (!value) return "--:--";
   try {
     const d = new Date(value);
-    if (isNaN(d.getTime())) return null;
+    if (isNaN(d.getTime())) return "--:--";
     return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
   } catch {
-    return null;
+    return "--:--";
   }
 };
-
-// Fonction pour formater une date complète (ex: "20 Mai 2026")
 const formatDate = (dateStr: string): string => {
   const d = new Date(dateStr);
   return d.toLocaleDateString("fr-FR", {
@@ -38,18 +32,13 @@ const formatDate = (dateStr: string): string => {
     year: "numeric",
   });
 };
-
-// Extraire la date (YYYY-MM-DD) à partir d'un timestamp
 const getDateKey = (timestamp: string): string => {
   return new Date(timestamp).toISOString().split("T")[0];
 };
-
 export default function PlanningBoard({ sessions = [], events = [] }: any) {
   const [search, setSearch] = useState("");
   const [selectedEvent, setSelectedEvent] = useState("all");
   const [favorites, setFavorites] = useState<Set<number>>(() => new Set());
-
-// Charger les favoris depuis localStorage uniquement côté client
   useEffect(() => {
     if (typeof window !== "undefined") {
      const saved = localStorage.getItem("favoriteSessions");
@@ -58,10 +47,8 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
       }
     }
   }, []);
-
   const safeSessions = Array.isArray(sessions) ? sessions : [];
   const safeEvents = Array.isArray(events) ? events : [];
-
   if (safeSessions.length === 0) {
     return (
       <section className="planning-multitrack">
@@ -72,14 +59,10 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
       </section>
     );
   }
-
-  // Enrichir avec titre événement
   const sessionsWithEventTitle = safeSessions.map((session: any) => ({
     ...session,
     eventTitle: safeEvents.find((e: any) => e.id === session.eventId)?.title || "Sans événement",
   }));
-
-  // Filtrage
   const filteredSessions = useMemo(() => {
     return sessionsWithEventTitle.filter((session: any) => {
       const matchesSearch =
@@ -90,8 +73,6 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
       return matchesSearch && matchesEvent;
     });
   }, [sessionsWithEventTitle, search, selectedEvent]);
-
-  // Regrouper les sessions par date (clé YYYY-MM-DD)
   const groupedByDate = useMemo(() => {
     const groups: Record<string, any[]> = {};
     filteredSessions.forEach((session: any) => {
@@ -100,7 +81,6 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
       if (!groups[dateKey]) groups[dateKey] = [];
       groups[dateKey].push(session);
     });
-    // Trier les dates
     const sortedDates = Object.keys(groups).sort();
     const result: { dateKey: string; sessions: any[] }[] = sortedDates.map(dateKey => ({
       dateKey,
@@ -108,7 +88,6 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
     }));
     return result;
   }, [filteredSessions]);
-
   const toggleFavorite = (id: number) => {
     setFavorites((prev) => {
       const newSet = new Set(prev);
@@ -118,16 +97,14 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
       return newSet;
     });
   };
-
   return (
     <section className="planning-multitrack">
       <div className="planning-header">
         <h1>Planning Multi-Track</h1>
         <p>Sessions organisées par date, horaires et salles</p>
       </div>
-
       <div className="planning-filters">
-        <div className="search-wrapper">
+        <div className="search-box">
           <FontAwesomeIcon icon={faSearch} className="search-icon" />
           <input
             type="text"
@@ -135,22 +112,32 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          {search && (
+            <button 
+              className="clear-search" 
+              onClick={() => setSearch("")}
+              aria-label="Effacer la recherche"
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          )}
         </div>
-        <select value={selectedEvent} onChange={(e) => setSelectedEvent(e.target.value)}>
-          <option value="all">Tous les événements</option>
-          {safeEvents.map((event: any) => (
-            <option key={event.id} value={event.id}>
-             {event.title}
-           </option>
-          ))}
-        </select>
+        <div className="filter-box">
+          <FontAwesomeIcon icon={faFilter} className="filter-icon" />
+          <select value={selectedEvent} onChange={(e) => setSelectedEvent(e.target.value)}>
+            <option value="all">Tous les événements</option>
+            {safeEvents.map((event: any) => (
+              <option key={event.id} value={event.id}>
+               {event.title}
+             </option>
+            ))}
+          </select>
+        </div>
       </div>
-
       {groupedByDate.length === 0 ? (
         <p>Aucune session correspondante.</p>
       ) : (
         groupedByDate.map(({ dateKey, sessions: dateSessions }) => {
-          // Pour cette date, extraire les créneaux horaires (heures de début uniques)
           const timeSlots = Array.from(
             new Set(
               dateSessions
@@ -158,33 +145,26 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
                 .filter((t): t is string => t !== null)
             )
           ).sort((a, b) => a.localeCompare(b));
-
-          // Salles uniques pour cette date
           const rooms = Array.from(
             new Set(dateSessions.map((s: any) => s.roomName).filter(Boolean))
           ).sort();
-
-          // Construire la grille [heure][salle] = session ou null
-          const grid: Record<string, Record<string, any>> = {};
+          const grid: Record<string, Record<string, any[]>> = {};
           timeSlots.forEach((time) => {
             grid[time] = {};
             rooms.forEach((room) => {
-              grid[time][room] = null;
+              grid[time][room] = [];
             });
           });
           dateSessions.forEach((session: any) => {
             const hour = formatHour(session.startTime);
-            if (hour && grid[hour] && grid[hour][session.roomName] === null) {
-              grid[hour][session.roomName] = session;
+            if (hour && grid[hour] && Array.isArray(grid[hour][session.roomName])) {
+              grid[hour][session.roomName].push(session);
             }
           });
-
-          // Sessions orphelines pour debug (optionnel)
           const orphanSessions = dateSessions.filter((s: any) => {
             const hour = formatHour(s.startTime);
-            return !hour || !rooms.includes(s.roomName) || !grid[hour]?.[s.roomName];
+            return !hour || !rooms.includes(s.roomName);
           });
-
           return (
             <div key={dateKey} className="planning-date-group">
               <h2 className="date-header">{formatDate(dateKey)}</h2>
@@ -203,11 +183,11 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
                       <tr key={time}>
                         <td className="time-cell">{time}</td>
                         {rooms.map((room) => {
-                          const session = grid[time]?.[room];
+                          const slotSessions = grid[time]?.[room] || [];
                           return (
                             <td key={room} className="session-cell">
-                              {session ? (
-                                <div className="session-card">
+                              {slotSessions.map((session: any) => (
+                                <div className="session-card" key={session.id} style={{ marginBottom: slotSessions.length > 1 ? '10px' : '0' }}>
                                   <div className="session-header">
                                     <Link href={`/sessions/${session.id}`} className="session-title">
                                       {session.title}
@@ -220,19 +200,19 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
                                     </button>
                                   </div>
                                   <div className="session-meta">
-                                    <span>{formatHour(session.startTime)} - {formatHour(session.endTime)}</span>
-                                    <span>📌 {session.roomName}</span>
+                                    <span>🕒 {formatHour(session.startTime)} - {formatHour(session.endTime)}</span>
+                                    {session.live && <span className="live-badge">LIVE</span>}
                                   </div>
-                                  {session.speakers?.length > 0 && (
+                                  {session.speakers && session.speakers.length > 0 && (
                                     <div className="session-speakers">
-                                      🎤 {session.speakers.map((s: any) => s.fullName).join(", ")}
+                                      👤 {session.speakers.map((s: any) => s.fullName).join(", ")}
                                     </div>
                                   )}
-                                  {session.live && <span className="live-badge">LIVE</span>}
-                                  <p className="session-description">{session.description?.substring(0, 80)}...</p>
+                                  <p className="session-description">{session.description}</p>
                                 </div>
-                              ) : (
-                                <span className="empty-session">—</span>
+                              ))}
+                              {slotSessions.length === 0 && (
+                                <div className="empty-session">Libre</div>
                               )}
                             </td>
                           );
@@ -242,18 +222,6 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
                   </tbody>
                 </table>
               </div>
-              {orphanSessions.length > 0 && (
-                <div className="debug-section">
-                  <strong>Sessions non affichées pour cette date :</strong>
-                  <ul>
-                    {orphanSessions.map((s: any) => (
-                      <li key={s.id}>
-                        {s.title} (salle: "{s.roomName}", heure: "{s.startTime}")
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              )}
             </div>
           );
         })

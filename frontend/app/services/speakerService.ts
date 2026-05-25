@@ -7,7 +7,6 @@ type SpeakerSession = {
   roomName: string;
   eventTitle: string;
 };
-
 type Speaker = {
   id: number;
   fullName: string;
@@ -16,17 +15,23 @@ type Speaker = {
   externalLinks: string | null;
   sessions: SpeakerSession[];
 };
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
-
+const getBaseUrl = () => {
+  if (typeof window !== "undefined") return "";
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // Vercel
+  return "http://localhost:3000"; // Local server
+};
+const API_URL = `${getBaseUrl()}/api`;
 export async function getSpeakerById(speakerId: string): Promise<Speaker> {
-  const response = await fetch(`${API_URL}/speakers/${speakerId}`, {
-    cache: "no-store",
-  });
-
-  if (!response.ok) {
-    throw new Error("Erreur lors du chargement de l'intervenant");
+  try {
+    const response = await fetch(`${API_URL}/speakers/${speakerId}`, {
+      cache: "no-store",
+    });
+    if (!response.ok) {
+      throw new Error("Erreur lors du chargement de l'intervenant");
+    }
+    return response.json();
+  } catch (error) {
+    console.error("Erreur getSpeakerById:", error);
+    throw error;
   }
-
-  return response.json();
 }

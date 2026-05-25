@@ -1,24 +1,19 @@
 'use client';
-
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import './login.css';
-
 export default function AdminLoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError('');
-
     try {
-      // Appel à l'API login qui vérifie dans PostgreSQL
       const response = await fetch('/api/login', {
         method: 'POST',
         headers: {
@@ -26,20 +21,21 @@ export default function AdminLoginPage() {
         },
         body: JSON.stringify({ email, password }),
       });
-
       const data = await response.json();
-
-      if (response.ok && data.user && data.user.role === 'admin') {
-        // Stocker l'utilisateur connecté dans localStorage (session)
-        localStorage.setItem('user', JSON.stringify({
-          id: data.user.id,
-          email: data.user.email,
-          name: `${data.user.firstName} ${data.user.lastName}`,
-          role: data.user.role
-        }));
-        router.push('/admin');
+      if (response.ok && data.user) {
+        if (data.user.role === 'admin') {
+          localStorage.setItem('user', JSON.stringify({
+            id: data.user.id,
+            email: data.user.email,
+            name: `${data.user.firstName} ${data.user.lastName}`,
+            role: data.user.role
+          }));
+          router.push('/admin');
+        } else {
+          setError('Accès refusé : vous n\'avez pas les droits administrateur.');
+        }
       } else {
-        setError('Email ou mot de passe incorrect ou vous n\'êtes pas administrateur');
+        setError(data.error || 'Email ou mot de passe incorrect.');
       }
     } catch (error) {
       console.error('Erreur de connexion:', error);
@@ -48,7 +44,6 @@ export default function AdminLoginPage() {
       setLoading(false);
     }
   };
-
   return (
     <div className="admin-login-page">
       <div className="admin-login-card">
@@ -62,7 +57,6 @@ export default function AdminLoginPage() {
           <h1 className="admin-login-title">Administration</h1>
           <p className="admin-login-subtitle">Accès réservé aux gestionnaires</p>
         </div>
-
         <form onSubmit={handleSubmit}>
           <div className="admin-login-input-group">
             <label className="admin-login-label">Email</label>
@@ -81,7 +75,6 @@ export default function AdminLoginPage() {
               />
             </div>
           </div>
-
           <div className="admin-login-input-group">
             <label className="admin-login-label">Mot de passe</label>
             <div className="admin-login-input-wrapper">
@@ -99,7 +92,6 @@ export default function AdminLoginPage() {
               />
             </div>
           </div>
-
           {error && (
             <div className="admin-login-error">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -110,7 +102,6 @@ export default function AdminLoginPage() {
               {error}
             </div>
           )}
-
           <button type="submit" disabled={loading} className="admin-login-button">
             {loading ? (
               <>
@@ -125,14 +116,13 @@ export default function AdminLoginPage() {
             )}
           </button>
         </form>
-
         <div className="admin-login-footer">
           <Link href="/">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M19 12H5" />
               <path d="M12 19l-7-7 7-7" />
             </svg>
-            Retour au site
+            Retour à l'accueil
           </Link>
         </div>
       </div>

@@ -1,18 +1,14 @@
 "use client";
-
 import { useEffect, useState } from "react";
-
 import {
   faArrowUp,
 } from "@fortawesome/free-solid-svg-icons";
-
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-
+import { upvoteQuestion } from "../services/questionService";
 type Props = {
   question: any;
   onUpvote?: (questionId: number) => void;
 };
-
 export default function QuestionItem({
   question,
   onUpvote,
@@ -20,59 +16,34 @@ export default function QuestionItem({
   const [upvotes, setUpvotes] = useState(
     question.upvotes || 0
   );
-
   const [loading, setLoading] =
     useState(false);
-
   const [alreadyUpvoted, setAlreadyUpvoted] =
     useState(false);
-
   useEffect(() => {
     const saved =
       localStorage.getItem(
         `upvoted-${question.id}`
       );
-
     if (saved) {
       setAlreadyUpvoted(true);
     }
   }, [question.id]);
-
   async function handleUpvote() {
     if (alreadyUpvoted) {
       return;
     }
-
     try {
       setLoading(true);
-
-      const response = await fetch(
-        `http://localhost:8080/questions/${question.id}/upvote`,
-        {
-          method: "POST",
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error(
-          "Erreur upvote"
-        );
-      }
-
-      const updatedQuestion =
-        await response.json();
-
+      const updatedQuestion = await upvoteQuestion(question.id);
       setUpvotes(
         updatedQuestion.upvotes
       );
-
       localStorage.setItem(
         `upvoted-${question.id}`,
         "true"
       );
-
       setAlreadyUpvoted(true);
-
       if (onUpvote) {
         onUpvote(question.id);
       }
@@ -82,7 +53,6 @@ export default function QuestionItem({
       setLoading(false);
     }
   }
-
   function formatDate(value: string) {
     return new Date(value).toLocaleString(
       "fr-FR",
@@ -92,7 +62,6 @@ export default function QuestionItem({
       }
     );
   }
-
   return (
     <div className="question-facebook-card">
       <div className="question-main">
@@ -102,20 +71,16 @@ export default function QuestionItem({
               {question.authorName ||
                 "Anonyme"}
             </strong>
-
             <span>•</span>
-
             <span>
               {formatDate(
                 question.createdAt
               )}
             </span>
           </div>
-
           <p>{question.content}</p>
         </div>
       </div>
-
       <div className="question-actions">
         <button
           className={`upvote-button ${
@@ -131,7 +96,6 @@ export default function QuestionItem({
           <FontAwesomeIcon
             icon={faArrowUp}
           />
-
           <span>
             {alreadyUpvoted
               ? "Déjà voté"
@@ -140,7 +104,6 @@ export default function QuestionItem({
           </span>
         </button>
       </div>
-
       {question.answers &&
         question.answers.length > 0 && (
           <div className="answers-list">
@@ -154,14 +117,12 @@ export default function QuestionItem({
                     <strong>
                       Admin
                     </strong>
-
                     <span>
                       {formatDate(
                         answer.createdAt
                       )}
                     </span>
                   </div>
-
                   <p>{answer.content}</p>
                 </div>
               )

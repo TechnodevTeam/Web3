@@ -1,7 +1,4 @@
-//repositories/session.repository.js
-
 const db = require("../db");
-
 async function findSessionsByEventId(eventId) {
   const result = await db.query(
     `
@@ -15,13 +12,11 @@ async function findSessionsByEventId(eventId) {
       sessions.end_time AS "endTime",
       sessions.capacity,
       rooms.name AS "roomName",
-
       CASE
         WHEN CURRENT_TIMESTAMP BETWEEN sessions.start_time AND sessions.end_time
         THEN true
         ELSE false
       END AS live,
-
       COALESCE(
         json_agg(
           DISTINCT jsonb_build_object(
@@ -34,7 +29,6 @@ async function findSessionsByEventId(eventId) {
         ) FILTER (WHERE speakers.id IS NOT NULL),
         '[]'
       ) AS speakers,
-
       COALESCE(
        json_agg(
          DISTINCT jsonb_build_object(
@@ -43,7 +37,6 @@ async function findSessionsByEventId(eventId) {
            'authorName', questions.author_name,
             'upvotes', questions.upvotes,
            'createdAt', questions.created_at,
-        
            'answers',
             COALESCE(
              (
@@ -63,35 +56,25 @@ async function findSessionsByEventId(eventId) {
        ) FILTER (WHERE questions.id IS NOT NULL),
        '[]'
       ) AS questions
-
     FROM sessions
-
     INNER JOIN rooms
       ON sessions.room_id = rooms.id
-
     LEFT JOIN session_speakers
       ON sessions.id = session_speakers.session_id
-
     LEFT JOIN speakers
       ON session_speakers.speaker_id = speakers.id
-
     LEFT JOIN questions
       ON sessions.id = questions.session_id
-
     WHERE sessions.event_id = $1
-
     GROUP BY
       sessions.id,
       rooms.name
-
     ORDER BY sessions.start_time
     `,
     [eventId]
   );
-
   return result.rows;
 }
-
 async function findSessionById(sessionId) {
   const result = await db.query(
     `
@@ -117,10 +100,8 @@ async function findSessionById(sessionId) {
     `,
     [sessionId]
   );
-
   return result.rows[0];
 }
-
 async function findQuestionsBySessionId(sessionId) {
   const result = await db.query(
     `
@@ -137,10 +118,8 @@ async function findQuestionsBySessionId(sessionId) {
     `,
     [sessionId]
   );
-
   return result.rows;
 }
-
 async function isSessionLive(sessionId) {
   const result = await db.query(
     `
@@ -155,14 +134,11 @@ async function isSessionLive(sessionId) {
     `,
     [sessionId]
   );
-
   if (result.rows.length === 0) {
     return false;
   }
-
   return result.rows[0].live;
 }
-
 async function createQuestion(sessionId, content, authorName) {
   const result = await db.query(
     `
@@ -178,10 +154,8 @@ async function createQuestion(sessionId, content, authorName) {
     `,
     [sessionId, content, authorName]
   );
-
   return result.rows[0];
 }
-
 async function upvoteQuestion(questionId) {
   const result = await db.query(
     `
@@ -198,10 +172,8 @@ async function upvoteQuestion(questionId) {
     `,
     [questionId]
   );
-
   return result.rows[0];
 }
-
 async function findAllSessions() {
   const result = await db.query(`
     SELECT
@@ -225,7 +197,6 @@ async function findAllSessions() {
   `);
   return result.rows;
 }
-
 module.exports = {
   findSessionsByEventId,
   findSessionById,
