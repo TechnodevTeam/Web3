@@ -53,6 +53,11 @@ export default function AdminLoginPage() {
         return;
       }
 
+      const token = data.token;
+
+      localStorage.setItem('token', token);
+      document.cookie = `token=${token}; path=/; SameSite=Lax`;
+
       // Sauvegarde admin connecté
       localStorage.setItem(
         'admin',
@@ -61,7 +66,7 @@ export default function AdminLoginPage() {
 
       // Redirection dashboard admin
       window.location.href =
-        'http://localhost:3001/dashboard';
+        'http://localhost:3001';
     } catch (error) {
       console.error(
         'Erreur connexion:',
