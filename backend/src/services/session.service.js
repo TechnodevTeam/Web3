@@ -65,6 +65,22 @@ async function getAllSessions() {
   return sessionRepository.findAllSessions();
 }
 
+async function createSession(data) {
+  return await sessionRepository.createSession(data);
+}
+
+async function updateSession(id, data) {
+  return await sessionRepository.updateSession(id, data);
+}
+
+async function deleteSession(id) {
+  return await sessionRepository.deleteSession(id);
+}
+
+async function addAnswerToQuestion(questionId, answerContent) {
+  return await sessionRepository.addAnswerToQuestion(questionId, answerContent);
+}
+
 module.exports = {
   getSessionsByEventId,
   getSessionById,
@@ -72,4 +88,8 @@ module.exports = {
   createQuestion,
   upvoteQuestion,
   getAllSessions,
+  createSession,
+  updateSession,
+  deleteSession,
+  addAnswerToQuestion,
 };

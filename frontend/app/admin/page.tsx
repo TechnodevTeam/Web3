@@ -66,7 +66,7 @@ export default function AdminLoginPage() {
 
       // Redirection dashboard admin
       window.location.href =
-        'http://localhost:3001';
+        'http://localhost:3001?token=${token}';
     } catch (error) {
       console.error(
         'Erreur connexion:',

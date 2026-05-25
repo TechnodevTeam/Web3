@@ -146,6 +146,53 @@ async function getAllSessions(
   }
 }
 
+// NOUVEAU : créer une session
+async function createSession(req, res) {
+  try {
+    const newSession = await sessionService.createSession(req.body);
+    res.status(201).json(newSession);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+// NOUVEAU : modifier une session
+async function updateSession(req, res) {
+  try {
+    const id = Number(req.params.id);
+    const updated = await sessionService.updateSession(id, req.body);
+    if (!updated) return res.status(404).json({ error: "Session not found" });
+    res.json(updated);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+// NOUVEAU : supprimer une session
+async function deleteSession(req, res) {
+  try {
+    const id = Number(req.params.id);
+    const deleted = await sessionService.deleteSession(id);
+    if (!deleted) return res.status(404).json({ error: "Session not found" });
+    res.status(204).send();
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+async function addAnswer(req, res) {
+  try {
+    const questionId = Number(req.params.id);
+    const { content } = req.body;
+    if (!content) return res.status(400).json({ error: "Le contenu de la réponse est requis" });
+    const answer = await sessionService.addAnswerToQuestion(questionId, content);
+    res.status(201).json(answer);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: error.message });
+  }
+}
+
 module.exports = {
   getSessionsByEventId,
   getSessionById,
@@ -153,4 +200,8 @@ module.exports = {
   createQuestion,
   upvoteQuestion,
   getAllSessions,
+  createSession,
+  updateSession,
+  deleteSession,
+  addAnswer,
 };
