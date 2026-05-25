@@ -65,7 +65,7 @@ export default function Navbar() {
           Favoris
         </Link>
 
-        <Link href="/admin/login" onClick={closeMenu}>
+        <Link href="/admin" onClick={closeMenu}>
           <FontAwesomeIcon icon={faUserShield} className="nav-icon" />
           Admin
         </Link>

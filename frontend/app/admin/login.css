@@ -61,20 +61,20 @@
 .admin-login-icon {
   width: 70px;
   height: 70px;
-  background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 100%);
+  background-color: #3b82f6;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1rem;
-  color: #1a1a2e;
+  color: white;
   box-shadow: 0 10px 20px -5px rgba(212, 175, 55, 0.4);
 }
 
 .admin-login-title {
   font-size: 1.75rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #d4af37 0%, #b8942e 100%);
+  background-color: #3b82f6;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -109,7 +109,7 @@
 .admin-login-icon-input {
   position: absolute;
   left: 1rem;
-  color: #d4af37;
+  color: #3b82f6;
   pointer-events: none;
 }
 
@@ -126,7 +126,7 @@
 
 .admin-login-input:focus {
   outline: none;
-  border-color: #d4af37;
+  border-color: #3b82f6;
   background: white;
   box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
 }
@@ -148,8 +148,8 @@
 .admin-login-button {
   width: 100%;
   padding: 0.85rem;
-  background: linear-gradient(135deg, #d4af37 0%, #b8942e 100%);
-  color: #1a1a2e;
+  background-color: #3b82f6;
+  color: white;
   border: none;
   border-radius: 14px;
   font-size: 0.9rem;
@@ -165,7 +165,7 @@
 }
 
 .admin-login-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #e2c04a 0%, #c4a235 100%);
+  background-color: #3b82f6;
   transform: translateY(-2px);
   box-shadow: 0 10px 20px -5px rgba(212, 175, 55, 0.4);
 }
@@ -206,7 +206,7 @@
 }
 
 .admin-login-footer a:hover {
-  color: #d4af37;
+  color: #3d0cd2;
 }
 
 @media (max-height: 600px) {

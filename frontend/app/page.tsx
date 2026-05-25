@@ -1,5 +1,4 @@
 import Link from "next/link";
-import ImageSlider from "./components/ImageSlider";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { 
   faRocket, 
@@ -7,14 +6,32 @@ import {
   faShieldAlt, 
   faChartLine,
   faCalendarCheck,
-  faQuestionCircle
+  faQuestionCircle,
 } from "@fortawesome/free-solid-svg-icons";
+
+import "./globals.css";
 
 export default function HomePage() {
   return (
     <div className="home-page-wrapper">
       <section className="home-page">
-        <ImageSlider />
+          <div className="admin-login-page">
+                    <div className="hero-content-card">
+                      <h1>Bienvenue sur EventSync</h1>
+                      <p>
+                        EventSync est une plateforme de gestion d’événements et
+                        d’interaction en direct avec les participants.
+                      </p>
+                      <div className="hero-buttons">
+                        <Link href="/events" className="btn-primary">
+                          Voir les événements
+                        </Link>
+                        <Link href="/admin" className="btn-secondary">
+                          Espace admin
+                        </Link>
+                      </div>
+                    </div>
+          </div>
       </section>
 
       <section className="features-section">
