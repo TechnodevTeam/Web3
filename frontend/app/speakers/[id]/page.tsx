@@ -4,6 +4,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faArrowLeft,
   faUser,
+  faMars,
+  faVenus,
   faLink,
   faCalendarDays,
   faDoorOpen,
@@ -27,7 +29,11 @@ export default async function SpeakerPage({ params }: SpeakerPageProps) {
           {speaker.photoUrl ? (
             <img src={speaker.photoUrl} alt={speaker.fullName} />
           ) : (
-            <FontAwesomeIcon icon={faUser} className="speaker-default-icon" />
+            <FontAwesomeIcon
+              icon={getSpeakerGenderIcon(speaker.fullName)}
+              className="speaker-default-icon"
+              title={speaker.fullName}
+            />
           )}
         </div>
         <div className="speaker-profile-content">
@@ -85,6 +91,20 @@ export default async function SpeakerPage({ params }: SpeakerPageProps) {
     </section>
   );
 }
+
+function getSpeakerGenderIcon(fullName: string) {
+  const firstName = fullName.trim().split(" ")[0].toLowerCase();
+  const femaleNames = new Set(["mialy", "sarah", "tiana", "lisa", "marie", "anja", "fanja"]);
+  if (femaleNames.has(firstName)) {
+    return faVenus;
+  }
+  const maleNames = new Set(["jean", "hery", "toky", "rivo", "nicolas", "paul"]);
+  if (maleNames.has(firstName)) {
+    return faMars;
+  }
+  return faUser;
+}
+
 function formatDateTime(value: string): string {
   return new Date(value).toLocaleString("fr-FR", {
     dateStyle: "medium",

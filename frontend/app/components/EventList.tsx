@@ -29,11 +29,17 @@ export default function EventList({ initialEvents }: EventListProps) {
   }, [initialEvents]);
 
   const filteredEvents = useMemo(() => {
-    return initialEvents.filter(event => {
+    const filtered = initialEvents.filter(event => {
       const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            event.description.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesLocation = filterLocation === "all" || event.location === filterLocation;
       return matchesSearch && matchesLocation;
+    });
+
+    return filtered.sort((a, b) => {
+      const da = new Date(a.startDate).getTime();
+      const db = new Date(b.startDate).getTime();
+      return da - db;
     });
   }, [searchTerm, filterLocation, initialEvents]);
 

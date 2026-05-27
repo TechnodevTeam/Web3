@@ -1,5 +1,5 @@
 'use client';
-import { Admin, Resource, List, Datagrid, TextField, EmailField, DateField, Edit, SimpleForm, TextInput, Create, NumberInput, BooleanField, BooleanInput, DateInput } from 'react-admin';
+import { Admin, Resource, List, Datagrid, TextField, EmailField, DateField, Edit, SimpleForm, TextInput, Create, DateInput, BooleanField } from 'react-admin';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -366,7 +366,9 @@ const dataProvider = {
   deleteMany: async (resource: string, params: any) => ({ data: params.ids }),
 };
 const authProvider = {
-  login: async () => {},
+  login: async () => {
+    return Promise.resolve();
+  },
   logout: async () => {
     localStorage.removeItem('user');
     window.location.href = '/admin/login';
@@ -481,6 +483,19 @@ const EventCreate = () => (
     </SimpleForm>
   </Create>
 );
+const SessionList = () => (
+  <List>
+    <Datagrid>
+      <TextField source="id" label="ID" />
+      <TextField source="title" label="Titre" />
+      <TextField source="eventTitle" label="Événement" />
+      <TextField source="roomName" label="Salle" />
+      <DateField source="startTime" label="Début" />
+      <DateField source="endTime" label="Fin" />
+      <BooleanField source="live" label="En direct" />
+    </Datagrid>
+  </List>
+);
 function LogoutButton() {
   const router = useRouter();
   const handleLogout = () => {
@@ -586,6 +601,11 @@ export default function AdminPage() {
           edit={EventEdit}
           create={EventCreate}
           options={{ label: '📅 Événements' }}
+        />
+        <Resource
+          name="sessions"
+          list={SessionList}
+          options={{ label: '🎤 Sessions' }}
         />
       </Admin>
       <LogoutButton />

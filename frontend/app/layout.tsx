@@ -34,9 +34,9 @@ export default function RootLayout({
                 </div>
                 <p>Simplifiez la gestion de vos événements avec une expérience moderne et fluide.</p>
                 <div className="footer-socials">
-                  <a href="#" aria-label="Twitter"><FontAwesomeIcon icon={faTwitter} /></a>
-                  <a href="#" aria-label="GitHub"><FontAwesomeIcon icon={faGithub} /></a>
-                  <a href="#" aria-label="LinkedIn"><FontAwesomeIcon icon={faLinkedin} /></a>
+                  <span className="social-icon" aria-label="Twitter"><FontAwesomeIcon icon={faTwitter} /></span>
+                  <span className="social-icon" aria-label="GitHub"><FontAwesomeIcon icon={faGithub} /></span>
+                  <span className="social-icon" aria-label="LinkedIn"><FontAwesomeIcon icon={faLinkedin} /></span>
                 </div>
               </div>
               <div className="footer-links">

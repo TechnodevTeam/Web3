@@ -53,19 +53,19 @@
 .admin-login-icon {
   width: 70px;
   height: 70px;
-  background: linear-gradient(135deg, #d4af37 0%, #f3e5ab 100%);
+  background: linear-gradient(135deg, #2b6cb0 0%, #2563eb 100%);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1rem;
-  color: #1a1a2e;
-  box-shadow: 0 10px 20px -5px rgba(212, 175, 55, 0.4);
+  color: #ffffff;
+  box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.3);
 }
 .admin-login-title {
   font-size: 1.75rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #d4af37 0%, #b8942e 100%);
+  background: linear-gradient(135deg, #2b6cb0 0%, #2563eb 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -95,7 +95,7 @@
 .admin-login-icon-input {
   position: absolute;
   left: 1rem;
-  color: #d4af37;
+  color: #2563eb;
   pointer-events: none;
 }
 .admin-login-input {
@@ -110,9 +110,9 @@
 }
 .admin-login-input:focus {
   outline: none;
-  border-color: #d4af37;
+  border-color: #2563eb;
   background: white;
-  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.15);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
 .admin-login-error {
   display: flex;
@@ -130,8 +130,8 @@
 .admin-login-button {
   width: 100%;
   padding: 0.85rem;
-  background: linear-gradient(135deg, #d4af37 0%, #b8942e 100%);
-  color: #1a1a2e;
+  background: linear-gradient(135deg, #2b6cb0 0%, #2563eb 100%);
+  color: #ffffff;
   border: none;
   border-radius: 14px;
   font-size: 0.9rem;
@@ -146,9 +146,9 @@
   letter-spacing: 1px;
 }
 .admin-login-button:hover:not(:disabled) {
-  background: linear-gradient(135deg, #e2c04a 0%, #c4a235 100%);
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
   transform: translateY(-2px);
-  box-shadow: 0 10px 20px -5px rgba(212, 175, 55, 0.4);
+  box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.35);
 }
 .admin-login-button:disabled {
   opacity: 0.7;
@@ -180,7 +180,7 @@
   transition: all 0.2s;
 }
 .admin-login-footer a:hover {
-  color: #d4af37;
+  color: #2563eb;
 }
 @media (max-height: 600px) {
   .admin-login-card {

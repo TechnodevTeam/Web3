@@ -97,8 +97,6 @@ a {
   color: #6b7280;
   font-size: 18px;
 }
-
-/* Center the events page header like the rooms page */
 .events-container .section-header {
   text-align: center;
 }
@@ -127,6 +125,14 @@ a {
   position: relative;
   flex: 0 0 220px;
   min-width: 180px;
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e6e9ef;
+  border-radius: 28px;
+  padding: 6px 12px;
+  height: 52px;
+  box-shadow: 0 4px 10px rgba(16, 24, 40, 0.04);
 }
 
 .search-box input,
@@ -155,14 +161,17 @@ a {
 .filter-box select,
 .room-filter select,
 .filter-wrapper select {
-   padding: 14px 18px 14px 45px;
+   padding: 0 36px 0 40px;
    appearance: none;
    -webkit-appearance: none;
    -moz-appearance: none;
    cursor: pointer;
-   border-radius: 18px;
-   font-weight: 500;
+   border: none;
+   background: transparent;
+   height: 100%;
+   font-weight: 600;
    color: #111827;
+   font-size: 16px;
  }
 
 .clear-search {
@@ -192,11 +201,16 @@ a {
   font-size: 1.1rem;
 }
 
+.filter-box .filter-icon {
+  left: 14px;
+  color: #2563eb;
+}
+
 .filter-box::after, .room-filter::after, .filter-wrapper::after {
   content: '▼';
-  font-size: 10px;
+  font-size: 11px;
   position: absolute;
-  right: 18px;
+  right: 12px;
   top: 50%;
   transform: translateY(-50%);
   color: #94a3b8;
@@ -223,7 +237,7 @@ a {
     height: 48px;
   }
 }
-/* Planning container and header to match Events/Rooms */
+
 .planning-multitrack {
   padding: 40px 20px;
   max-width: 1200px;
@@ -244,7 +258,6 @@ a {
   font-size: 18px;
 }
 
-/* Input / select focus and hover states to match Events style */
 .search-box input:focus,
 .room-search input:focus,
 .search-wrapper input:focus,
@@ -646,12 +659,15 @@ a {
   display: flex;
   gap: 16px;
 }
-.footer-socials a {
+.footer-socials .social-icon {
   color: #9ca3af;
   font-size: 18px;
   transition: color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
-.footer-socials a:hover {
+.footer-socials .social-icon:hover {
   color: #3b82f6;
 }
 .footer-links {

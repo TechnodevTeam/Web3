@@ -103,7 +103,7 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
         <h1>Planning Multi-Track</h1>
         <p>Sessions organisées par date, horaires et salles</p>
       </div>
-      <div className="planning-filters">
+      <div className="search-filter-bar">
         <div className="search-box">
           <FontAwesomeIcon icon={faSearch} className="search-icon" />
           <input
