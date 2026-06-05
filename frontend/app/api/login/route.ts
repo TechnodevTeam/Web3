@@ -13,25 +13,20 @@ export async function POST(request: Request) {
     const cleanEmail = email ? email.trim().toLowerCase() : '';
     const cleanPassword = password ? password.trim() : '';
 
-    if (cleanEmail === 'admin@eventpass.com' && cleanPassword === 'admin123') {
-      return NextResponse.json({
-        user: {
-          id: 1,
-          firstName: 'Admin',
-          lastName: 'EventPass',
-          email: 'admin@eventpass.com',
-          role: 'admin'
-        }
-      });
-    }
+    const adminResult = await pool.query(
+      `SELECT id, email
+       FROM admins 
+       WHERE LOWER(email) = $1 AND password = $2`,
+      [cleanEmail, cleanPassword]
+    );
 
-    if (cleanEmail.includes('admin') || cleanEmail === 'admin@admin.com') {
+    if (adminResult.rows.length > 0) {
       return NextResponse.json({
         user: {
-          id: 1,
-          firstName: 'Super',
-          lastName: 'Admin',
-          email: cleanEmail,
+          id: adminResult.rows[0].id,
+          firstName: 'Admin',
+          lastName: 'EventSync',
+          email: adminResult.rows[0].email,
           role: 'admin'
         }
       });
@@ -41,7 +36,7 @@ export async function POST(request: Request) {
       `SELECT id, first_name as "firstName", last_name as "lastName", 
               email, role, created_at as "createdAt"
        FROM users 
-       WHERE email = $1 AND password = $2`,
+       WHERE LOWER(email) = $1 AND password = $2`,
       [cleanEmail, cleanPassword]
     );
     
