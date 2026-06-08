@@ -159,6 +159,16 @@
   font-size: 0.95rem !important;
   color: #64748b !important;
 }
+.MuiTableSortLabel-icon,
+.MuiPaginationItem-root .MuiSvgIcon-root,
+.MuiTablePagination-actions .MuiSvgIcon-root {
+  font-size: 0.65rem !important;
+  width: 0.65rem !important;
+  height: 0.65rem !important;
+}
+.MuiTableSortLabel-root .MuiSvgIcon-root {
+  font-size: 0.65rem !important;
+}
 .MuiCircularProgress-root {
   color: #d4af37 !important;
 }

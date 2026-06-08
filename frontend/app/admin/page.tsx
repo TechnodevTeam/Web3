@@ -210,6 +210,12 @@ const dataProvider = {
         const events = await response.json();
         return { data: events, total: events.length };
       }
+      if (resource === 'sessions') {
+        const response = await fetch('/api/sessions');
+        if (!response.ok) throw new Error('Fetch failed');
+        const sessions = await response.json();
+        return { data: sessions, total: sessions.length };
+      }
     } catch (error) {
       console.error(`Error fetching ${resource}:`, error);
       return { data: [], total: 0 };
@@ -488,6 +494,7 @@ const SessionList = () => (
     <Datagrid>
       <TextField source="id" label="ID" />
       <TextField source="title" label="Titre" />
+      <TextField source="description" label="Description" />
       <TextField source="eventTitle" label="Événement" />
       <TextField source="roomName" label="Salle" />
       <DateField source="startTime" label="Début" />
