@@ -68,3 +68,82 @@ export async function GET(
     );
   }
 }
+
+export async function PUT(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: sessionId } = await params;
+    const body = await request.json();
+    const { title, description, eventId, roomId, startTime, endTime, capacity } = body;
+
+    const result = await pool.query(
+      `
+      UPDATE sessions
+      SET event_id = $1,
+          room_id = $2,
+          title = $3,
+          description = $4,
+          start_time = $5,
+          end_time = $6,
+          capacity = $7
+      WHERE id = $8
+      RETURNING id, event_id AS "eventId", room_id AS "roomId", title, description,
+                start_time AS "startTime", end_time AS "endTime", capacity
+      `,
+      [
+        eventId,
+        roomId,
+        title,
+        description || null,
+        startTime,
+        endTime,
+        capacity || 0,
+        parseInt(sessionId),
+      ]
+    );
+
+    if (result.rows.length === 0) {
+      return NextResponse.json({ error: 'Session introuvable' }, { status: 404 });
+    }
+
+    const session = result.rows[0];
+    const meta = await pool.query(
+      `
+      SELECT events.title AS "eventTitle", rooms.name AS "roomName",
+        CASE
+          WHEN CURRENT_TIMESTAMP BETWEEN $3::timestamp AND $4::timestamp
+          THEN true ELSE false
+        END AS live
+      FROM events
+      INNER JOIN rooms ON rooms.id = $1
+      WHERE events.id = $2
+      `,
+      [roomId, eventId, startTime, endTime]
+    );
+
+    if (meta.rows[0]) {
+      Object.assign(session, meta.rows[0]);
+    }
+
+    return NextResponse.json(session);
+  } catch (error) {
+    console.error('Erreur PUT session:', error);
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id: sessionId } = await params;
+    await pool.query('DELETE FROM sessions WHERE id = $1', [parseInt(sessionId)]);
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Erreur DELETE session:', error);
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}

@@ -1,11 +1,35 @@
 'use client';
-import { Admin, Resource, List, Datagrid, TextField, EmailField, DateField, Edit, SimpleForm, TextInput, Create, DateInput, BooleanField } from 'react-admin';
+import {
+  Admin,
+  Resource,
+  List,
+  Datagrid,
+  TextField,
+  EmailField,
+  DateField,
+  Edit,
+  SimpleForm,
+  TextInput,
+  Create,
+  DateInput,
+  DateTimeInput,
+  FunctionField,
+  ReferenceInput,
+  SelectInput,
+  NumberInput,
+  Layout,
+  AppBar,
+  TitlePortal,
+} from 'react-admin';
+import type { AppBarProps } from 'react-admin';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { Button } from '@mui/material';
+import AccountCircle from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import StatsCharts from './components/StatsCharts';
+import SessionStatusBadge from './components/SessionStatusBadge';
 import './admin.css';
 const theme = createTheme({
   palette: {
@@ -189,6 +213,9 @@ function DashboardStats({ refreshTrigger }: { refreshTrigger: number }) {
     </div>
   );
 }
+const matchId = (recordId: unknown, targetId: unknown) =>
+  String(recordId) === String(targetId);
+
 const dataProvider = {
   getList: async (resource: string, params: any) => {
     try {
@@ -223,44 +250,59 @@ const dataProvider = {
     return { data: [], total: 0 };
   },
   getOne: async (resource: string, params: any) => {
+    const endpoints: Record<string, string> = {
+      users: `/api/users/${params.id}`,
+      rooms: `/api/rooms/${params.id}`,
+      events: `/api/events/${params.id}`,
+      sessions: `/api/sessions/${params.id}`,
+    };
+    const endpoint = endpoints[resource];
+    if (!endpoint) {
+      throw new Error(`Resource ${resource} not supported`);
+    }
     try {
-      if (resource === 'users') {
-        const response = await fetch('/api/users');
-        const users = await response.json();
-        return { data: users.find((u: any) => u.id === params.id) };
+      const response = await fetch(endpoint);
+      if (!response.ok) {
+        throw new Error(`Record not found for ${resource}/${params.id}`);
       }
-      if (resource === 'rooms') {
-        const response = await fetch(`/api/rooms/${params.id}`);
-        const room = await response.json();
-        return { data: room };
+      const data = await response.json();
+      if (!data || data.id == null) {
+        throw new Error(`Invalid record for ${resource}/${params.id}`);
       }
-      if (resource === 'events') {
-        const response = await fetch(`/api/events/${params.id}`);
-        const event = await response.json();
-        return { data: event };
-      }
+      return { data };
     } catch (error) {
       console.error(`Error fetching one ${resource}:`, error);
-      return { data: null };
+      throw error;
     }
-    return { data: null };
   },
   getMany: async (resource: string, params: any) => {
     try {
       if (resource === 'users') {
         const response = await fetch('/api/users');
         const users = await response.json();
-        return { data: users.filter((u: any) => params.ids.includes(u.id)) };
+        return {
+          data: users.filter((u: any) =>
+            params.ids.some((id: unknown) => matchId(u.id, id))
+          ),
+        };
       }
       if (resource === 'rooms') {
         const response = await fetch('/api/rooms');
         const rooms = await response.json();
-        return { data: rooms.filter((r: any) => params.ids.includes(r.id)) };
+        return {
+          data: rooms.filter((r: any) =>
+            params.ids.some((id: unknown) => matchId(r.id, id))
+          ),
+        };
       }
       if (resource === 'events') {
         const response = await fetch('/api/events');
         const events = await response.json();
-        return { data: events.filter((e: any) => params.ids.includes(e.id)) };
+        return {
+          data: events.filter((e: any) =>
+            params.ids.some((id: unknown) => matchId(e.id, id))
+          ),
+        };
       }
     } catch (error) {
       console.error(`Error fetching many ${resource}:`, error);
@@ -269,80 +311,60 @@ const dataProvider = {
     return { data: [] };
   },
   create: async (resource: string, params: any) => {
+    const endpoints: Record<string, string> = {
+      users: '/api/users',
+      rooms: '/api/rooms',
+      events: '/api/events',
+      sessions: '/api/sessions',
+    };
+    const endpoint = endpoints[resource];
+    if (!endpoint) {
+      throw new Error(`Resource ${resource} not supported`);
+    }
     try {
-      if (resource === 'users') {
-        const response = await fetch('/api/users', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(params.data)
-        });
-        const newUser = await response.json();
-        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-        return { data: newUser };
+      const response = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params.data),
+      });
+      const data = await response.json();
+      if (!response.ok || data?.id == null) {
+        throw new Error(`Create failed for ${resource}`);
       }
-      if (resource === 'rooms') {
-        const response = await fetch('/api/rooms', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(params.data)
-        });
-        const newRoom = await response.json();
-        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-        return { data: newRoom };
-      }
-      if (resource === 'events') {
-        const response = await fetch('/api/events', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(params.data)
-        });
-        const newEvent = await response.json();
-        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-        return { data: newEvent };
-      }
+      if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+      return { data };
     } catch (error) {
       console.error(`Error creating ${resource}:`, error);
-      return { data: null };
+      throw error;
     }
-    return { data: null };
   },
   update: async (resource: string, params: any) => {
+    const endpoints: Record<string, string> = {
+      users: `/api/users/${params.id}`,
+      rooms: `/api/rooms/${params.id}`,
+      events: `/api/events/${params.id}`,
+      sessions: `/api/sessions/${params.id}`,
+    };
+    const endpoint = endpoints[resource];
+    if (!endpoint) {
+      throw new Error(`Resource ${resource} not supported`);
+    }
     try {
-      if (resource === 'users') {
-        const response = await fetch(`/api/users/${params.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(params.data)
-        });
-        const updatedUser = await response.json();
-        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-        return { data: updatedUser };
+      const response = await fetch(endpoint, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(params.data),
+      });
+      const data = await response.json();
+      if (!response.ok || data?.id == null) {
+        throw new Error(`Update failed for ${resource}/${params.id}`);
       }
-      if (resource === 'rooms') {
-        const response = await fetch(`/api/rooms/${params.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(params.data)
-        });
-        const updatedRoom = await response.json();
-        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-        return { data: updatedRoom };
-      }
-      if (resource === 'events') {
-        const response = await fetch(`/api/events/${params.id}`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(params.data)
-        });
-        const updatedEvent = await response.json();
-        if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
-        return { data: updatedEvent };
-      }
+      if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+      return { data };
     } catch (error) {
       console.error(`Error updating ${resource}:`, error);
-      return { data: params.data };
+      throw error;
     }
-    return { data: params.data };
   },
   delete: async (resource: string, params: any) => {
     try {
@@ -359,6 +381,10 @@ const dataProvider = {
       if (resource === 'events') {
         await fetch(`/api/events/${params.id}`, { method: 'DELETE' });
         if (typeof window !== 'undefined') (window as any).refreshDashboardStats?.();
+        return { data: { id: params.id } };
+      }
+      if (resource === 'sessions') {
+        await fetch(`/api/sessions/${params.id}`, { method: 'DELETE' });
         return { data: { id: params.id } };
       }
     } catch (error) {
@@ -489,20 +515,90 @@ const EventCreate = () => (
     </SimpleForm>
   </Create>
 );
+const sessionFormFields = (
+  <>
+    <TextInput source="title" label="Titre" />
+    <TextInput source="description" label="Description" multiline rows={3} />
+    <ReferenceInput source="eventId" reference="events" label="Événement">
+      <SelectInput optionText="title" />
+    </ReferenceInput>
+    <ReferenceInput source="roomId" reference="rooms" label="Salle">
+      <SelectInput optionText="name" />
+    </ReferenceInput>
+    <DateTimeInput source="startTime" label="Début" />
+    <DateTimeInput source="endTime" label="Fin" />
+    <NumberInput source="capacity" label="Capacité" defaultValue={0} />
+  </>
+);
+
 const SessionList = () => (
   <List>
-    <Datagrid>
+    <Datagrid rowClick="edit">
       <TextField source="id" label="ID" />
       <TextField source="title" label="Titre" />
       <TextField source="description" label="Description" />
       <TextField source="eventTitle" label="Événement" />
       <TextField source="roomName" label="Salle" />
-      <DateField source="startTime" label="Début" />
-      <DateField source="endTime" label="Fin" />
-      <BooleanField source="live" label="En direct" />
+      <DateField source="startTime" label="Début" showTime />
+      <DateField source="endTime" label="Fin" showTime />
+      <FunctionField
+        label="En direct"
+        render={(record: { live?: boolean; startTime?: string; endTime?: string }) => (
+          <SessionStatusBadge
+            live={record?.live}
+            startTime={record?.startTime}
+            endTime={record?.endTime}
+          />
+        )}
+      />
     </Datagrid>
   </List>
 );
+
+const SessionEdit = () => (
+  <Edit>
+    <SimpleForm>{sessionFormFields}</SimpleForm>
+  </Edit>
+);
+
+const SessionCreate = () => (
+  <Create>
+    <SimpleForm>{sessionFormFields}</SimpleForm>
+  </Create>
+);
+
+function AdminIdentity() {
+  const [label, setLabel] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const user = localStorage.getItem('user');
+      if (!user) return;
+      const data = JSON.parse(user);
+      setLabel(data.name || data.email || null);
+    } catch {
+      setLabel(null);
+    }
+  }, []);
+
+  if (!label) return null;
+
+  return (
+    <div className="admin-identity">
+      <AccountCircle fontSize="small" />
+      <span>{label}</span>
+    </div>
+  );
+}
+
+const AdminAppBar = (props: AppBarProps) => (
+  <AppBar {...props} userMenu={false}>
+    <TitlePortal />
+    <AdminIdentity />
+  </AppBar>
+);
+
+const AdminLayout = (props: any) => <Layout {...props} appBar={AdminAppBar} />;
 function LogoutButton() {
   const router = useRouter();
   const handleLogout = () => {
@@ -586,6 +682,7 @@ export default function AdminPage() {
       <Admin
         dataProvider={dataProvider as any}
         authProvider={authProvider as any}
+        layout={AdminLayout}
         dashboard={() => <CustomDashboard statsRefresh={statsRefresh} />}
       >
         <Resource
@@ -612,6 +709,8 @@ export default function AdminPage() {
         <Resource
           name="sessions"
           list={SessionList}
+          edit={SessionEdit}
+          create={SessionCreate}
           options={{ label: '🎤 Sessions' }}
         />
       </Admin>

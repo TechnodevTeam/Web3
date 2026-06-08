@@ -38,3 +38,49 @@ export async function GET() {
     return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
   }
 }
+
+export async function POST(request: Request) {
+  try {
+    const body = await request.json();
+    const { title, description, eventId, roomId, startTime, endTime, capacity } = body;
+
+    if (!title || !eventId || !roomId || !startTime || !endTime) {
+      return NextResponse.json(
+        { error: 'Titre, événement, salle, début et fin sont requis' },
+        { status: 400 }
+      );
+    }
+
+    const result = await pool.query(
+      `
+      INSERT INTO sessions (event_id, room_id, title, description, start_time, end_time, capacity)
+      VALUES ($1, $2, $3, $4, $5, $6, $7)
+      RETURNING id, event_id AS "eventId", room_id AS "roomId", title, description,
+                start_time AS "startTime", end_time AS "endTime", capacity
+      `,
+      [eventId, roomId, title, description || null, startTime, endTime, capacity || 0]
+    );
+
+    const session = result.rows[0];
+    const meta = await pool.query(
+      `
+      SELECT events.title AS "eventTitle", rooms.name AS "roomName"
+      FROM events
+      INNER JOIN rooms ON rooms.id = $1
+      WHERE events.id = $2
+      `,
+      [roomId, eventId]
+    );
+
+    if (meta.rows[0]) {
+      session.eventTitle = meta.rows[0].eventTitle;
+      session.roomName = meta.rows[0].roomName;
+    }
+
+    session.live = false;
+    return NextResponse.json(session);
+  } catch (error) {
+    console.error('Erreur POST session:', error);
+    return NextResponse.json({ error: 'Erreur serveur' }, { status: 500 });
+  }
+}
