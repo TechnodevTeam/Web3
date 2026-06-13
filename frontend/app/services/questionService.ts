@@ -1,7 +1,7 @@
 const getBaseUrl = () => {
-  if (typeof window !== "undefined") return ""; // Browser uses relative path
-  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`; // Vercel
-  return "http://localhost:3000"; // Local server
+  if (typeof window !== "undefined") return "";
+  if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
+  return "http://localhost:3000"; 
 };
 
 const API_URL = `${getBaseUrl()}/api`;

@@ -47,9 +47,6 @@ const formatDate = (dateStr: string): string => {
   });
 };
 
-// Heuristic to pick a gender icon from the speaker's first name.
-// This is a best-effort approach: it checks the first given name
-// against a small female name set and a simple vowel/ending heuristic.
 const getSpeakerGenderIcon = (fullName: string) => {
   if (!fullName) return faUser;
   const first = fullName.split(" ")[0].toLowerCase();
@@ -68,10 +65,9 @@ const getSpeakerGenderIcon = (fullName: string) => {
 
   if (femaleNames.has(first)) return faVenus;
 
-  // Simple suffix rule: many female Malagasy and international names end with 'a' or 'y'
   if (first.endsWith("a") || first.endsWith("y")) return faVenus;
 
-  // Default to male symbol
+ 
   return faMars;
 };
 
