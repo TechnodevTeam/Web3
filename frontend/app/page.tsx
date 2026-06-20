@@ -8,12 +8,8 @@ import {
   faCalendarCheck,
   faQuestionCircle,
 } from "@fortawesome/free-solid-svg-icons";
-<<<<<<< HEAD
-=======
+import "./globals.css";  // ← SEUL AJOUT : l'import du CSS qui était dans le conflit
 
-import "./globals.css";
-
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
 export default function HomePage() {
   return (
     <div className="home-page-wrapper">
