@@ -53,19 +53,32 @@
 .admin-login-icon {
   width: 70px;
   height: 70px;
+<<<<<<< HEAD:frontend/app/admin/login/login.css
   background: linear-gradient(135deg, #2b6cb0 0%, #2563eb 100%);
+=======
+  background-color: #3b82f6;
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c:frontend/app/admin/login.css
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   margin: 0 auto 1rem;
+<<<<<<< HEAD:frontend/app/admin/login/login.css
   color: #ffffff;
   box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.3);
+=======
+  color: white;
+  box-shadow: 0 10px 20px -5px rgba(212, 175, 55, 0.4);
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c:frontend/app/admin/login.css
 }
 .admin-login-title {
   font-size: 1.75rem;
   font-weight: 700;
+<<<<<<< HEAD:frontend/app/admin/login/login.css
   background: linear-gradient(135deg, #2b6cb0 0%, #2563eb 100%);
+=======
+  background-color: #3b82f6;
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c:frontend/app/admin/login.css
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -95,7 +108,11 @@
 .admin-login-icon-input {
   position: absolute;
   left: 1rem;
+<<<<<<< HEAD:frontend/app/admin/login/login.css
   color: #2563eb;
+=======
+  color: #3b82f6;
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c:frontend/app/admin/login.css
   pointer-events: none;
 }
 .admin-login-input {
@@ -110,7 +127,11 @@
 }
 .admin-login-input:focus {
   outline: none;
+<<<<<<< HEAD:frontend/app/admin/login/login.css
   border-color: #2563eb;
+=======
+  border-color: #3b82f6;
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c:frontend/app/admin/login.css
   background: white;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
 }
@@ -130,8 +151,13 @@
 .admin-login-button {
   width: 100%;
   padding: 0.85rem;
+<<<<<<< HEAD:frontend/app/admin/login/login.css
   background: linear-gradient(135deg, #2b6cb0 0%, #2563eb 100%);
   color: #ffffff;
+=======
+  background-color: #3b82f6;
+  color: white;
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c:frontend/app/admin/login.css
   border: none;
   border-radius: 14px;
   font-size: 0.9rem;
@@ -146,7 +172,11 @@
   letter-spacing: 1px;
 }
 .admin-login-button:hover:not(:disabled) {
+<<<<<<< HEAD:frontend/app/admin/login/login.css
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+=======
+  background-color: #3b82f6;
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c:frontend/app/admin/login.css
   transform: translateY(-2px);
   box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.35);
 }
@@ -180,7 +210,11 @@
   transition: all 0.2s;
 }
 .admin-login-footer a:hover {
+<<<<<<< HEAD:frontend/app/admin/login/login.css
   color: #2563eb;
+=======
+  color: #3d0cd2;
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c:frontend/app/admin/login.css
 }
 @media (max-height: 600px) {
   .admin-login-card {

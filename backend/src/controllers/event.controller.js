@@ -27,7 +27,52 @@ async function getEventById(req, res) {
     });
   }
 }
+<<<<<<< HEAD
+=======
+
+// ... (vos fonctions getAllEvents, getEventById, etc.) ...
+
+// Ajoutez les nouvelles fonctions (create, update, delete) en utilisant la même syntaxe async function
+async function createEvent(req, res) {
+  try {
+    const newEvent = await eventService.createEvent(req.body);
+    res.status(201).json(newEvent);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message });
+  }
+}
+
+async function updateEvent(req, res) {
+  try {
+    const id = Number(req.params.id);
+    const updated = await eventService.updateEvent(id, req.body);
+    if (!updated) return res.status(404).json({ error: "Event not found" });
+    res.json(updated);
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message });
+  }
+}
+
+async function deleteEvent(req, res) {
+  try {
+    const id = Number(req.params.id);
+    const deleted = await eventService.deleteEvent(id);
+    if (!deleted) return res.status(404).json({ error: "Event not found" });
+    res.status(204).send();
+  } catch (error) {
+    console.error(error);
+    res.status(400).json({ error: error.message });
+  }
+}
+
+// Exportation de TOUTES les fonctions
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
 module.exports = {
   getAllEvents,
   getEventById,
+  createEvent,
+  updateEvent,
+  deleteEvent,
 };

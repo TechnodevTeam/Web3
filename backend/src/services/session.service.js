@@ -48,6 +48,26 @@ async function upvoteQuestion(questionId) {
 async function getAllSessions() {
   return sessionRepository.findAllSessions();
 }
+<<<<<<< HEAD
+=======
+
+async function createSession(data) {
+  return await sessionRepository.createSession(data);
+}
+
+async function updateSession(id, data) {
+  return await sessionRepository.updateSession(id, data);
+}
+
+async function deleteSession(id) {
+  return await sessionRepository.deleteSession(id);
+}
+
+async function addAnswerToQuestion(questionId, answerContent) {
+  return await sessionRepository.addAnswerToQuestion(questionId, answerContent);
+}
+
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
 module.exports = {
   getSessionsByEventId,
   getSessionById,
@@ -55,4 +75,12 @@ module.exports = {
   createQuestion,
   upvoteQuestion,
   getAllSessions,
+<<<<<<< HEAD
 };
+=======
+  createSession,
+  updateSession,
+  deleteSession,
+  addAnswerToQuestion,
+};
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c

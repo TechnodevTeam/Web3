@@ -1,3 +1,5 @@
+//room.repository.js
+
 const db = require("../db");
 async function findAllRooms() {
   try {
@@ -62,7 +64,48 @@ async function findSessionsByRoomId(roomId) {
   throw error;
 }
 }
+<<<<<<< HEAD
 module.exports = {
   findAllRooms,
   findSessionsByRoomId,
 };
+=======
+
+async function findRoomById(id) {
+  const result = await db.query(
+    `SELECT id, name FROM rooms WHERE id = $1`,
+    [id]
+  );
+  return result.rows[0];
+}
+
+async function createRoom({ name }) {
+  const result = await db.query(
+    `INSERT INTO rooms (name) VALUES ($1) RETURNING id, name`,
+    [name]
+  );
+  return result.rows[0];
+}
+
+async function updateRoom(id, { name }) {
+  const result = await db.query(
+    `UPDATE rooms SET name = $1 WHERE id = $2 RETURNING id, name`,
+    [name, id]
+  );
+  return result.rows[0];
+}
+
+async function deleteRoom(id) {
+  await db.query(`DELETE FROM rooms WHERE id = $1`, [id]);
+  return true;
+}
+
+module.exports = {
+  findAllRooms,
+  findSessionsByRoomId,
+  findRoomById,
+  createRoom,
+  updateRoom,
+  deleteRoom,
+};
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c

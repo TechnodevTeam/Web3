@@ -53,7 +53,12 @@ export default function Navbar() {
           <FontAwesomeIcon icon={faHeart} className="nav-icon" />
           Favoris
         </Link>
+<<<<<<< HEAD
         <Link href="/admin/login" onClick={closeMenu}>
+=======
+
+        <Link href="/admin" onClick={closeMenu}>
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
           <FontAwesomeIcon icon={faUserShield} className="nav-icon" />
           Admin
         </Link>

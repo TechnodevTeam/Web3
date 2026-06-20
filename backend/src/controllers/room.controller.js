@@ -1,17 +1,25 @@
 const roomService = require("../services/room.service");
+<<<<<<< HEAD
+=======
+
+// Existant
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
 async function getAllRooms(req, res) {
   try {
     const rooms = await roomService.getAllRooms();
     res.json(rooms);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Erreur serveur lors du chargement des salles",
-    });
+    res.status(500).json({ error: error.message });
   }
 }
 async function getSessionsByRoomId(req, res) {
+  // ... votre code existant
+}
+
+// Nouveaux
+async function getRoomById(req, res) {
   try {
+<<<<<<< HEAD
     const roomId = Number(req.params.id);
     if (Number.isNaN(roomId)) {
       return res.status(400).json({
@@ -21,14 +29,51 @@ async function getSessionsByRoomId(req, res) {
     }
     const sessions = await roomService.getSessionsByRoomId(roomId);
     res.json(sessions);
+=======
+    const id = Number(req.params.id);
+    const room = await roomService.getRoomById(id);
+    if (!room) return res.status(404).json({ error: "Room not found" });
+    res.json(room);
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
   } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      message: "Erreur serveur lors du chargement des sessions de la salle",
-    });
+    res.status(400).json({ error: error.message });
+  }
+}
+
+async function createRoom(req, res) {
+  try {
+    const newRoom = await roomService.createRoom(req.body);
+    res.status(201).json(newRoom);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+async function updateRoom(req, res) {
+  try {
+    const id = Number(req.params.id);
+    const updated = await roomService.updateRoom(id, req.body);
+    if (!updated) return res.status(404).json({ error: "Room not found" });
+    res.json(updated);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+}
+
+async function deleteRoom(req, res) {
+  try {
+    const id = Number(req.params.id);
+    await roomService.deleteRoom(id);
+    res.status(204).send();
+  } catch (error) {
+    res.status(400).json({ error: error.message });
   }
 }
 module.exports = {
   getAllRooms,
   getSessionsByRoomId,
+  getRoomById,
+  createRoom,
+  updateRoom,
+  deleteRoom,
 };

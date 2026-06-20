@@ -197,6 +197,65 @@ async function findAllSessions() {
   `);
   return result.rows;
 }
+<<<<<<< HEAD
+=======
+
+async function createSession({
+  title,
+  description,
+  eventId,
+  roomId,
+  startTime,
+  endTime,
+  capacity,
+}) {
+  const result = await db.query(
+    `INSERT INTO sessions (title, description, event_id, room_id, start_time, end_time, capacity)
+     VALUES ($1, $2, $3, $4, $5, $6, $7)
+     RETURNING id, title, description, event_id AS "eventId", room_id AS "roomId",
+               start_time AS "startTime", end_time AS "endTime", capacity`,
+    [title, description, eventId, roomId, startTime, endTime, capacity]
+  );
+  return result.rows[0];
+}
+
+async function updateSession(
+  id,
+  { title, description, eventId, roomId, startTime, endTime, capacity }
+) {
+  const result = await db.query(
+    `UPDATE sessions
+     SET title = COALESCE($1, title),
+         description = COALESCE($2, description),
+         event_id = COALESCE($3, event_id),
+         room_id = COALESCE($4, room_id),
+         start_time = COALESCE($5, start_time),
+         end_time = COALESCE($6, end_time),
+         capacity = COALESCE($7, capacity)
+     WHERE id = $8
+     RETURNING id, title, description, event_id AS "eventId", room_id AS "roomId",
+               start_time AS "startTime", end_time AS "endTime", capacity`,
+    [title, description, eventId, roomId, startTime, endTime, capacity, id]
+  );
+  return result.rows[0];
+}
+
+async function deleteSession(id) {
+  await db.query(`DELETE FROM sessions WHERE id = $1`, [id]);
+  return true;
+}
+
+async function addAnswerToQuestion(questionId, answerContent) {
+  const result = await db.query(
+    `INSERT INTO question_answers (question_id, content)
+     VALUES ($1, $2)
+     RETURNING id, question_id AS "questionId", content, created_at AS "createdAt"`,
+    [questionId, answerContent]
+  );
+  return result.rows[0];
+}
+
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
 module.exports = {
   findSessionsByEventId,
   findSessionById,
@@ -205,4 +264,12 @@ module.exports = {
   createQuestion,
   upvoteQuestion,
   findAllSessions,
+<<<<<<< HEAD
 };
+=======
+  createSession,
+  updateSession,
+  deleteSession,
+  addAnswerToQuestion,
+};
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
