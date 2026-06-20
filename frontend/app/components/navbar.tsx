@@ -12,8 +12,13 @@ import {
   faCubes,
   faCalendarDays,
 } from "@fortawesome/free-solid-svg-icons";
+import { usePathname } from 'next/navigation';
+import "./navbar.css";
 
 export default function Navbar() {
+  
+  const pathname = usePathname();
+
   const [isOpen, setIsOpen] = useState(false);
 
   function toggleMenu() {
@@ -23,6 +28,15 @@ export default function Navbar() {
   function closeMenu() {
     setIsOpen(false);
   }
+
+  // ✅ AJOUT : Fonction pour vérifier si un lien est actif
+  // Exact match pour la page d'accueil, startsWith pour les autres
+  const isActive = (href: string) => {
+    if (href === '/') {
+      return pathname === href;
+    }
+    return pathname?.startsWith(href);
+  };
 
   return (
     <header className="navbar">
@@ -40,34 +54,62 @@ export default function Navbar() {
       </button>
 
       <nav className={isOpen ? "nav-links active" : "nav-links"}>
-        <Link href="/" onClick={closeMenu}>
-          <FontAwesomeIcon icon={faHome} className="nav-icon" />
+        {/* ✅ MODIFICATION : Ajout de className conditionnel pour Accueil */}
+        <Link 
+          href="/" 
+          onClick={closeMenu}
+          className={isActive('/') ? 'active-link' : ''}
+        >
           Accueil
         </Link>
 
-        <Link href="/events" onClick={closeMenu}>
-          <FontAwesomeIcon icon={faCalendarAlt} className="nav-icon" />
+        {/* ✅ MODIFICATION : Ajout de className conditionnel pour Événements */}
+        <Link 
+          href="/events" 
+          onClick={closeMenu}
+          className={isActive('/events') ? 'active-link' : ''}
+        >
           Événements
         </Link>
 
-        <Link href="/rooms" onClick={closeMenu}>
-          <FontAwesomeIcon icon={faDoorOpen} className="nav-icon" />
+        {/* ✅ MODIFICATION : Ajout de className conditionnel pour Salles */}
+        <Link 
+          href="/rooms" 
+          onClick={closeMenu}
+          className={isActive('/rooms') ? 'active-link' : ''}
+        >
           Salles
         </Link>
 
-        <Link href="/planning">
-          <FontAwesomeIcon icon={faCalendarDays} />
+        {/* ✅ MODIFICATION : Ajout de className conditionnel pour Planning */}
+        <Link 
+          href="/planning"
+          onClick={closeMenu}
+          className={isActive('/planning') ? 'active-link' : ''}
+        >
           Planning
         </Link>
 
-        <Link href="/favorites" onClick={closeMenu}>
-          <FontAwesomeIcon icon={faHeart} className="nav-icon" />
+        {/* ✅ MODIFICATION : Ajout de className conditionnel pour Favoris */}
+        <Link 
+          href="/favorites" 
+          onClick={closeMenu}
+          className={isActive('/favorites') ? 'active-link' : ''}
+        >
           Favoris
         </Link>
 
-        <Link href="/admin" onClick={closeMenu}>
-          <FontAwesomeIcon icon={faUserShield} className="nav-icon" />
-          Admin
+        {/* ✅ MODIFICATION : Ajout de className conditionnel pour Admin */}
+        <Link 
+          href="/admin" 
+          onClick={closeMenu}
+          className={isActive('/admin') ? 'active-link' : ''}
+        >
+          <button className="admin-button">
+            <big>
+                Admin
+            </big>
+          </button>
         </Link>
       </nav>
     </header>
