@@ -1,47 +1,66 @@
+// frontend/app/components/QuestionList.tsx
 "use client";
-import { useState } from "react";
+
+import { useState, useEffect } from "react";
 import QuestionItem from "./QuestionItem";
+
 type Props = {
-  initialQuestions: any[];
+  questions?: any[]; // ✅ Rendre optionnel
+  onUpvote?: (questionId: number) => void;
 };
-export default function QuestionList({
-  initialQuestions,
-}: Props) {
-  const [questions, setQuestions] =
-    useState(initialQuestions);
-  async function handleUpvote(
-    questionId: number
-  ) {
+
+export default function QuestionList({ questions = [], onUpvote }: Props) {
+  const [localQuestions, setLocalQuestions] = useState<any[]>(questions || []);
+
+  // ✅ Mettre à jour quand les props changent
+  useEffect(() => {
+    setLocalQuestions(questions || []);
+  }, [questions]);
+
+  async function handleUpvote(questionId: number) {
     try {
-      const response = await fetch(
-        `${process.env.NEXT_PUBLIC_API_URL}/questions/${questionId}/upvote`,
-        {
-          method: "POST",
-        }
-      );
+      const response = await fetch(`/api/questions/${questionId}/upvote`, {
+        method: "PATCH",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
       if (!response.ok) {
-        throw new Error(
-          "Erreur upvote"
-        );
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(errorData.error || `Erreur HTTP ${response.status}`);
       }
-      setQuestions((previous) =>
+
+      const updatedQuestion = await response.json();
+      
+      setLocalQuestions((previous) =>
         previous.map((question) =>
           question.id === questionId
-            ? {
-                ...question,
-                upvotes:
-                  question.upvotes + 1,
-              }
+            ? { ...question, upvotes: updatedQuestion.upvotes || question.upvotes + 1 }
             : question
         )
       );
+
+      if (onUpvote) {
+        onUpvote(questionId);
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Erreur upvote:", error);
     }
   }
+
+  // ✅ Vérification de sécurité
+  if (!localQuestions || localQuestions.length === 0) {
+    return (
+      <p style={{ color: '#6b7280', fontStyle: 'italic', padding: '0.5rem 0' }}>
+        Aucune question pour le moment.
+      </p>
+    );
+  }
+
   return (
     <div className="questions-list">
-      {questions.map((question) => (
+      {localQuestions.map((question) => (
         <QuestionItem
           key={question.id}
           question={question}

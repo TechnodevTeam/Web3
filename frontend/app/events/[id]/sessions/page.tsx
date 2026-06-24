@@ -1,140 +1,244 @@
+// frontend/app/events/[id]/sessions/page.tsx
+"use client";
+
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
-import { getSessionsByEventId } from "@/app/services/sessionService";
-import QuestionForm from "@/app/components/QuestionForm";
-import QuestionItem from "@/app/components/QuestionItem";
-import QuestionList from "@/app/components/QuestionList";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faArrowLeft,
-  faClock,
-  faDoorOpen,
-  faUsers,
-  faQuestionCircle,
-  faMicrophone,
-  faCircleInfo,
-} from "@fortawesome/free-solid-svg-icons";
-type EventSessionsPageProps = {
-  params: Promise<{
-    id: string;
-  }>;
-};
-export default async function EventSessionsPage({
-  params,
-}: EventSessionsPageProps) {
-  const { id } = await params;
-  const sessions = await getSessionsByEventId(id);
+import { faClock, faCalendarDays, faDoorOpen, faUser } from "@fortawesome/free-solid-svg-icons";
+import BackButton from '@/app/components/BackButton';
+import QuestionList from "@/app/components/QuestionList";
+import QuestionForm from "@/app/components/QuestionForm";
+
+interface Session {
+  id: number;
+  title: string;
+  description: string;
+  startTime: string;
+  endTime: string;
+  roomName: string;
+  eventTitle: string;
+  live: boolean;
+  speakers: any[];
+}
+
+export default function EventSessionsPage() {
+  const params = useParams();
+  const eventId = params?.id as string;
+  const [sessions, setSessions] = useState<Session[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [questions, setQuestions] = useState<Record<number, any[]>>({});
+
+  useEffect(() => {
+    if (!eventId) {
+      setError("ID d'événement invalide");
+      setLoading(false);
+      return;
+    }
+
+    const fetchSessions = async () => {
+      try {
+        const response = await fetch(`/api/events/${eventId}/sessions`);
+        
+        if (!response.ok) {
+          throw new Error("Erreur chargement des sessions");
+        }
+        
+        const data = await response.json();
+        setSessions(Array.isArray(data) ? data : []);
+        
+        // Charger les questions pour les sessions live
+        const questionsPromises = data.map(async (session: Session) => {
+          if (session.live) {
+            try {
+              const qResponse = await fetch(`/api/sessions/${session.id}/questions`);
+              if (qResponse.ok) {
+                const qData = await qResponse.json();
+                return { sessionId: session.id, questions: qData };
+              }
+            } catch (e) {
+              console.error("Erreur chargement questions:", e);
+            }
+          }
+          return { sessionId: session.id, questions: [] };
+        });
+        
+        const questionsResults = await Promise.all(questionsPromises);
+        const questionsMap: Record<number, any[]> = {};
+        questionsResults.forEach(({ sessionId, questions }) => {
+          questionsMap[sessionId] = questions;
+        });
+        setQuestions(questionsMap);
+        
+      } catch (err) {
+        console.error("Erreur:", err);
+        setError("Impossible de charger les sessions");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSessions();
+  }, [eventId]);
+
+  const handleUpvote = (questionId: number) => {
+    setQuestions((prev) => {
+      const newQuestions = { ...prev };
+      for (const sessionId in newQuestions) {
+        if (newQuestions[sessionId].some(q => q.id === questionId)) {
+          newQuestions[sessionId] = newQuestions[sessionId].map(q =>
+            q.id === questionId ? { ...q, upvotes: (q.upvotes || 0) + 1 } : q
+          );
+          break;
+        }
+      }
+      return newQuestions;
+    });
+  };
+
+  if (loading) {
+    return (
+      <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
+        <p>Chargement des sessions...</p>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
+        <h1>Erreur</h1>
+        <p>{error}</p>
+        <BackButton fallbackUrl="/events" title="← Retour aux événements" />
+      </main>
+    );
+  }
+
+  if (sessions.length === 0) {
+    return (
+      <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
+        <h1>Événement</h1>
+        <p>Aucune session disponible pour cet événement.</p>
+        <BackButton fallbackUrl="/events" title="← Retour aux événements" />
+      </main>
+    );
+  }
+
   return (
-    <section className="sessions-page">
-      <Link href={`/events/${id}`} className="back-link" title="Retour">
-        <FontAwesomeIcon icon={faArrowLeft} className="back-icon" />
-      </Link>
-      <div className="page-header">
-        <h1>Sessions de l’événement</h1>
-        <p>
-          Voici les interventions ou activités prévues pour cet événement.
-        </p>
-      </div>
-      {sessions.length === 0 ? (
-        <p>Aucune session trouvée pour cet événement.</p>
-      ) : (
-        <div className="session-list">
-          {sessions.map((session) => (
-            <article className="session-full-card" key={session.id}>
-              <div className="session-title-row">
-                <h2>{session.title}</h2>
-                {session.live && <span className="live-badge">LIVE</span>}
+    <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif", maxWidth: "1200px", margin: "0 auto" }}>
+      <BackButton fallbackUrl="/events" title="← Retour aux événements" />
+      
+      <h1 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "0.5rem", marginTop: "1rem" }}>
+        Sessions de l'événement
+      </h1>
+      <p style={{ color: "#6b7280", marginBottom: "1.5rem" }}>
+        {sessions.length} session{sessions.length > 1 ? 's' : ''} disponible{sessions.length > 1 ? 's' : ''}
+      </p>
+
+      <div style={{ display: 'grid', gap: '1.5rem' }}>
+        {sessions.map((session) => (
+          <div
+            key={session.id}
+            style={{
+              padding: '1.5rem',
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              border: '1px solid #e5e7eb',
+              boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
+            }}
+          >
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'space-between', 
+              alignItems: 'flex-start',
+              flexWrap: 'wrap',
+              marginBottom: '0.75rem'
+            }}>
+              <Link 
+                href={`/sessions/${session.id}`}
+                style={{ 
+                  textDecoration: 'none', 
+                  color: 'inherit',
+                  flex: 1
+                }}
+              >
+                <h2 style={{ 
+                  fontSize: '1.25rem', 
+                  fontWeight: '600', 
+                  margin: 0,
+                  color: '#1a202c'
+                }}>
+                  {session.title}
+                </h2>
+              </Link>
+              {session.live && (
+                <span style={{ 
+                  background: '#ff4444', 
+                  color: 'white', 
+                  padding: '0.25rem 0.75rem', 
+                  borderRadius: '4px',
+                  fontSize: '0.8rem',
+                  fontWeight: 'bold',
+                  marginLeft: '0.5rem'
+                }}>
+                  🔴 LIVE
+                </span>
+              )}
+            </div>
+
+            <p style={{ color: '#4b5563', marginBottom: '0.75rem' }}>
+              {session.description || "Aucune description"}
+            </p>
+
+            <div style={{ 
+              display: 'grid', 
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+              gap: '0.5rem',
+              fontSize: '0.875rem',
+              color: '#6b7280',
+              marginBottom: '0.75rem'
+            }}>
+              <p style={{ margin: 0 }}>
+                <FontAwesomeIcon icon={faClock} style={{ marginRight: '0.5rem' }} />
+                {new Date(session.startTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })} - {new Date(session.endTime).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}
+              </p>
+              <p style={{ margin: 0 }}>
+                <FontAwesomeIcon icon={faDoorOpen} style={{ marginRight: '0.5rem' }} />
+                {session.roomName || "Salle non définie"}
+              </p>
+              <p style={{ margin: 0 }}>
+                <FontAwesomeIcon icon={faCalendarDays} style={{ marginRight: '0.5rem' }} />
+                {new Date(session.startTime).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}
+              </p>
+            </div>
+
+            {session.speakers && session.speakers.length > 0 && (
+              <div style={{ marginBottom: '0.75rem' }}>
+                <p style={{ fontSize: '0.875rem', color: '#6b7280', margin: 0 }}>
+                  <FontAwesomeIcon icon={faUser} style={{ marginRight: '0.5rem' }} />
+                  {session.speakers.map(s => s.fullName).join(', ')}
+                </p>
               </div>
-              <p className="session-description">{session.description}</p>
-              <div className="session-info-grid">
-                <div className="session-info-item">
-                  <FontAwesomeIcon icon={faDoorOpen} className="meta-icon" />
-                  <div>
-                    <strong>Salle</strong>
-                    <p>{session.roomName}</p>
-                  </div>
-                </div>
-                <div className="session-info-item">
-                  <FontAwesomeIcon icon={faClock} className="meta-icon" />
-                  <div>
-                    <strong>Début</strong>
-                    <p>{formatDateTime(session.startTime)}</p>
-                  </div>
-                </div>
-                <div className="session-info-item">
-                  <FontAwesomeIcon icon={faClock} className="meta-icon" />
-                  <div>
-                    <strong>Fin</strong>
-                    <p>{formatDateTime(session.endTime)}</p>
-                  </div>
-                </div>
-                <div className="session-info-item">
-                  <FontAwesomeIcon icon={faUsers} className="meta-icon" />
-                  <div>
-                    <strong>Capacité</strong>
-                    <p>
-                      {session.capacity !== null
-                        ? session.capacity
-                        : "Non définie"}
-                    </p>
-                  </div>
-                </div>
-              </div>
-              <div className="session-section">
-                <h3>
-                  <FontAwesomeIcon
-                    icon={faMicrophone}
-                    className="section-icon"
-                  />
-                  Intervenants
-                </h3>
-                {session.speakers.length === 0 ? (
-                  <p>Aucun intervenant associé.</p>
-                ) : (
-                  <ul className="speaker-list">
-                    {session.speakers.map((speaker) => (
-                      <li key={speaker.id} className="speaker-list-item">
-                        <span>{speaker.fullName}</span>
-                        <Link
-                          href={`/speakers/${speaker.id}`}
-                          className="speaker-info-link"
-                          title={`Voir les informations de ${speaker.fullName}`}
-                        >
-                          <FontAwesomeIcon icon={faCircleInfo} />
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-              <div className="session-section">
-                <h3>
-                  <FontAwesomeIcon
-                    icon={faQuestionCircle}
-                    className="section-icon"
-                  />
+            )}
+
+            {session.live && (
+              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f3f4f6' }}>
+                <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem' }}>
                   Questions
                 </h3>
-                {session.questions && session.questions.length === 0 ? (
-                  <p>Aucune question pour cette session.</p>
-                ) : (
-                  <ul className="question-list-small">
-                    <QuestionList
-                      initialQuestions={session.questions || []}
-                    />
-                  </ul>
-                )}
-                {session.live && <QuestionForm sessionId={session.id} />}
+                
+                <QuestionForm sessionId={session.id} />
+                
+                <QuestionList 
+                  questions={questions[session.id] || []} 
+                  onUpvote={handleUpvote}
+                />
               </div>
-            </article>
-          ))}
-        </div>
-      )}
-    </section>
+            )}
+          </div>
+        ))}
+      </div>
+    </main>
   );
-}
-function formatDateTime(value: string): string {
-  return new Date(value).toLocaleString("fr-FR", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  });
 }

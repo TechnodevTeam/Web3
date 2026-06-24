@@ -1,203 +1,282 @@
+// frontend/app/sessions/[id]/page.tsx
 "use client";
 
-import { useState, useEffect } from "react";
-import { useFavorites } from "../services/favoriteService";
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 import Link from "next/link";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUser, faMars, faVenus } from "@fortawesome/free-solid-svg-icons";
+import QuestionForm from "@/app/components/QuestionForm";
+import QuestionItem from "@/app/components/QuestionItem";
+import BackButton from '@/app/components/BackButton';
+import "@/app/styles/index.module.css";
 
-type Session = {
-  id: string;
+interface Speaker {
+  id: number;
+  fullName: string;
+  bio?: string;
+  imageUrl?: string;
+}
+
+interface Session {
+  id: number;
   title: string;
-  date: string;
   description: string;
+  startTime: string;
+  endTime: string;
+  roomName: string;
+  eventTitle: string;
+  live: boolean;
+  speakers: Speaker[];
+}
+
+const formatHour = (value: string | null | undefined): string => {
+  if (!value) return "--:--";
+  try {
+    const d = new Date(value);
+    if (isNaN(d.getTime())) return "--:--";
+    return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
+  } catch {
+    return "--:--";
+  }
 };
 
-const initialSessions: Session[] = [
-  {
-    id: "1",
-    title: "Session d'introduction",
-    date: "2025-06-01",
-    description: "Introduction au Web3 et aux concepts de base.",
-  },
-  {
-    id: "2",
-    title: "Session de développement",
-    date: "2025-06-10",
-    description: "Création d'une application décentralisée simple.",
-  },
-];
+const formatDate = (dateStr: string): string => {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("fr-FR", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+};
 
-export default function SessionsPage() {
-  const [sessions, setSessions] = useState<Session[]>(initialSessions);
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [description, setDescription] = useState("");
-  const [refreshKey, setRefreshKey] = useState(0);
-  
-  // Hook pour les favoris
-  const { toggleFavorite, isFavorite, isLoading, loadFavorites, getFavoritesCount } = useFavorites();
+const getSpeakerGenderIcon = (fullName: string) => {
+  if (!fullName) return faUser;
+  const first = fullName.split(" ")[0].toLowerCase();
+  const femaleNames = new Set([
+    "mialy",
+    "marie",
+    "maria",
+    "ana",
+    "anna",
+    "sarah",
+    "emma",
+    "laura",
+    "sophie",
+    "julie",
+  ]);
 
-  // Charger les favoris au démarrage
+  if (femaleNames.has(first)) return faVenus;
+
+  if (first.endsWith("a") || first.endsWith("y")) return faVenus;
+
+  return faMars;
+};
+
+export default function SessionDetailPage() {
+  const params = useParams();
+  const sessionId = params?.id as string;
+  const [session, setSession] = useState<Session | null>(null);
+  const [questions, setQuestions] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    loadFavorites();
-  }, [refreshKey]);
-
-  const handleAddSession = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!title || !date || !description) {
+    if (!sessionId) {
+      setError("ID de session invalide");
+      setLoading(false);
       return;
     }
-    const newSession: Session = {
-      id: String(Date.now()),
-      title,
-      date,
-      description,
+
+    const fetchSession = async () => {
+      try {
+        const response = await fetch(`/api/sessions/${sessionId}`);
+        
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || `Erreur HTTP ${response.status}`);
+        }
+        
+        const data = await response.json();
+        
+        if (!data || !data.id) {
+          throw new Error("Session non trouvée");
+        }
+        
+        setSession(data);
+        setError(null);
+        
+        const questionsResponse = await fetch(`/api/sessions/${sessionId}/questions`);
+        if (questionsResponse.ok) {
+          const questionsData = await questionsResponse.json();
+          setQuestions(Array.isArray(questionsData) ? questionsData : []);
+        }
+      } catch (err) {
+        console.error('Erreur:', err);
+        setError(err instanceof Error ? err.message : "Erreur lors du chargement");
+        setSession(null);
+      } finally {
+        setLoading(false);
+      }
     };
-    setSessions((current) => [newSession, ...current]);
-    setTitle("");
-    setDate("");
-    setDescription("");
+
+    fetchSession();
+  }, [sessionId]);
+
+  // ✅ Fonction pour rafraîchir les questions après ajout
+  const handleQuestionAdded = async () => {
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}/questions`);
+      if (response.ok) {
+        const data = await response.json();
+        setQuestions(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error('Erreur rafraîchissement questions:', error);
+    }
   };
 
-  const handleToggleFavorite = async (session: Session) => {
-    await toggleFavorite(session.id, session);
-    setRefreshKey(prev => prev + 1);
+  // ✅ Fonction pour mettre à jour les upvotes
+  const handleUpvote = (questionId: number) => {
+    setQuestions(prev =>
+      prev.map(q =>
+        q.id === questionId ? { ...q, upvotes: (q.upvotes || 0) + 1 } : q
+      )
+    );
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
-        <h1>Sessions</h1>
-        <p>Chargement des favoris...</p>
+        <p>Chargement de la session...</p>
+      </main>
+    );
+  }
+
+  if (error || !session) {
+    return (
+      <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
+        <h1>Erreur</h1>
+        <p>{error || "Session introuvable"}</p>
+        <BackButton fallbackUrl="/planning" title="← Retour au planning" />
       </main>
     );
   }
 
   return (
-    <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
-      {/* Header avec compteur de favoris */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <h1 style={{ margin: 0 }}>Sessions</h1>
-        <Link href="/favorites">
-          <button style={{
-            padding: "10px 20px",
-            background: "#ef4444",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            fontSize: "1rem"
+    <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif", maxWidth: "900px", margin: "0 auto" }}>
+      <BackButton fallbackUrl="/planning" title="← Retour au planning" />
+
+      <h1 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "0.5rem", marginTop: "1rem" }}>
+        {session.title}
+      </h1>
+
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        flexWrap: "wrap",
+        marginBottom: "1rem",
+        padding: "1rem",
+        backgroundColor: "#f9fafb",
+        borderRadius: "8px",
+        border: "1px solid #e5e7eb"
+      }}>
+        <div>
+          <p style={{ margin: "0.25rem 0", fontWeight: "500" }}>
+            📍 {session.roomName} | {session.eventTitle}
+          </p>
+          <p style={{ margin: "0.25rem 0", color: "#6b7280" }}>
+            🕐 {formatHour(session.startTime)} - {formatHour(session.endTime)} | {formatDate(session.startTime)}
+          </p>
+        </div>
+        {session.live && (
+          <span style={{ 
+            background: "#ff4444", 
+            color: "white", 
+            padding: "0.5rem 1rem", 
+            borderRadius: "4px",
+            fontSize: "0.9rem",
+            fontWeight: "bold"
           }}>
-            ❤️ Favoris ({getFavoritesCount})
-          </button>
-        </Link>
+            🔴 LIVE
+          </span>
+        )}
       </div>
 
-      {/* Formulaire d'ajout */}
-      <section style={{ marginBottom: "1.5rem" }}>
-        <h2>Créer une nouvelle session</h2>
-        <form onSubmit={handleAddSession} style={{ display: "grid", gap: "0.75rem", maxWidth: "420px" }}>
-          <label>
-            Titre
-            <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="Titre de la session"
-              style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
-            />
-          </label>
-          <label>
-            Date
-            <input
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
-              style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
-            />
-          </label>
-          <label>
-            Description
-            <textarea
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Description de la session"
-              style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem", minHeight: "100px" }}
-            />
-          </label>
-          <button type="submit" style={{ padding: "0.75rem 1rem", background: "#2563eb", color: "#fff", border: "none", cursor: "pointer", borderRadius: "8px" }}>
-            Ajouter la session
-          </button>
-        </form>
-      </section>
+      <div style={{ marginBottom: "2rem" }}>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.5rem" }}>Description</h2>
+        <p style={{ color: "#4b5563", lineHeight: "1.6" }}>{session.description || "Aucune description disponible."}</p>
+      </div>
 
-      {/* Liste des sessions */}
-      <section>
-        <h2>Liste des sessions</h2>
-        {sessions.length === 0 ? (
-          <p>Aucune session disponible pour le moment.</p>
-        ) : (
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {sessions.map((session) => (
-              <li 
-                key={session.id} 
-                style={{ 
-                  border: "1px solid #e5e7eb", 
-                  borderRadius: "0.5rem", 
-                  padding: "1rem", 
-                  marginBottom: "1rem",
-                  position: "relative",
-                  background: "white"
+      {/* Intervenants */}
+      {session.speakers && session.speakers.length > 0 && (
+        <div style={{ marginBottom: "2rem" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.75rem" }}>Intervenants</h2>
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            {session.speakers.map((speaker) => (
+              <Link
+                key={speaker.id}
+                href={`/speakers/${speaker.id}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  padding: "0.75rem 1rem",
+                  backgroundColor: "#f3f4f6",
+                  borderRadius: "8px",
+                  textDecoration: "none",
+                  color: "inherit",
+                  transition: "background-color 0.2s"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#e5e7eb";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#f3f4f6";
                 }}
               >
-                {/* BOUTON CŒUR */}
-                <button
-                  onClick={() => handleToggleFavorite(session)}
-                  style={{
-                    position: "absolute",
-                    top: "1rem",
-                    right: "1rem",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "2rem",
-                    transition: "transform 0.2s"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "scale(1.2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "scale(1)";
-                  }}
-                >
-                  {isFavorite(session.id) ? "❤️" : "♡"}
-                </button>
-
-                <h3 style={{ margin: "0 0 0.5rem", paddingRight: "3rem" }}>{session.title}</h3>
-                <p style={{ margin: "0 0 0.5rem", color: "#6b7280" }}>📅 {session.date}</p>
-                <p style={{ margin: 0 }}>{session.description}</p>
-                
-                {/* Badge Favori */}
-                {isFavorite(session.id) && (
-                  <span style={{
-                    display: "inline-block",
-                    marginTop: "0.5rem",
-                    padding: "0.25rem 0.75rem",
-                    background: "#fee2e2",
-                    color: "#ef4444",
-                    borderRadius: "0.25rem",
-                    fontSize: "0.75rem",
-                    fontWeight: "bold"
-                  }}>
-                    ⭐ Favori
-                  </span>
-                )}
-              </li>
+                <FontAwesomeIcon 
+                  icon={getSpeakerGenderIcon(speaker.fullName)} 
+                  style={{ fontSize: "1.25rem", color: "#6b7280" }}
+                />
+                <span style={{ fontWeight: "500" }}>{speaker.fullName}</span>
+              </Link>
             ))}
-          </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Section Questions */}
+      <div>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.75rem" }}>Questions</h2>
+        
+        {session.live ? (
+          <>
+            <QuestionForm sessionId={session.id} />
+            
+            {questions.length === 0 ? (
+              <p style={{ color: "#6b7280", fontStyle: "italic" }}>
+                Aucune question pour le moment. Soyez le premier à poser une question !
+              </p>
+            ) : (
+              <div style={{ marginTop: "1rem" }}>
+                {questions.map((question) => (
+                  <QuestionItem 
+                    key={question.id} 
+                    question={question} 
+                    onUpvote={handleUpvote}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <p style={{ color: "#6b7280", fontStyle: "italic" }}>
+            Les questions ne sont disponibles que lorsque la session est en direct (live).
+          </p>
         )}
-      </section>
+      </div>
     </main>
   );
 }
