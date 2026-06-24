@@ -1,11 +1,14 @@
+// frontend/app/sessions/[id]/page.tsx
 "use client";
+
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faMars, faVenus } from "@fortawesome/free-solid-svg-icons";
-import QuestionList from "@/app/components/QuestionList";
+import { faUser, faMars, faVenus, faClock } from "@fortawesome/free-solid-svg-icons";
 import QuestionForm from "@/app/components/QuestionForm";
+import QuestionItem from "@/app/components/QuestionItem";
+import BackButton from '@/app/components/BackButton';
 import "@/app/styles/index.module.css";
 
 interface Speaker {
@@ -67,7 +70,6 @@ const getSpeakerGenderIcon = (fullName: string) => {
 
   if (first.endsWith("a") || first.endsWith("y")) return faVenus;
 
- 
   return faMars;
 };
 
@@ -88,6 +90,7 @@ export default function SessionDetailPage() {
 
     const fetchSession = async () => {
       try {
+        // Récupérer la session
         const response = await fetch(`/api/sessions/${sessionId}`);
         
         if (!response.ok) {
@@ -104,6 +107,7 @@ export default function SessionDetailPage() {
         setSession(data);
         setError(null);
         
+        // Récupérer les questions
         const questionsResponse = await fetch(`/api/sessions/${sessionId}/questions`);
         if (questionsResponse.ok) {
           const questionsData = await questionsResponse.json();
@@ -121,9 +125,31 @@ export default function SessionDetailPage() {
     fetchSession();
   }, [sessionId]);
 
+  // Fonction pour rafraîchir les questions après ajout
+  const handleQuestionAdded = async () => {
+    try {
+      const response = await fetch(`/api/sessions/${sessionId}/questions`);
+      if (response.ok) {
+        const data = await response.json();
+        setQuestions(Array.isArray(data) ? data : []);
+      }
+    } catch (error) {
+      console.error('Erreur rafraîchissement questions:', error);
+    }
+  };
+
+  // Fonction pour mettre à jour les upvotes
+  const handleUpvote = (questionId: number) => {
+    setQuestions(prev =>
+      prev.map(q =>
+        q.id === questionId ? { ...q, upvotes: (q.upvotes || 0) + 1 } : q
+      )
+    );
+  };
+
   if (loading) {
     return (
-      <main style={{ padding: "2rem" }}>
+      <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
         <p>Chargement de la session...</p>
       </main>
     );
@@ -131,99 +157,128 @@ export default function SessionDetailPage() {
 
   if (error || !session) {
     return (
-      <main style={{ padding: "2rem" }}>
+      <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
         <h1>Erreur</h1>
         <p>{error || "Session introuvable"}</p>
-        <Link href="/planning" style={{ textDecoration: "none", color: "#0070f3", marginBottom: "1rem", display: "inline-block" }}>
-          ← Retour au planning
-        </Link>
+        <BackButton fallbackUrl="/planning" title="← Retour au planning" />
       </main>
     );
   }
 
   return (
-    <main style={{ padding: "2rem", maxWidth: "900px", margin: "0 auto" }}>
-      <Link href="/planning" style={{ textDecoration: "none", color: "#0070f3", marginBottom: "1rem", display: "inline-block" }}>
-        ← Retour au planning
-      </Link>
+    <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif", maxWidth: "900px", margin: "0 auto" }}>
+      {/* ✅ BackButton avec fallback vers /planning */}
+      <BackButton fallbackUrl="/planning" title="" />
 
-      <div style={{ background: "#f8f9fa", padding: "2rem", borderRadius: "8px", marginBottom: "2rem" }}>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "start", marginBottom: "1rem" }}>
-          <div>
-            <h1 style={{ margin: "0 0 0.5rem 0" }}>{session.title}</h1>
-            <p style={{ margin: "0.5rem 0", color: "#666" }}>
-              📍 {session.roomName} | 📅 {session.eventTitle}
-            </p>
-          </div>
-          {session.live && (
-            <span style={{ 
-              background: "#ff4444", 
-              color: "white", 
-              padding: "0.5rem 1rem", 
-              borderRadius: "4px",
-              fontSize: "0.9rem"
-            }}>
-              🔴 LIVE
-            </span>
-          )}
-        </div>
+      <h1 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "0.5rem", marginTop: "1rem" }}>
+        {session.title}
+      </h1>
 
-        <div style={{ marginBottom: "1rem" }}>
-          <p style={{ margin: "0.5rem 0", fontWeight: "bold" }}>🕒 Horaire</p>
-          <p style={{ margin: "0.5rem 0" }}>
+      <div style={{ 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center", 
+        flexWrap: "wrap",
+        marginBottom: "1rem",
+        padding: "1rem",
+        backgroundColor: "#f9fafb",
+        borderRadius: "8px",
+        border: "1px solid #e5e7eb"
+      }}>
+        <div>
+          <p style={{ margin: "0.25rem 0", fontWeight: "500" }}>
+             {session.roomName} | {session.eventTitle}
+          </p>
+          <p style={{ margin: "0.25rem 0", color: "#6b7280" }}>
+            <FontAwesomeIcon icon={faClock} />
             {formatHour(session.startTime)} - {formatHour(session.endTime)} | {formatDate(session.startTime)}
           </p>
         </div>
-
-        <div style={{ marginBottom: "1rem" }}>
-          <p style={{ margin: "0.5rem 0", fontWeight: "bold" }}>📝 Description</p>
-          <p style={{ margin: "0.5rem 0", lineHeight: "1.6" }}>{session.description}</p>
-        </div>
-
-        {session.speakers && session.speakers.length > 0 && (
-          <div>
-            <p style={{ margin: "0.5rem 0", fontWeight: "bold" }}>👥 Speakers</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "1rem", marginTop: "1rem" }}>
-              {session.speakers.map((speaker) => (
-                <div key={speaker.id} style={{ 
-                  background: "white", 
-                  padding: "1rem", 
-                  borderRadius: "8px",
-                  boxShadow: "0 2px 4px rgba(0,0,0,0.1)",
-                  textAlign: "center"
-                }}>
-                  <div style={{
-                    width: "80px",
-                    height: "80px",
-                    background: "#eff6ff",
-                    borderRadius: "50%",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    margin: "0 auto 1rem auto",
-                    fontSize: "2.5rem",
-                    color: "#2563eb"
-                  }}>
-                    <FontAwesomeIcon icon={getSpeakerGenderIcon(speaker.fullName)} title={speaker.fullName} />
-                  </div>
-                  <p style={{ margin: "0.5rem 0", fontWeight: "bold" }}>{speaker.fullName}</p>
-                  {speaker.bio && (
-                    <p style={{ margin: "0.5rem 0", fontSize: "0.9rem", color: "#666" }}>{speaker.bio}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
+        {session.live && (
+          <span style={{ 
+            background: "#ff4444", 
+            color: "white", 
+            padding: "0.5rem 1rem", 
+            borderRadius: "4px",
+            fontSize: "0.9rem",
+            fontWeight: "bold"
+          }}>
+            🔴 LIVE
+          </span>
         )}
       </div>
 
-      {session.live && (
+      <div style={{ marginBottom: "2rem" }}>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.5rem" }}>Description</h2>
+        <p style={{ color: "#4b5563", lineHeight: "1.6" }}>{session.description || "Aucune description disponible."}</p>
+      </div>
+
+      {/* Intervenants */}
+      {session.speakers && session.speakers.length > 0 && (
         <div style={{ marginBottom: "2rem" }}>
-          <h2>Questions</h2>
-          <QuestionForm sessionId={Number(sessionId)} />
-          <QuestionList initialQuestions={questions} />
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.75rem" }}>Intervenants</h2>
+          <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+            {session.speakers.map((speaker) => (
+              <Link
+                key={speaker.id}
+                href={`/speakers/${speaker.id}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  padding: "0.75rem 1rem",
+                  backgroundColor: "#f3f4f6",
+                  borderRadius: "8px",
+                  textDecoration: "none",
+                  color: "inherit",
+                  transition: "background-color 0.2s"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.backgroundColor = "#e5e7eb";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.backgroundColor = "#f3f4f6";
+                }}
+              >
+                <span style={{ fontWeight: "500" }}>{speaker.fullName}</span>
+              </Link>
+            ))}
+          </div>
         </div>
       )}
+
+      {/* Section Questions */}
+      <div>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.75rem" }}>Questions</h2>
+        
+        {session.live ? (
+          <>
+            {/* ✅ QuestionForm existant */}
+            <QuestionForm sessionId={session.id} />
+            
+            {/* ✅ Liste des questions avec QuestionItem existant */}
+            {questions.length === 0 ? (
+              <p style={{ color: "#6b7280", fontStyle: "italic" }}>
+                Aucune question pour le moment. Soyez le premier à poser une question !
+              </p>
+            ) : (
+              <div style={{ marginTop: "1rem" }}>
+                {questions.map((question) => (
+                  <QuestionItem 
+                    key={question.id} 
+                    question={question} 
+                    onUpvote={handleUpvote}
+                  />
+                ))}
+              </div>
+            )}
+          </>
+        ) : (
+          <p style={{ color: "#6b7280", fontStyle: "italic" }}>
+            Les questions ne sont disponibles que lorsque la session est en direct (live).
+          </p>
+        )}
+      </div>
     </main>
   );
 }
