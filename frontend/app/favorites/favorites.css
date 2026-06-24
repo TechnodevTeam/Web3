@@ -1,0 +1,242 @@
+.favorites-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 36px 28px 44px;
+  color: #1f2937;
+  background: linear-gradient(180deg, #f8fafc 0%, #ffffff 100%);
+}
+
+.favorites-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 18px;
+  margin-bottom: 28px;
+}
+
+.back-link {
+  color: #111827;
+  font-size: 1.45rem;
+  text-decoration: none;
+  padding: 10px 12px;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.07);
+  border: 1px solid rgba(17, 24, 39, 0.08);
+}
+
+.favorites-title-wrapper {
+  display: grid;
+  gap: 10px;
+}
+
+.favorites-label {
+  display: inline-block;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #e0e7ff;
+  color: #3730a3;
+  font-size: 0.88rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.favorites-header h1 {
+  margin: 0;
+  font-size: 2.4rem;
+  line-height: 1.05;
+}
+
+.favorites-subtitle {
+  margin: 0;
+  color: #475569;
+  font-size: 1rem;
+  max-width: 720px;
+}
+
+.favorites-hero {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: 1.5fr 1fr;
+  align-items: stretch;
+  margin-bottom: 32px;
+}
+
+.favorites-hero-text {
+  padding: 28px 34px;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 24px;
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.08);
+}
+
+.favorites-hero-text h2 {
+  margin: 0 0 18px;
+  font-size: 1.75rem;
+  color: #1f2937;
+}
+
+.favorites-hero-text p {
+  margin: 0;
+  color: #475569;
+  font-size: 1rem;
+  line-height: 1.85;
+}
+
+.favorites-hero-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 18px;
+  padding: 26px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #eef2ff 0%, #ffffff 100%);
+  border: 1px solid #dbeafe;
+  box-shadow: inset 0 0 0 1px rgba(99, 102, 241, 0.08);
+}
+
+.favorites-hero-card span {
+  color: #2563eb;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+}
+
+.favorites-hero-card strong {
+  font-size: 1.4rem;
+  color: #1e3a8a;
+}
+
+.favorites-hero-card p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.8;
+}
+
+.favorites-highlights {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  margin-bottom: 32px;
+}
+
+.highlight-card {
+  padding: 22px 24px;
+  border-radius: 20px;
+  color: #111827;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  transition: transform 200ms ease, box-shadow 200ms ease;
+}
+
+.highlight-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+}
+
+.highlight-primary {
+  background: #eff6ff;
+  border-color: #dbeafe;
+}
+
+.highlight-secondary {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.highlight-tertiary {
+  background: #fdf2f8;
+  border-color: #f5d0e0;
+}
+
+.highlight-card h3 {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.highlight-card p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.75;
+}
+
+.favorites-grid {
+  display: grid;
+  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  margin-bottom: 32px;
+}
+
+.favorite-card {
+  position: relative;
+  overflow: hidden;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 22px;
+  padding: 28px 24px;
+  transition: transform 200ms ease, box-shadow 200ms ease, border-color 200ms ease;
+}
+
+.favorite-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: linear-gradient(90deg, #6366f1 0%, #2563eb 100%);
+}
+
+.favorite-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 24px 60px rgba(15, 23, 42, 0.14);
+  border-color: #c7d2fe;
+}
+
+.favorite-card-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  height: 34px;
+  border-radius: 999px;
+  background: #eef2ff;
+  color: #1e3a8a;
+  font-weight: 700;
+  margin-bottom: 18px;
+  letter-spacing: 0.02em;
+}
+
+.favorite-card h3 {
+  margin: 0 0 12px;
+  font-size: 1.2rem;
+  color: #0f172a;
+}
+
+.favorite-card p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.75;
+}
+
+.favorites-note {
+  display: grid;
+  gap: 14px;
+  padding: 30px 32px;
+  border-radius: 24px;
+  background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 100%);
+  border: 1px solid #dbeafe;
+  box-shadow: inset 0 0 0 1px rgba(59, 130, 246, 0.08);
+}
+
+.favorites-note h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #1e3a8a;
+}
+
+.favorites-note p {
+  margin: 0;
+  color: #475569;
+  line-height: 1.8;
+}
