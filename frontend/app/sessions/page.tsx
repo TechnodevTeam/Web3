@@ -1,203 +1,141 @@
-"use client";
+// app/speakers/page.tsx
+'use client';
 
-import { useState, useEffect } from "react";
-import { useFavorites } from "../services/favoriteService";
-import Link from "next/link";
+import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
-type Session = {
-  id: string;
-  title: string;
-  date: string;
-  description: string;
-};
+interface Speaker {
+  id: number;
+  full_name: string;
+  photo_url: string | null;
+  bio: string | null;
+  external_links: string | null;
+  session_count?: number;
+}
 
-const initialSessions: Session[] = [
-  {
-    id: "1",
-    title: "Session d'introduction",
-    date: "2025-06-01",
-    description: "Introduction au Web3 et aux concepts de base.",
-  },
-  {
-    id: "2",
-    title: "Session de développement",
-    date: "2025-06-10",
-    description: "Création d'une application décentralisée simple.",
-  },
-];
+export default function SpeakersPage() {
+  const [speakers, setSpeakers] = useState<Speaker[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
 
-export default function SessionsPage() {
-  const [sessions, setSessions] = useState<Session[]>(initialSessions);
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [description, setDescription] = useState("");
-  const [refreshKey, setRefreshKey] = useState(0);
-  
-  // Hook pour les favoris
-  const { toggleFavorite, isFavorite, isLoading, loadFavorites, getFavoritesCount } = useFavorites();
-
-  // Charger les favoris au démarrage
   useEffect(() => {
-    loadFavorites();
-  }, [refreshKey]);
+    fetchSpeakers();
+  }, []);
 
-  const handleAddSession = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    if (!title || !date || !description) {
-      return;
+  const fetchSpeakers = async () => {
+    try {
+      const response = await fetch('http://localhost:8080/api/speakers');
+      if (!response.ok) {
+        throw new Error('Erreur chargement des intervenants');
+      }
+      const data = await response.json();
+      setSpeakers(data);
+    } catch (err) {
+      setError('Impossible de charger la liste des intervenants');
+      console.error(err);
+    } finally {
+      setLoading(false);
     }
-    const newSession: Session = {
-      id: String(Date.now()),
-      title,
-      date,
-      description,
-    };
-    setSessions((current) => [newSession, ...current]);
-    setTitle("");
-    setDate("");
-    setDescription("");
   };
 
-  const handleToggleFavorite = async (session: Session) => {
-    await toggleFavorite(session.id, session);
-    setRefreshKey(prev => prev + 1);
-  };
-
-  if (isLoading) {
+  if (loading) {
     return (
-      <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
-        <h1>Sessions</h1>
-        <p>Chargement des favoris...</p>
+      <main style={{ padding: '2rem', fontFamily: 'Arial, sans-serif' }}>
+        <h1>Intervenants</h1>
+        <p>Chargement des intervenants...</p>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main style={{ padding: '2rem', fontFamily: 'Arial, sans-serif' }}>
+        <h1>Intervenants</h1>
+        <p style={{ color: 'red' }}>{error}</p>
       </main>
     );
   }
 
   return (
-    <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
-      {/* Header avec compteur de favoris */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1.5rem" }}>
-        <h1 style={{ margin: 0 }}>Sessions</h1>
-        <Link href="/favorites">
-          <button style={{
-            padding: "10px 20px",
-            background: "#ef4444",
-            color: "white",
-            border: "none",
-            borderRadius: "8px",
-            cursor: "pointer",
-            display: "flex",
-            alignItems: "center",
-            gap: "8px",
-            fontSize: "1rem"
-          }}>
-            ❤️ Favoris ({getFavoritesCount})
-          </button>
-        </Link>
-      </div>
+    <main style={{ padding: '2rem', fontFamily: 'Arial, sans-serif' }}>
+      <h1 style={{ fontSize: '2rem', fontWeight: 'bold', marginBottom: '0.5rem' }}>
+        Intervenants
+      </h1>
+      <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>
+        Découvrez tous les intervenants de nos événements
+      </p>
 
-      {/* Formulaire d'ajout */}
-      <section style={{ marginBottom: "1.5rem" }}>
-        <h2>Créer une nouvelle session</h2>
-        <form onSubmit={handleAddSession} style={{ display: "grid", gap: "0.75rem", maxWidth: "420px" }}>
-          <label>
-            Titre
-            <input
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder="Titre de la session"
-              style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
-            />
-          </label>
-          <label>
-            Date
-            <input
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
-              style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem" }}
-            />
-          </label>
-          <label>
-            Description
-            <textarea
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              placeholder="Description de la session"
-              style={{ width: "100%", padding: "0.5rem", marginTop: "0.25rem", minHeight: "100px" }}
-            />
-          </label>
-          <button type="submit" style={{ padding: "0.75rem 1rem", background: "#2563eb", color: "#fff", border: "none", cursor: "pointer", borderRadius: "8px" }}>
-            Ajouter la session
-          </button>
-        </form>
-      </section>
+      {speakers.length === 0 ? (
+        <p>Aucun intervenant disponible pour le moment.</p>
+      ) : (
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1.5rem' }}>
+          {speakers.map((speaker) => (
+            <Link
+              key={speaker.id}
+              href={`/speakers/${speaker.id}`}
+              style={{
+                display: 'block',
+                backgroundColor: 'white',
+                borderRadius: '0.5rem',
+                boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+                overflow: 'hidden',
+                border: '1px solid #e5e7eb',
+                textDecoration: 'none',
+                color: 'inherit',
+                transition: 'transform 0.2s, box-shadow 0.2s',
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'translateY(-4px)';
+                e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)';
+              }}
+            >
+              <div style={{ width: '100%', aspectRatio: '1/1', backgroundColor: '#f3f4f6', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                {speaker.photo_url ? (
+                  <img
+                    src={speaker.photo_url}
+                    alt={speaker.full_name}
+                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                  />
+                ) : (
+                  <svg
+                    style={{ width: '5rem', height: '5rem', color: '#9ca3af' }}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1.5}
+                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                    />
+                  </svg>
+                )}
+              </div>
 
-      {/* Liste des sessions */}
-      <section>
-        <h2>Liste des sessions</h2>
-        {sessions.length === 0 ? (
-          <p>Aucune session disponible pour le moment.</p>
-        ) : (
-          <ul style={{ listStyle: "none", padding: 0 }}>
-            {sessions.map((session) => (
-              <li 
-                key={session.id} 
-                style={{ 
-                  border: "1px solid #e5e7eb", 
-                  borderRadius: "0.5rem", 
-                  padding: "1rem", 
-                  marginBottom: "1rem",
-                  position: "relative",
-                  background: "white"
-                }}
-              >
-                {/* BOUTON CŒUR */}
-                <button
-                  onClick={() => handleToggleFavorite(session)}
-                  style={{
-                    position: "absolute",
-                    top: "1rem",
-                    right: "1rem",
-                    background: "none",
-                    border: "none",
-                    cursor: "pointer",
-                    fontSize: "2rem",
-                    transition: "transform 0.2s"
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = "scale(1.2)";
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = "scale(1)";
-                  }}
-                >
-                  {isFavorite(session.id) ? "❤️" : "♡"}
-                </button>
-
-                <h3 style={{ margin: "0 0 0.5rem", paddingRight: "3rem" }}>{session.title}</h3>
-                <p style={{ margin: "0 0 0.5rem", color: "#6b7280" }}>📅 {session.date}</p>
-                <p style={{ margin: 0 }}>{session.description}</p>
-                
-                {/* Badge Favori */}
-                {isFavorite(session.id) && (
-                  <span style={{
-                    display: "inline-block",
-                    marginTop: "0.5rem",
-                    padding: "0.25rem 0.75rem",
-                    background: "#fee2e2",
-                    color: "#ef4444",
-                    borderRadius: "0.25rem",
-                    fontSize: "0.75rem",
-                    fontWeight: "bold"
-                  }}>
-                    ⭐ Favori
+              <div style={{ padding: '1rem' }}>
+                <h3 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '0.25rem' }}>
+                  {speaker.full_name}
+                </h3>
+                {speaker.bio && (
+                  <p style={{ fontSize: '0.875rem', color: '#6b7280', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {speaker.bio}
+                  </p>
+                )}
+                {speaker.session_count !== undefined && (
+                  <span style={{ display: 'inline-block', marginTop: '0.5rem', padding: '0.25rem 0.5rem', fontSize: '0.75rem', fontWeight: 'bold', backgroundColor: '#dbeafe', color: '#1d4ed8', borderRadius: '9999px' }}>
+                    {speaker.session_count} session{speaker.session_count > 1 ? 's' : ''}
                   </span>
                 )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+              </div>
+            </Link>
+          ))}
+        </div>
+      )}
     </main>
   );
 }
