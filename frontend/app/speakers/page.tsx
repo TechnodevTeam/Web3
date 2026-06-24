@@ -253,7 +253,7 @@ export default function SpeakersPage() {
                   color: '#2563eb',
                   fontWeight: '500'
                 }}>
-                  Voir le profil →
+                  Cliquer pour voir le profil
                 </div>
               </div>
             </Link>

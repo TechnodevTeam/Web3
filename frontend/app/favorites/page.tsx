@@ -114,7 +114,7 @@ export default function FavoritesPage() {
             borderRadius: "0.5rem",
             cursor: "pointer"
           }}>
-            ← Retour aux sessions
+            Retour aux sessions
           </button>
         </Link>
       </div>

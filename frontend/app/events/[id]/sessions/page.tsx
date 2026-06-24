@@ -82,6 +82,14 @@ export default function EventSessionsPage() {
     fetchSessions();
   }, [eventId]);
 
+  // ✅ Fonction pour ajouter une question immédiatement
+  const handleQuestionAdded = (sessionId: number, newQuestion: any) => {
+    setQuestions((prev) => ({
+      ...prev,
+      [sessionId]: [newQuestion, ...(prev[sessionId] || [])]
+    }));
+  };
+
   const handleUpvote = (questionId: number) => {
     setQuestions((prev) => {
       const newQuestions = { ...prev };
@@ -110,7 +118,7 @@ export default function EventSessionsPage() {
       <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
         <h1>Erreur</h1>
         <p>{error}</p>
-        <BackButton fallbackUrl="/events" title="← Retour aux événements" />
+        <BackButton fallbackUrl="/events" title="" />
       </main>
     );
   }
@@ -120,14 +128,14 @@ export default function EventSessionsPage() {
       <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif" }}>
         <h1>Événement</h1>
         <p>Aucune session disponible pour cet événement.</p>
-        <BackButton fallbackUrl="/events" title="← Retour aux événements" />
+        <BackButton fallbackUrl="/events" title="" />
       </main>
     );
   }
 
   return (
     <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif", maxWidth: "1200px", margin: "0 auto" }}>
-      <BackButton fallbackUrl="/events" title="← Retour aux événements" />
+      <BackButton fallbackUrl="/events" title="" />
       
       <h1 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "0.5rem", marginTop: "1rem" }}>
         Sessions de l'événement
@@ -222,13 +230,23 @@ export default function EventSessionsPage() {
               </div>
             )}
 
+            {
+              <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f3f4f6', color: '#3b82f6', fontSize: '0.875rem' }}>
+                Appuyer sur le titre pour voir les détails de la session.
+              </div>
+            }
+
             {session.live && (
               <div style={{ marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #f3f4f6' }}>
                 <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem' }}>
                   Questions
                 </h3>
                 
-                <QuestionForm sessionId={session.id} />
+                {/* ✅ QuestionForm avec onQuestionAdded */}
+                <QuestionForm 
+                  sessionId={session.id} 
+                  onQuestionAdded={(newQuestion) => handleQuestionAdded(session.id, newQuestion)}
+                />
                 
                 <QuestionList 
                   questions={questions[session.id] || []} 

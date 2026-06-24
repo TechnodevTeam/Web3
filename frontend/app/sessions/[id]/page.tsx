@@ -50,28 +50,7 @@ const formatDate = (dateStr: string): string => {
   });
 };
 
-const getSpeakerGenderIcon = (fullName: string) => {
-  if (!fullName) return faUser;
-  const first = fullName.split(" ")[0].toLowerCase();
-  const femaleNames = new Set([
-    "mialy",
-    "marie",
-    "maria",
-    "ana",
-    "anna",
-    "sarah",
-    "emma",
-    "laura",
-    "sophie",
-    "julie",
-  ]);
 
-  if (femaleNames.has(first)) return faVenus;
-
-  if (first.endsWith("a") || first.endsWith("y")) return faVenus;
-
-  return faMars;
-};
 
 export default function SessionDetailPage() {
   const params = useParams();
@@ -125,17 +104,22 @@ export default function SessionDetailPage() {
     fetchSession();
   }, [sessionId]);
 
-  // Fonction pour rafraîchir les questions après ajout
-  const handleQuestionAdded = async () => {
-    try {
-      const response = await fetch(`/api/sessions/${sessionId}/questions`);
-      if (response.ok) {
-        const data = await response.json();
-        setQuestions(Array.isArray(data) ? data : []);
-      }
-    } catch (error) {
-      console.error('Erreur rafraîchissement questions:', error);
-    }
+  
+
+  const handleQuestionAdded = (newQuestion: any) => {
+    setQuestions((prev) => [newQuestion, ...prev]);
+  };
+
+  const handleEditQuestion = (questionId: number, newContent: string) => {
+  setQuestions((prev) =>
+    prev.map((q) =>
+      q.id === questionId ? { ...q, content: newContent } : q
+    )
+  );
+  };
+
+  const handleDeleteQuestion = (questionId: number) => {
+  setQuestions((prev) => prev.filter((q) => q.id !== questionId));
   };
 
   // Fonction pour mettre à jour les upvotes
@@ -268,6 +252,8 @@ export default function SessionDetailPage() {
                     key={question.id} 
                     question={question} 
                     onUpvote={handleUpvote}
+                    onEdit={handleEditQuestion}
+                    onDelete={handleDeleteQuestion} 
                   />
                 ))}
               </div>

@@ -110,7 +110,7 @@ export default function SpeakerPage() {
       <main style={{ padding: '2rem', fontFamily: 'Arial, sans-serif' }}>
         <h1>Erreur</h1>
         <p>{error || "Intervenant introuvable"}</p>
-        <BackButton fallbackUrl="/speakers" title="← Retour aux intervenants" />
+        <BackButton fallbackUrl="/speakers" title="" />
       </main>
     );
   }

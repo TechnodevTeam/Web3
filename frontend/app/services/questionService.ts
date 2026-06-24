@@ -12,15 +12,21 @@ type CreateQuestionPayload = {
   authorName?: string;
 };
 
-export async function createQuestion(sessionId: number, payload: CreateQuestionPayload) {
+export async function createQuestion(
+  sessionId: number,
+  payload: CreateQuestionPayload
+) {
   try {
-    const response = await fetch(`${API_URL}/sessions/${sessionId}/questions`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    });
+    const response = await fetch(
+      `${API_URL}/sessions/${sessionId}/questions`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      }
+    );
 
     if (!response.ok) {
       const error = await response.json();
@@ -29,33 +35,79 @@ export async function createQuestion(sessionId: number, payload: CreateQuestionP
 
     return response.json();
   } catch (error) {
-    console.error("Erreur createQuestion:", error);
+    console.error("❌ Erreur createQuestion:", error);
     throw error;
   }
 }
 
 export async function upvoteQuestion(questionId: number) {
   try {
-    // ✅ Utiliser la bonne URL
-    const response = await fetch(`${API_URL}/questions/${questionId}/upvote`, {
-      method: "PATCH",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    const response = await fetch(
+      `${API_URL}/questions/${questionId}/upvote`,
+      {
+        method: "PATCH",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      }
+    );
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(errorData.error || `Erreur HTTP ${response.status}`);
     }
 
-    const data = await response.json();
-    console.log("✅ Upvote réussi:", data);
-    
-    // ✅ Retourner les données de la question mise à jour
-    return data;
+    return response.json();
   } catch (error) {
-    console.error("Erreur upvoteQuestion:", error);
+    console.error("❌ Erreur upvoteQuestion:", error);
+    throw error;
+  }
+}
+
+// ✅ AJOUT : Modifier une question
+export async function updateQuestion(questionId: number, content: string) {
+  try {
+    const response = await fetch(
+      `${API_URL}/questions/${questionId}`,
+      {
+        method: "PUT",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ content }),
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Erreur HTTP ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("❌ Erreur updateQuestion:", error);
+    throw error;
+  }
+}
+
+// ✅ AJOUT : Supprimer une question
+export async function deleteQuestion(questionId: number) {
+  try {
+    const response = await fetch(
+      `${API_URL}/questions/${questionId}`,
+      {
+        method: "DELETE",
+      }
+    );
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error || `Erreur HTTP ${response.status}`);
+    }
+
+    return response.json();
+  } catch (error) {
+    console.error("❌ Erreur deleteQuestion:", error);
     throw error;
   }
 }

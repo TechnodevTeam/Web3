@@ -23,7 +23,6 @@ export default async function EventDetailPage({
       <section className="event-detail-page">
         <Link href="/events" className="back-link">
           <FontAwesomeIcon icon={faArrowLeft} className="back-icon" />
-          Retour aux événements
         </Link>
         <h1>Événement introuvable</h1>
         <p>Désolé, nous n'avons pas pu trouver les détails de cet événement.</p>
@@ -33,7 +32,7 @@ export default async function EventDetailPage({
   const status = getEventStatus(event.startDate, event.endDate);
   return (
     <section className="event-detail-page">
-      <Link href="/events" className="back-link" title="Retour aux événements">
+      <Link href="/events" className="back-link" title="">
         <FontAwesomeIcon icon={faArrowLeft} className="back-icon" />
       </Link>
       <div className="event-detail-hero">
