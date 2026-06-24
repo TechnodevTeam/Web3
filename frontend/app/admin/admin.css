@@ -1,0 +1,328 @@
+.ra-dashboard {
+  background: linear-gradient(135deg, #f0f4f8 0%, #e8edf3 100%);
+  min-height: 100vh;
+}
+.MuiTypography-h5,
+.MuiTypography-h6,
+.ra-title {
+  font-weight: 700 !important;
+  color: #1e293b !important;
+}
+.MuiBreadcrumbs-root,
+.MuiBreadcrumbs-root .MuiTypography-root,
+.MuiCardHeader-title {
+  color: #1e293b !important;
+  font-weight: 600 !important;
+}
+.MuiButton-containedPrimary {
+  background: linear-gradient(135deg, #d4af37 0%, #b8942e 100%) !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  text-transform: capitalize !important;
+  border-radius: 40px !important;
+  padding: 8px 24px !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 4px 15px rgba(212, 175, 55, 0.3) !important;
+  font-size: 0.9rem !important;
+}
+.MuiButton-containedPrimary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(212, 175, 55, 0.4) !important;
+  background: linear-gradient(135deg, #e2c04a 0%, #c4a235 100%) !important;
+}
+.MuiButton-outlinedPrimary {
+  border: 1.5px solid #d4af37 !important;
+  color: #b8942e !important;
+  border-radius: 40px !important;
+  text-transform: capitalize !important;
+  padding: 8px 20px !important;
+  transition: all 0.3s ease !important;
+}
+.MuiButton-outlinedPrimary:hover {
+  background: rgba(212, 175, 55, 0.1) !important;
+  border-color: #c4a235 !important;
+  transform: translateY(-2px) !important;
+}
+.MuiCard-root {
+  border-radius: 20px !important;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  overflow: hidden !important;
+  background: white !important;
+  border: 1px solid rgba(212, 175, 55, 0.15) !important;
+}
+.MuiCard-root:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12) !important;
+  border-color: rgba(212, 175, 55, 0.4) !important;
+}
+.MuiTableHead-root .MuiTableCell-root {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+  color: #d4af37 !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  border-bottom: none !important;
+  padding: 16px 16px !important;
+}
+.MuiTableCell-root {
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: 14px 16px !important;
+  color: #334155 !important;
+  font-size: 0.875rem !important;
+  background: white !important;
+}
+.MuiTableRow-root {
+  transition: all 0.2s ease !important;
+}
+.MuiTableRow-root:hover {
+  background: linear-gradient(90deg, rgba(212, 175, 55, 0.08) 0%, transparent 100%) !important;
+}
+.MuiTableRow-root:hover .MuiTableCell-root {
+  background: transparent !important;
+}
+.MuiPaginationItem-root {
+  border-radius: 30px !important;
+  font-weight: 500 !important;
+  font-size: 0.85rem !important;
+  min-width: 36px !important;
+  height: 36px !important;
+}
+.MuiPaginationItem-root.Mui-selected {
+  background: linear-gradient(135deg, #d4af37 0%, #b8942e 100%) !important;
+  color: #0f172a !important;
+  font-weight: 700 !important;
+  box-shadow: 0 2px 10px rgba(212, 175, 55, 0.3) !important;
+}
+.MuiPaginationItem-root.Mui-selected:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(212, 175, 55, 0.4) !important;
+}
+.MuiPaginationItem-root:hover {
+  background: rgba(212, 175, 55, 0.1) !important;
+}
+.MuiPaper-root .MuiCardHeader-root {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+  border-bottom: 2px solid #d4af37 !important;
+  border-radius: 16px 16px 0 0 !important;
+  padding: 16px 24px !important;
+}
+.MuiCardHeader-title {
+  color: #d4af37 !important;
+  font-weight: 700 !important;
+  font-size: 1.1rem !important;
+}
+.MuiCardHeader-subheader {
+  color: #94a3b8 !important;
+}
+.MuiTextField-root {
+  margin-bottom: 16px !important;
+}
+.MuiInputLabel-root.Mui-focused {
+  color: #d4af37 !important;
+}
+.MuiOutlinedInput-root {
+  border-radius: 12px !important;
+  transition: all 0.2s ease !important;
+}
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #d4af37 !important;
+  border-width: 2px !important;
+}
+.MuiButton-outlinedSecondary {
+  border-color: #64748b !important;
+  color: #64748b !important;
+  border-radius: 40px !important;
+  text-transform: capitalize !important;
+}
+.MuiButton-outlinedSecondary:hover {
+  border-color: #d4af37 !important;
+  color: #b8942e !important;
+  background: rgba(212, 175, 55, 0.05) !important;
+}
+.MuiInputBase-root {
+  border-radius: 40px !important;
+  background: white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05) !important;
+}
+.MuiOutlinedInput-root {
+  border-radius: 40px !important;
+}
+.MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+  border-color: #d4af37 !important;
+  border-width: 2px !important;
+}
+.MuiTableBody-root .MuiTableCell-root {
+  text-align: center !important;
+  padding: 40px !important;
+  font-size: 0.95rem !important;
+  color: #64748b !important;
+}
+.MuiTableSortLabel-icon,
+.MuiPaginationItem-root .MuiSvgIcon-root,
+.MuiTablePagination-actions .MuiSvgIcon-root {
+  font-size: 0.65rem !important;
+  width: 0.65rem !important;
+  height: 0.65rem !important;
+}
+.MuiTableSortLabel-root .MuiSvgIcon-root {
+  font-size: 0.65rem !important;
+}
+.MuiCircularProgress-root {
+  color: #d4af37 !important;
+}
+.MuiDialog-paper {
+  border-radius: 20px !important;
+  border-top: 4px solid #d4af37 !important;
+}
+.MuiTableHead-root .MuiTableCell-root,
+.MuiTableHead-root .MuiTableCell-root:hover {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+  color: #d4af37 !important;
+  font-weight: 700 !important;
+  font-size: 0.85rem !important;
+  text-transform: uppercase !important;
+  letter-spacing: 1px !important;
+  border-bottom: none !important;
+  padding: 16px 16px !important;
+}
+.MuiTableHead-root .MuiTableCell-root:hover {
+  color: #d4af37 !important;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+}
+.MuiTableCell-root {
+  border-bottom: 1px solid #e2e8f0 !important;
+  padding: 14px 16px !important;
+  color: #334155 !important;
+  font-size: 0.875rem !important;
+  background: white !important;
+}
+.MuiTableHead-root .MuiTableRow-root:hover {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+}
+.MuiTableHead-root .MuiTableRow-root:hover .MuiTableCell-root {
+  color: #d4af37 !important;
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+}
+.custom-logout-button {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  background: linear-gradient(135deg, #d4af37 0%, #b8942e 100%) !important;
+  color: #0f172a !important;
+  border-radius: 50px !important;
+  padding: 10px 24px !important;
+  font-weight: 600 !important;
+  z-index: 1300 !important;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2) !important;
+  text-transform: capitalize !important;
+}
+.custom-logout-button:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4) !important;
+}
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #d4af37 0%, #b8942e 100%);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #e2c04a 0%, #c4a235 100%);
+}
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.MuiCard-root {
+  animation: fadeIn 0.4s ease-out;
+}
+.session-status-badge {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.session-status-badge__label {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 8px;
+  padding: 2px 8px;
+  line-height: 1.1;
+  min-width: 72px;
+}
+
+.session-status-badge__label span {
+  font-size: 0.62rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: #ffffff !important;
+}
+
+.session-status-badge__label small {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #ffffff !important;
+}
+
+.session-status-badge--live .session-status-badge__label {
+  background: #ef4444;
+  color: #ffffff !important;
+}
+
+.session-status-badge--waiting .session-status-badge__label {
+  background: #475569;
+  color: #ffffff !important;
+}
+
+.MuiTableCell-root .session-status-badge__label,
+.MuiTableCell-root .session-status-badge__label span,
+.MuiTableCell-root .session-status-badge__label small {
+  color: #ffffff !important;
+}
+
+.RaLogout-root,
+.logout {
+  display: none !important;
+}
+
+.admin-identity {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: inherit;
+  margin-left: auto;
+  margin-right: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+@media (max-width: 768px) {
+  .MuiTableCell-root {
+    padding: 10px 12px !important;
+    font-size: 0.7rem !important;
+  }
+  .MuiCard-root {
+    border-radius: 16px !important;
+  }
+  .MuiButton-containedPrimary {
+    padding: 6px 16px !important;
+    font-size: 0.75rem !important;
+  }
+}

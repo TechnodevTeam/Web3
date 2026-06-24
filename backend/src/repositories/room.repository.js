@@ -1,14 +1,12 @@
 //room.repository.js
 
 const db = require("../db");
-
 async function findAllRooms() {
   try {
     const result = await db.query(`
       SELECT
         rooms.id,
         rooms.name,
-
         COALESCE(
           json_agg(
             DISTINCT jsonb_build_object(
@@ -20,24 +18,18 @@ async function findAllRooms() {
           ) FILTER (WHERE sessions.id IS NOT NULL),
           '[]'
         ) AS sessions
-
       FROM rooms
-
       LEFT JOIN sessions
         ON rooms.id = sessions.room_id
-
       GROUP BY rooms.id
-
       ORDER BY rooms.name
     `);
-
     return result.rows;
   } catch (error) {
   console.log(error);
   throw error;
 }
 }
-
 async function findSessionsByRoomId(roomId) {
   try {
     const result = await db.query(
@@ -51,7 +43,6 @@ async function findSessionsByRoomId(roomId) {
         sessions.start_time AS "startTime",
         sessions.end_time AS "endTime",
         rooms.name AS "roomName",
-
         CASE
           WHEN CURRENT_TIMESTAMP
             BETWEEN sessions.start_time
@@ -59,25 +50,26 @@ async function findSessionsByRoomId(roomId) {
           THEN true
           ELSE false
         END AS live
-
       FROM sessions
-
       INNER JOIN rooms
         ON sessions.room_id = rooms.id
-
       WHERE sessions.room_id = $1
-
       ORDER BY sessions.start_time
       `,
       [roomId]
     );
-
     return result.rows;
   } catch (error) {
   console.log(error);
   throw error;
 }
 }
+<<<<<<< HEAD
+module.exports = {
+  findAllRooms,
+  findSessionsByRoomId,
+};
+=======
 
 async function findRoomById(id) {
   const result = await db.query(
@@ -116,3 +108,4 @@ module.exports = {
   updateRoom,
   deleteRoom,
 };
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c

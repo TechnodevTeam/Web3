@@ -1,7 +1,4 @@
-//controllers/event.controller.js
-
 const eventService = require("../services/event.service");
-
 async function getAllEvents(req, res) {
   try {
     const events = await eventService.getAllEvents();
@@ -13,19 +10,15 @@ async function getAllEvents(req, res) {
     });
   }
 }
-
 async function getEventById(req, res) {
   try {
     const id = Number(req.params.id);
-
     const event = await eventService.getEventById(id);
-
     if (!event) {
       return res.status(404).json({
         message: "Événement introuvable",
       });
     }
-
     res.json(event);
   } catch (error) {
     console.error(error);
@@ -34,6 +27,8 @@ async function getEventById(req, res) {
     });
   }
 }
+<<<<<<< HEAD
+=======
 
 // ... (vos fonctions getAllEvents, getEventById, etc.) ...
 
@@ -73,6 +68,7 @@ async function deleteEvent(req, res) {
 }
 
 // Exportation de TOUTES les fonctions
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
 module.exports = {
   getAllEvents,
   getEventById,

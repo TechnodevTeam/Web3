@@ -1,5 +1,4 @@
 const db = require("../db");
-
 async function upvoteQuestion(questionId) {
   const result = await db.query(
     `
@@ -10,10 +9,8 @@ async function upvoteQuestion(questionId) {
     `,
     [questionId]
   );
-
   return result.rows[0];
 }
-
 module.exports = {
   upvoteQuestion,
 };

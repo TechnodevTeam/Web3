@@ -8,8 +8,7 @@ import {
   faCalendarCheck,
   faQuestionCircle,
 } from "@fortawesome/free-solid-svg-icons";
-
-import "./globals.css";
+import "./globals.css";  // ← SEUL AJOUT : l'import du CSS qui était dans le conflit
 
 export default function HomePage() {
   return (
@@ -33,7 +32,6 @@ export default function HomePage() {
                     </div>
           </div>
       </section>
-
       <section className="features-section">
         <div className="section-container">
           <h2 className="section-title">Pourquoi choisir EventSync ?</h2>
@@ -62,7 +60,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
       <section className="stats-section">
         <div className="section-container">
           <div className="stats-grid">
@@ -85,7 +82,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
       <section className="info-blocks-section">
         <div className="section-container">
           <div className="info-block">
@@ -105,7 +101,6 @@ export default function HomePage() {
           </div>
         </div>
       </section>
-
       <section className="faq-section">
         <div className="section-container">
           <h2 className="section-title">Questions fréquentes</h2>

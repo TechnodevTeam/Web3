@@ -1,9 +1,9 @@
 "use client";
-
 import { useState, useMemo } from "react";
 import Link from "next/link";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faSearch, faFilter, faCalendarAlt, faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import { faSearch, faFilter, faCalendarAlt, faMapMarkerAlt, faTimes } from "@fortawesome/free-solid-svg-icons";
+import { useEffect } from "react";
 
 interface Event {
   id: string | number;
@@ -21,6 +21,7 @@ interface EventListProps {
 export default function EventList({ initialEvents }: EventListProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [filterLocation, setFilterLocation] = useState("all");
+  
 
   const locations = useMemo(() => {
     const locs = new Set(initialEvents.map(e => e.location));
@@ -28,11 +29,17 @@ export default function EventList({ initialEvents }: EventListProps) {
   }, [initialEvents]);
 
   const filteredEvents = useMemo(() => {
-    return initialEvents.filter(event => {
+    const filtered = initialEvents.filter(event => {
       const matchesSearch = event.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
                            event.description.toLowerCase().includes(searchTerm.toLowerCase());
       const matchesLocation = filterLocation === "all" || event.location === filterLocation;
       return matchesSearch && matchesLocation;
+    });
+
+    return filtered.sort((a, b) => {
+      const da = new Date(a.startDate).getTime();
+      const db = new Date(b.startDate).getTime();
+      return da - db;
     });
   }, [searchTerm, filterLocation, initialEvents]);
 
@@ -47,8 +54,16 @@ export default function EventList({ initialEvents }: EventListProps) {
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+          {searchTerm && (
+            <button 
+              className="clear-search" 
+              onClick={() => setSearchTerm("")}
+              aria-label="Effacer la recherche"
+            >
+              <FontAwesomeIcon icon={faTimes} />
+            </button>
+          )}
         </div>
-
         <div className="filter-box">
           <FontAwesomeIcon icon={faFilter} className="filter-icon" />
           <select 
@@ -62,11 +77,9 @@ export default function EventList({ initialEvents }: EventListProps) {
           </select>
         </div>
       </div>
-
       <div className="results-count">
         {filteredEvents.length} événement{filteredEvents.length > 1 ? "s" : ""} trouvé{filteredEvents.length > 1 ? "s" : ""}
       </div>
-
       {filteredEvents.length === 0 ? (
         <div className="no-results">
           <p>Aucun événement ne correspond à vos critères.</p>
@@ -75,9 +88,10 @@ export default function EventList({ initialEvents }: EventListProps) {
         <div className="card-list">
           {filteredEvents.map((event) => (
             <div className="card" key={event.id}>
-              <h2>{event.title}</h2>
+              <div className="card-header-flex">
+                <h2>{event.title}</h2>
+              </div>
               <p className="description">{event.description}</p>
-
               <div className="info-grid">
                 <p>
                   <FontAwesomeIcon icon={faCalendarAlt} className="card-icon" />
@@ -88,7 +102,6 @@ export default function EventList({ initialEvents }: EventListProps) {
                   <strong>Lieu :</strong> {event.location}
                 </p>
               </div>
-
               <Link href={`/events/${event.id}`} className="btn-primary">
                 Voir détails
               </Link>

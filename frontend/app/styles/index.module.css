@@ -7,7 +7,6 @@
   justify-content: center;
   align-items: center;
 }
-
 .form {
   background: white;
   padding: 40px;
@@ -17,27 +16,23 @@
   max-width: 400px;
   text-align: center;
 }
-
 .form h1 {
   text-align: center;
   color: #333;
   margin-bottom: 30px;
   font-size: 28px;
 }
-
 .inputGroup {
   margin-bottom: 20px;
   display: flex;
   flex-direction: column;
 }
-
 .inputGroup label {
   margin-bottom: 8px;
   color: #555;
   font-weight: 600;
   font-size: 14px;
 }
-
 .inputGroup input {
   padding: 12px;
   border: 1px solid #ddd;
@@ -45,13 +40,11 @@
   font-size: 16px;
   transition: border-color 0.3s;
 }
-
 .inputGroup input:focus {
   outline: none;
   border-color: #667eea;
   box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
 }
-
 .button {
   width: 100%;
   padding: 12px;
@@ -64,12 +57,10 @@
   cursor: pointer;
   transition: transform 0.2s;
 }
-
 .button:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
 }
-
 .button:active {
   transform: translateY(0);
 }

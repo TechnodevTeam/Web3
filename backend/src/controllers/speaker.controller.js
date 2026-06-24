@@ -1,10 +1,28 @@
 const speakerService = require("../services/speaker.service");
+<<<<<<< HEAD
+async function getSpeakerById(req, res) {
+  try {
+    const speakerId = Number(req.params.id);
+    if (Number.isNaN(speakerId)) {
+      return res.status(400).json({
+        message: "L'id de l'intervenant doit être un nombre valide",
+      });
+    }
+    const speaker = await speakerService.getSpeakerById(speakerId);
+    if (!speaker) {
+      return res.status(404).json({
+        message: "Intervenant introuvable",
+      });
+    }
+    res.json(speaker);
+=======
 
 async function getSpeakerById(req, res) { /* votre code existant */ }
 async function getAllSpeakers(req, res) {
   try {
     const speakers = await speakerService.getAllSpeakers();
     res.json(speakers);
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: error.message });
@@ -37,11 +55,14 @@ async function deleteSpeaker(req, res) {
     res.status(400).json({ error: error.message });
   }
 }
-
 module.exports = {
   getSpeakerById,
+<<<<<<< HEAD
+};
+=======
   getAllSpeakers,
   createSpeaker,
   updateSpeaker,
   deleteSpeaker,
 };
+>>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c

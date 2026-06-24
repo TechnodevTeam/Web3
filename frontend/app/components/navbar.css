@@ -8,20 +8,18 @@
   position: relative;
   z-index: 1000;
 }
-
 .nav-links {
   display: flex;
   gap: 50px;
   list-style: none;
 }
-
 .nav-links a {
   color: white;
   text-decoration: none;
 }
 
 .admin-button {
-  background-color: #3b82f6; /* Bleu */
+  background-color: #3b82f6;
   color: white;
   border: none;
   padding: 8px 16px;
@@ -31,18 +29,16 @@
 }
 
 .admin-button:hover {
-  background-color: #2563eb; /* Bleu plus foncé au survol */
-  
+  background-color: #2563eb;
 }
 
 /* Style du Burger */
 .burger {
-  display: none; /* Caché sur PC */
+  display: none;
   flex-direction: column;
   gap: 5px;
   cursor: pointer;
 }
-
 .burger span {
   width: 25px;
   height: 3px;
@@ -50,15 +46,15 @@
   transition: 0.3s;
 }
 
-/* ✅ AJOUT : Style pour le lien actif */
+/* Style pour le lien actif */
 .nav-links a.active-link {
-  color: #3b82f6; /* Bleu pour indiquer la page active */
+  color: #3b82f6;
   font-weight: 600;
-  background-color: rgba(59, 130, 246, 0.1); /* Fond léger */
+  background-color: rgba(59, 130, 246, 0.1);
   border-radius: 8px;
 }
 
-/* Optionnel : un soulignement pour le lien actif */
+/* Soulignement pour le lien actif */
 .nav-links a.active-link::after {
   content: '';
   display: block;
@@ -68,15 +64,13 @@
   margin-top: 2px;
 }
 
-/* Tu peux aussi garder tes styles existants et juste ajouter celui-ci */
 /* RESPONSIVE MOBILE */
 @media (max-width: 768px) {
   .burger {
-    display: flex; /* Apparaît sur mobile */
+    display: flex;
   }
-
   .nav-links {
-    display: none; /* Cache les liens par défaut */
+    display: none;
     flex-direction: column;
     position: absolute;
     top: 100%;
@@ -86,8 +80,7 @@
     padding: 20px;
     text-align: center;
   }
-
   .nav-links.active {
-    display: flex; /* Affiche les liens quand on clique */
+    display: flex;
   }
 }

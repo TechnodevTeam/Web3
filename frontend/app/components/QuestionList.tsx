@@ -1,19 +1,14 @@
 "use client";
-
 import { useState } from "react";
-
 import QuestionItem from "./QuestionItem";
-
 type Props = {
   initialQuestions: any[];
 };
-
 export default function QuestionList({
   initialQuestions,
 }: Props) {
   const [questions, setQuestions] =
     useState(initialQuestions);
-
   async function handleUpvote(
     questionId: number
   ) {
@@ -24,13 +19,11 @@ export default function QuestionList({
           method: "POST",
         }
       );
-
       if (!response.ok) {
         throw new Error(
           "Erreur upvote"
         );
       }
-
       setQuestions((previous) =>
         previous.map((question) =>
           question.id === questionId
@@ -46,7 +39,6 @@ export default function QuestionList({
       console.error(error);
     }
   }
-
   return (
     <div className="questions-list">
       {questions.map((question) => (

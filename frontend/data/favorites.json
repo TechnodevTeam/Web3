@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1782106400650",
+    "userId": "user-1",
+    "sessionId": "2",
+    "session": {
+      "id": "2",
+      "title": "Session de développement",
+      "date": "2025-06-10",
+      "description": "Création d'une application décentralisée simple."
+    },
+    "createdAt": "2026-06-22T05:33:20.650Z"
+  },
+  {
+    "id": "1782106403075",
+    "userId": "user-1",
+    "sessionId": "1",
+    "session": {
+      "id": "1",
+      "title": "Session d'introduction",
+      "date": "2025-06-01",
+      "description": "Introduction au Web3 et aux concepts de base."
+    },
+    "createdAt": "2026-06-22T05:33:23.075Z"
+  }
+]
