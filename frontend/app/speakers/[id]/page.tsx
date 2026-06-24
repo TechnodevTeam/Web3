@@ -21,7 +21,7 @@ export default async function SpeakerPage({ params }: SpeakerPageProps) {
   const speaker = await getSpeakerById(id);
   return (
     <section className="speaker-page">
-      <Link href="/events" className="back-link" title="Retour">
+      <Link href="/speakers" className="back-link" title="Retour">
         <FontAwesomeIcon icon={faArrowLeft} className="back-icon" />
       </Link>
       <div className="speaker-profile-card">
