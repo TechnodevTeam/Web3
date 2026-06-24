@@ -98,7 +98,7 @@ export default function FavoritesPage() {
             <p style={{ margin: "0 0 0.25rem 0", color: "#6b7280" }}>📅 {fav.session.date}</p>
             <p style={{ margin: "0 0 0.5rem 0" }}>{fav.session.description}</p>
             <div style={{ fontSize: "0.75rem", color: "#9ca3af", paddingTop: "0.5rem", borderTop: "1px solid #f3f4f6" }}>
-              ⭐ Ajouté le {new Date(fav.createdAt).toLocaleDateString('fr-FR')}
+               Ajouté le {new Date(fav.createdAt).toLocaleDateString('fr-FR')}
             </div>
           </div>
         ))}

@@ -57,7 +57,6 @@ export default function Navbar() {
           onClick={closeMenu}
           className={isActive('/') ? 'active-link' : ''}
         >
-          <FontAwesomeIcon icon={faHome} className="nav-icon" />
           Accueil
         </Link>
 
@@ -66,7 +65,6 @@ export default function Navbar() {
           onClick={closeMenu}
           className={isActive('/events') ? 'active-link' : ''}
         >
-          <FontAwesomeIcon icon={faCalendarAlt} className="nav-icon" />
           Événements
         </Link>
 
@@ -75,8 +73,15 @@ export default function Navbar() {
           onClick={closeMenu}
           className={isActive('/rooms') ? 'active-link' : ''}
         >
-          <FontAwesomeIcon icon={faDoorOpen} className="nav-icon" />
           Salles
+        </Link>
+
+        <Link 
+          href="/speakers" 
+          onClick={closeMenu}
+          className={isActive('/speakers') ? 'active-link' : ''}
+        >
+          Intervenants
         </Link>
 
         <Link 
@@ -84,7 +89,6 @@ export default function Navbar() {
           onClick={closeMenu}
           className={isActive('/planning') ? 'active-link' : ''}
         >
-          <FontAwesomeIcon icon={faCalendarDays} className="nav-icon" />
           Planning
         </Link>
 
@@ -93,7 +97,6 @@ export default function Navbar() {
           onClick={closeMenu}
           className={isActive('/favorites') ? 'active-link' : ''}
         >
-          <FontAwesomeIcon icon={faHeart} className="nav-icon" />
           Favoris
         </Link>
 
