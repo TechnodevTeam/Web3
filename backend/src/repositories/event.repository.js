@@ -1,8 +1,5 @@
 const db = require("../db");
-<<<<<<< HEAD
-=======
 
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
 async function findAllEvents() {
   try {
     const result = await db.query(`
@@ -45,8 +42,7 @@ async function findEventById(id) {
     return MOCK_EVENTS.find((e) => e.id === id) || null;
   }
 }
-<<<<<<< HEAD
-=======
+
 
 async function createEvent({ title, description, startDate, endDate, location }) {
   const result = await db.query(
@@ -78,7 +74,6 @@ async function deleteEvent(id) {
   return true;
 }
 
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
 module.exports = {
   findAllEvents,
   findEventById,

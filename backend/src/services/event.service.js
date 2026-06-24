@@ -5,8 +5,7 @@ async function getAllEvents() {
 async function getEventById(id) {
   return await eventRepository.findEventById(id);
 }
-<<<<<<< HEAD
-=======
+
 
 async function createEvent(data) {
   return await eventRepository.createEvent(data);
@@ -20,7 +19,6 @@ async function deleteEvent(id) {
   return await eventRepository.deleteEvent(id);
 }
 
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
 module.exports = {
   getAllEvents,
   getEventById,

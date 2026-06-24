@@ -1,7 +1,8 @@
 const sessionService = require("../services/session.service");
+
 async function getSessionsByEventId(req, res) {
   try {
-    const eventId = Number(req.params.id);
+    const eventId = Number(req.params.eventId); // ✅ CORRECTION : eventId au lieu de id
     if (Number.isNaN(eventId)) {
       return res.status(400).json({
         message: "L'id de l'événement doit être un nombre valide",
@@ -16,6 +17,7 @@ async function getSessionsByEventId(req, res) {
     });
   }
 }
+
 async function getSessionById(req, res) {
   try {
     const sessionId = Number(req.params.id);
@@ -38,6 +40,7 @@ async function getSessionById(req, res) {
     });
   }
 }
+
 async function getQuestionsBySessionId(req, res) {
   try {
     const sessionId = Number(req.params.id);
@@ -52,7 +55,10 @@ async function getQuestionsBySessionId(req, res) {
         message: "Session introuvable",
       });
     }
-    if (!session.live) {
+    // ✅ CORRECTION : Vérifier si la session est live
+    // Utiliser la méthode isSessionLive du repository via sessionService
+    const isLive = await sessionService.isSessionLive(sessionId);
+    if (!isLive) {
       return res.status(403).json({
         message: "Les questions sont accessibles uniquement pendant une session live",
       });
@@ -66,6 +72,7 @@ async function getQuestionsBySessionId(req, res) {
     });
   }
 }
+
 async function createQuestion(req, res) {
   try {
     const sessionId = Number(req.params.id);
@@ -83,6 +90,7 @@ async function createQuestion(req, res) {
     });
   }
 }
+
 async function upvoteQuestion(req, res) {
   try {
     const questionId = Number(req.params.id);
@@ -100,72 +108,88 @@ async function upvoteQuestion(req, res) {
     });
   }
 }
-async function getAllSessions(
-  req,
-  res
-) {
+
+async function getAllSessions(req, res) {
   try {
-    const sessions =
-      await sessionService.getAllSessions();
+    const sessions = await sessionService.getAllSessions();
     res.json(sessions);
   } catch (error) {
+    console.error(error);
     res.status(500).json({
-      message:
-        "Erreur chargement sessions",
+      message: "Erreur chargement sessions",
     });
   }
 }
-<<<<<<< HEAD
-=======
 
-// NOUVEAU : créer une session
+// ✅ AJOUT : Créer une session
 async function createSession(req, res) {
   try {
     const newSession = await sessionService.createSession(req.body);
     res.status(201).json(newSession);
   } catch (error) {
+    console.error(error);
     res.status(400).json({ error: error.message });
   }
 }
 
-// NOUVEAU : modifier une session
+// ✅ AJOUT : Modifier une session
 async function updateSession(req, res) {
   try {
     const id = Number(req.params.id);
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ error: "ID invalide" });
+    }
     const updated = await sessionService.updateSession(id, req.body);
-    if (!updated) return res.status(404).json({ error: "Session not found" });
+    if (!updated) {
+      return res.status(404).json({ error: "Session non trouvée" });
+    }
     res.json(updated);
   } catch (error) {
+    console.error(error);
     res.status(400).json({ error: error.message });
   }
 }
 
-// NOUVEAU : supprimer une session
+// ✅ AJOUT : Supprimer une session
 async function deleteSession(req, res) {
   try {
     const id = Number(req.params.id);
+    if (Number.isNaN(id)) {
+      return res.status(400).json({ error: "ID invalide" });
+    }
     const deleted = await sessionService.deleteSession(id);
-    if (!deleted) return res.status(404).json({ error: "Session not found" });
+    if (!deleted) {
+      return res.status(404).json({ error: "Session non trouvée" });
+    }
     res.status(204).send();
   } catch (error) {
+    console.error(error);
     res.status(400).json({ error: error.message });
   }
 }
 
+// ✅ AJOUT : Ajouter une réponse à une question (optionnel)
 async function addAnswer(req, res) {
   try {
     const questionId = Number(req.params.id);
+    if (Number.isNaN(questionId)) {
+      return res.status(400).json({ error: "ID de question invalide" });
+    }
     const { content } = req.body;
-    if (!content) return res.status(400).json({ error: "Le contenu de la réponse est requis" });
+    if (!content || content.trim() === "") {
+      return res.status(400).json({ error: "Le contenu de la réponse est requis" });
+    }
     const answer = await sessionService.addAnswerToQuestion(questionId, content);
     res.status(201).json(answer);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: error.message });
+    res.status(error.status || 500).json({
+      message: error.message || "Erreur lors de l'ajout de la réponse",
+    });
   }
 }
 
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
+// ✅ EXPORT : TOUTES les méthodes
 module.exports = {
   getSessionsByEventId,
   getSessionById,
@@ -173,12 +197,8 @@ module.exports = {
   createQuestion,
   upvoteQuestion,
   getAllSessions,
-<<<<<<< HEAD
-};
-=======
   createSession,
   updateSession,
   deleteSession,
-  addAnswer,
+  addAnswer, // ✅ AJOUT : export de addAnswer
 };
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c

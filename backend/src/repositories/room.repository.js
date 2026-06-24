@@ -64,12 +64,11 @@ async function findSessionsByRoomId(roomId) {
   throw error;
 }
 }
-<<<<<<< HEAD
+
 module.exports = {
   findAllRooms,
   findSessionsByRoomId,
 };
-=======
 
 async function findRoomById(id) {
   const result = await db.query(
@@ -108,4 +107,3 @@ module.exports = {
   updateRoom,
   deleteRoom,
 };
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c

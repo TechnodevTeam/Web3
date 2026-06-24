@@ -27,12 +27,7 @@ async function getEventById(req, res) {
     });
   }
 }
-<<<<<<< HEAD
-=======
 
-// ... (vos fonctions getAllEvents, getEventById, etc.) ...
-
-// Ajoutez les nouvelles fonctions (create, update, delete) en utilisant la même syntaxe async function
 async function createEvent(req, res) {
   try {
     const newEvent = await eventService.createEvent(req.body);
@@ -67,8 +62,7 @@ async function deleteEvent(req, res) {
   }
 }
 
-// Exportation de TOUTES les fonctions
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
+
 module.exports = {
   getAllEvents,
   getEventById,

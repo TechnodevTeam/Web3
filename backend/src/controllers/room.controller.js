@@ -1,9 +1,5 @@
 const roomService = require("../services/room.service");
-<<<<<<< HEAD
-=======
 
-// Existant
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
 async function getAllRooms(req, res) {
   try {
     const rooms = await roomService.getAllRooms();
@@ -19,7 +15,6 @@ async function getSessionsByRoomId(req, res) {
 // Nouveaux
 async function getRoomById(req, res) {
   try {
-<<<<<<< HEAD
     const roomId = Number(req.params.id);
     if (Number.isNaN(roomId)) {
       return res.status(400).json({
@@ -29,12 +24,11 @@ async function getRoomById(req, res) {
     }
     const sessions = await roomService.getSessionsByRoomId(roomId);
     res.json(sessions);
-=======
+
     const id = Number(req.params.id);
     const room = await roomService.getRoomById(id);
     if (!room) return res.status(404).json({ error: "Room not found" });
     res.json(room);
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
   } catch (error) {
     res.status(400).json({ error: error.message });
   }

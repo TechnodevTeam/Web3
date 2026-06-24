@@ -197,8 +197,6 @@ async function findAllSessions() {
   `);
   return result.rows;
 }
-<<<<<<< HEAD
-=======
 
 async function createSession({
   title,
@@ -255,7 +253,6 @@ async function addAnswerToQuestion(questionId, answerContent) {
   return result.rows[0];
 }
 
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
 module.exports = {
   findSessionsByEventId,
   findSessionById,
@@ -264,12 +261,4 @@ module.exports = {
   createQuestion,
   upvoteQuestion,
   findAllSessions,
-<<<<<<< HEAD
 };
-=======
-  createSession,
-  updateSession,
-  deleteSession,
-  addAnswerToQuestion,
-};
->>>>>>> 06fb22607d78567084a7aa67ca2dc4e6f9336a8c
