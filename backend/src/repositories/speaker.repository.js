@@ -1,4 +1,5 @@
 const db = require("../db");
+
 async function findSpeakerById(speakerId) {
   const result = await db.query(
     `
@@ -23,14 +24,10 @@ async function findSpeakerById(speakerId) {
         '[]'
       ) AS sessions
     FROM speakers
-    LEFT JOIN session_speakers
-      ON speakers.id = session_speakers.speaker_id
-    LEFT JOIN sessions
-      ON session_speakers.session_id = sessions.id
-    LEFT JOIN rooms
-      ON sessions.room_id = rooms.id
-    LEFT JOIN events
-      ON sessions.event_id = events.id
+    LEFT JOIN session_speakers ON speakers.id = session_speakers.speaker_id
+    LEFT JOIN sessions ON session_speakers.session_id = sessions.id
+    LEFT JOIN rooms ON sessions.room_id = rooms.id
+    LEFT JOIN events ON sessions.event_id = events.id
     WHERE speakers.id = $1
     GROUP BY speakers.id
     `,
@@ -38,10 +35,6 @@ async function findSpeakerById(speakerId) {
   );
   return result.rows[0];
 }
-
-module.exports = {
-  findSpeakerById,
-};
 
 async function findAllSpeakers() {
   const result = await db.query(
@@ -92,10 +85,13 @@ async function updateSpeaker(id, data) {
   return result.rows[0];
 }
 
-// Supprimer un speaker
+// ✅ CORRECTION : Supprimer un speaker
 async function deleteSpeaker(id) {
-  await db.query('DELETE FROM speakers WHERE id = $1', [id]);
-  return true; // ou { deleted: true }
+  const result = await db.query(
+    `DELETE FROM speakers WHERE id = $1 RETURNING id`,
+    [id]
+  ); // ← Ce ); était manquant !
+  return result.rowCount > 0;
 }
 
 module.exports = {

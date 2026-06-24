@@ -1,11 +1,9 @@
 const speakerRepository = require("../repositories/speaker.repository");
+
 async function getSpeakerById(speakerId) {
   return await speakerRepository.findSpeakerById(speakerId);
 }
 
-module.exports = {
-  getSpeakerById,
-};
 async function getAllSpeakers() {
   return await speakerRepository.findAllSpeakers();
 }
@@ -18,6 +16,7 @@ async function updateSpeaker(id, data) {
   return await speakerRepository.updateSpeaker(id, data);
 }
 
+// ✅ CORRECTION : Cette fonction était mal placée
 async function deleteSpeaker(id) {
   return await speakerRepository.deleteSpeaker(id);
 }
