@@ -1,121 +1,124 @@
-// app/services/favoriteService.ts
+// frontend/app/services/favoriteService.ts
 "use client";
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from "react";
 
-export type Session = {
-  id: string;
+interface Favorite {
+  sessionId: number;
   title: string;
-  date: string;
-  description: string;
-};
+  description?: string;
+  startTime?: string;
+  endTime?: string;
+  roomName?: string;
+  eventTitle?: string;
+  roomId?: number;
+  eventId?: number;
+  speakers?: any[];
+  live?: boolean;
+}
 
-export type Favorite = {
-  id: string;
-  userId: string;
-  sessionId: string;
-  createdAt: string;
-  session: Session;
-};
-
-// API calls vers le backend
-const favoriteAPI = {
-  async getFavorites(): Promise<Favorite[]> {
-    const response = await fetch('/api/favorites');
-    if (!response.ok) throw new Error('Erreur chargement');
-    return response.json();
-  },
-  
-  async addFavorite(sessionId: string, session: Session): Promise<Favorite> {
-    const response = await fetch('/api/favorites', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ sessionId, session })
-    });
-    if (!response.ok) throw new Error('Erreur ajout');
-    return response.json();
-  },
-  
-  async removeFavorite(sessionId: string): Promise<void> {
-    const response = await fetch(`/api/favorites?sessionId=${sessionId}`, {
-      method: 'DELETE'
-    });
-    if (!response.ok) throw new Error('Erreur suppression');
-  },
-
-  async clearAllFavorites(): Promise<void> {
-    const response = await fetch('/api/favorites/clear', {
-      method: 'DELETE'
-    });
-    if (!response.ok) throw new Error('Erreur suppression totale');
-  }
-};
-
-// Hook personnalisé
 export function useFavorites() {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const loadFavorites = useCallback(async () => {
+  // Charger les favoris depuis localStorage
+  const loadFavorites = useCallback(() => {
     try {
-      setIsLoading(true);
-      const data = await favoriteAPI.getFavorites();
-      setFavorites(data);
-      setError(null);
-    } catch (err) {
-      setError('Erreur lors du chargement');
+      const stored = localStorage.getItem("favorites");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        // Supprimer les doublons
+        const unique = parsed.filter(
+          (fav: Favorite, index: number, self: Favorite[]) =>
+            index === self.findIndex((f) => f.sessionId === fav.sessionId)
+        );
+        setFavorites(unique);
+        if (unique.length !== parsed.length) {
+          localStorage.setItem("favorites", JSON.stringify(unique));
+        }
+      } else {
+        setFavorites([]);
+      }
+    } catch (error) {
+      console.error("❌ Erreur chargement favoris:", error);
+      setFavorites([]);
     } finally {
       setIsLoading(false);
     }
   }, []);
 
-  const addFavorite = useCallback(async (sessionId: string, session: Session) => {
-    try {
-      const newFavorite = await favoriteAPI.addFavorite(sessionId, session);
-      setFavorites(prev => [newFavorite, ...prev]);
-      return true;
-    } catch (err) {
-      setError('Erreur lors de l\'ajout');
-      return false;
-    }
+  // Sauvegarder dans localStorage
+  const saveFavorites = useCallback((newFavorites: Favorite[]) => {
+    localStorage.setItem("favorites", JSON.stringify(newFavorites));
+    setFavorites(newFavorites);
   }, []);
 
-  const removeFavorite = useCallback(async (sessionId: string) => {
-    try {
-      await favoriteAPI.removeFavorite(sessionId);
-      setFavorites(prev => prev.filter(f => f.sessionId !== sessionId));
-      return true;
-    } catch (err) {
-      setError('Erreur lors de la suppression');
-      return false;
+  // ✅ AJOUT : Ajouter un favori
+  const addFavorite = useCallback((session: any) => {
+    if (!session || !session.id) {
+      console.error("❌ Session invalide pour l'ajout aux favoris");
+      return;
     }
-  }, []);
 
-  const clearAllFavorites = useCallback(async () => {
-    try {
-      await favoriteAPI.clearAllFavorites();
-      setFavorites([]);
-      return true;
-    } catch (err) {
-      setError('Erreur lors de la suppression totale');
-      return false;
+    // Vérifier si déjà présent
+    if (favorites.some((f) => f.sessionId === session.id)) {
+      console.log("ℹ️ Session déjà dans les favoris:", session.id);
+      return;
     }
-  }, []);
 
-  const toggleFavorite = useCallback(async (sessionId: string, session: Session) => {
-    const exists = favorites.some(f => f.sessionId === sessionId);
-    if (exists) {
-      await removeFavorite(sessionId);
+    const newFavorite: Favorite = {
+      sessionId: session.id,
+      title: session.title || "Sans titre",
+      description: session.description,
+      startTime: session.startTime,
+      endTime: session.endTime,
+      roomName: session.roomName,
+      eventTitle: session.eventTitle,
+      roomId: session.roomId,
+      eventId: session.eventId,
+      speakers: session.speakers,
+      live: session.live,
+    };
+
+    const updated = [...favorites, newFavorite];
+    saveFavorites(updated);
+    console.log("✅ Favori ajouté:", session.id, newFavorite.title);
+  }, [favorites, saveFavorites]);
+
+  // Retirer un favori
+  const removeFavorite = useCallback((sessionId: number) => {
+    const updated = favorites.filter((f) => f.sessionId !== sessionId);
+    if (updated.length === favorites.length) {
+      console.warn("⚠️ Favori non trouvé:", sessionId);
+      return;
+    }
+    saveFavorites(updated);
+    console.log("🗑️ Favori retiré:", sessionId);
+  }, [favorites, saveFavorites]);
+
+  // Basculer l'état favori
+  const toggleFavorite = useCallback((sessionId: number | string, session: any) => {
+    const id = typeof sessionId === "string" ? parseInt(sessionId, 10) : sessionId;
+    if (isFavorite(id)) {
+      removeFavorite(id);
     } else {
-      await addFavorite(sessionId, session);
+      addFavorite(session);
     }
-  }, [favorites, addFavorite, removeFavorite]);
+  }, [addFavorite, removeFavorite]);
 
-  const isFavorite = useCallback((sessionId: string) => {
-    return favorites.some(f => f.sessionId === sessionId);
+  // Vérifier si une session est favorite
+  const isFavorite = useCallback((sessionId: number | string) => {
+    const id = typeof sessionId === "string" ? parseInt(sessionId, 10) : sessionId;
+    return favorites.some((f) => f.sessionId === id);
   }, [favorites]);
 
+  // Vider tous les favoris
+  const clearAllFavorites = useCallback(() => {
+    saveFavorites([]);
+    console.log("🗑️ Tous les favoris supprimés");
+  }, [saveFavorites]);
+
+  // Charger au montage
   useEffect(() => {
     loadFavorites();
   }, [loadFavorites]);
@@ -123,13 +126,11 @@ export function useFavorites() {
   return {
     favorites,
     isLoading,
-    error,
+    loadFavorites,
     addFavorite,
     removeFavorite,
-    clearAllFavorites,
     toggleFavorite,
     isFavorite,
-    loadFavorites,
-    getFavoritesCount: favorites.length
+    clearAllFavorites,
   };
 }

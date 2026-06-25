@@ -70,7 +70,7 @@ export default function FavoritesPage() {
       <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
         {favorites.map((fav) => (
           <div
-            key={fav.id}
+            key={fav.sessionId}
             style={{
               background: "white",
               border: "1px solid #e5e7eb",
@@ -88,35 +88,50 @@ export default function FavoritesPage() {
                 background: "none",
                 border: "none",
                 cursor: "pointer",
-                fontSize: "1.2rem"
+                fontSize: "1.2rem",
+                color: "#ef4444"
               }}
+              aria-label="Retirer des favoris"
             >
               ❌
             </button>
 
-            <h3 style={{ margin: "0 0 0.5rem 0", paddingRight: "2rem" }}>{fav.session.title}</h3>
-            <p style={{ margin: "0 0 0.25rem 0", color: "#6b7280" }}>📅 {fav.session.date}</p>
-            <p style={{ margin: "0 0 0.5rem 0" }}>{fav.session.description}</p>
-            <div style={{ fontSize: "0.75rem", color: "#9ca3af", paddingTop: "0.5rem", borderTop: "1px solid #f3f4f6" }}>
-               Ajouté le {new Date(fav.createdAt).toLocaleDateString('fr-FR')}
+            {/* ✅ Correction : utiliser fav.title directement */}
+            <h3 style={{ margin: "0 0 0.25rem 0", paddingRight: "2rem" }}>
+              {fav.title}
+            </h3>
+
+            {fav.description && (
+              <p style={{ margin: "0.5rem 0", color: "#6b7280" }}>
+                {fav.description}
+              </p>
+            )}
+
+            <div style={{ fontSize: "0.9rem", color: "#6b7280", marginTop: "0.5rem" }}>
+              {fav.startTime && (
+                <span style={{ marginRight: "1rem" }}>
+                  📅 {new Date(fav.startTime).toLocaleDateString("fr-FR")}
+                </span>
+              )}
+              {fav.startTime && (
+                <span>
+                  🕐 {new Date(fav.startTime).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" })}
+                </span>
+              )}
+              {fav.roomName && (
+                <span style={{ marginLeft: "1rem" }}>
+                  📍 {fav.roomName}
+                </span>
+              )}
             </div>
+
+            {fav.eventTitle && (
+              <div style={{ marginTop: "0.5rem", fontSize: "0.85rem", color: "#4b5563" }}>
+                📅 Événement : {fav.eventTitle}
+              </div>
+            )}
           </div>
         ))}
-      </div>
-
-      <div style={{ marginTop: "2rem" }}>
-        <Link href="/sessions">
-          <button style={{
-            padding: "0.5rem 1rem",
-            background: "#e5e7eb",
-            color: "#374151",
-            border: "none",
-            borderRadius: "0.5rem",
-            cursor: "pointer"
-          }}>
-            Retour aux sessions
-          </button>
-        </Link>
       </div>
     </div>
   );

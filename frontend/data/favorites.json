@@ -1,14 +1,53 @@
 [
   {
-    "id": "1782106403075",
+    "id": "1782393068895",
     "userId": "user-1",
-    "sessionId": "1",
-    "session": {
-      "id": "1",
-      "title": "Session d'introduction",
-      "date": "2025-06-01",
-      "description": "Introduction au Web3 et aux concepts de base."
+    "sessionId": {
+      "id": "8",
+      "eventId": "1",
+      "eventTitle": "EventSync Demo Day",
+      "roomId": "1",
+      "title": "Session Live EventSync",
+      "description": "Session actuellement en direct pour tester les questions/réponses.",
+      "startTime": "2026-05-11T16:54:56.041Z",
+      "endTime": "2026-05-11T19:24:56.041Z",
+      "roomName": "Salle A",
+      "live": false
     },
-    "createdAt": "2026-06-22T05:33:23.075Z"
+    "createdAt": "2026-06-25T13:11:08.895Z"
+  },
+  {
+    "id": "1782393070503",
+    "userId": "user-1",
+    "sessionId": {
+      "id": "8",
+      "eventId": "1",
+      "eventTitle": "EventSync Demo Day",
+      "roomId": "1",
+      "title": "Session Live EventSync",
+      "description": "Session actuellement en direct pour tester les questions/réponses.",
+      "startTime": "2026-05-11T16:54:56.041Z",
+      "endTime": "2026-05-11T19:24:56.041Z",
+      "roomName": "Salle A",
+      "live": false
+    },
+    "createdAt": "2026-06-25T13:11:10.503Z"
+  },
+  {
+    "id": "1782393071743",
+    "userId": "user-1",
+    "sessionId": {
+      "id": "1",
+      "eventId": "1",
+      "eventTitle": "EventSync Demo Day",
+      "roomId": "1",
+      "title": "Présentation de EventSync",
+      "description": "Introduction générale au projet EventSync et à ses fonctionnalités principales.",
+      "startTime": "2026-05-13T11:47:09.159Z",
+      "endTime": "2026-05-13T14:47:09.159Z",
+      "roomName": "Salle A",
+      "live": false
+    },
+    "createdAt": "2026-06-25T13:11:11.743Z"
   }
 ]

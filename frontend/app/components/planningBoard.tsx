@@ -1,224 +1,501 @@
+// frontend/app/components/planningBoard.tsx
 "use client";
-import { useEffect, useMemo, useState } from "react";
+
+import { useState, useMemo, useEffect } from "react";
 import Link from "next/link";
-import { faSearch, faTimes, faFilter } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-type Session = {
+import {
+  faHeart,
+  faCalendarAlt,
+  faDoorOpen,
+  faClock,
+  faUser,
+  faTrash,
+  faCircle,
+} from "@fortawesome/free-solid-svg-icons";
+import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
+import { useFavorites } from "../services/favoriteService";
+
+// ============================================================
+// TYPES
+// ============================================================
+interface Speaker {
+  id: number;
+  fullName: string;
+}
+
+interface Session {
   id: number;
   title: string;
-  description: string;
+  description?: string;
   startTime: string;
   endTime: string;
   roomName: string;
-  eventId: number;
-  live: boolean;
-  speakers: { fullName: string }[];
+  roomId?: number;
+  eventTitle?: string;
+  eventId?: number;
+  speakers?: Speaker[];
+  live?: boolean;
+}
+
+interface PlanningBoardProps {
+  sessions: Session[];
+}
+
+// ============================================================
+// UTILITAIRES
+// ============================================================
+
+// Grouper les sessions par date puis par horaire
+const groupByDateAndTime = (sessions: Session[]): Record<string, Record<string, Session[]>> => {
+  const groups: Record<string, Record<string, Session[]>> = {};
+  sessions.forEach((session) => {
+    const dateKey = new Date(session.startTime).toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    const timeKey = new Date(session.startTime).toLocaleTimeString("fr-FR", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+    if (!groups[dateKey]) groups[dateKey] = {};
+    if (!groups[dateKey][timeKey]) groups[dateKey][timeKey] = [];
+    groups[dateKey][timeKey].push(session);
+  });
+  // Trier les dates
+  const sortedDates: Record<string, Record<string, Session[]>> = {};
+  Object.keys(groups)
+    .sort((a, b) => {
+      const da = new Date(a.split(" ").reverse().join(" ").replace(" ", " "));
+      const db = new Date(b.split(" ").reverse().join(" ").replace(" ", " "));
+      return da.getTime() - db.getTime();
+    })
+    .forEach((date) => {
+      sortedDates[date] = groups[date];
+      // Trier les horaires pour chaque date
+      const sortedTimes: Record<string, Session[]> = {};
+      Object.keys(sortedDates[date])
+        .sort((a, b) => a.localeCompare(b))
+        .forEach((time) => {
+          sortedTimes[time] = sortedDates[date][time];
+        });
+      sortedDates[date] = sortedTimes;
+    });
+  return sortedDates;
 };
-const formatHour = (value: string | null | undefined): string => {
-  if (!value) return "--:--";
-  try {
-    const d = new Date(value);
-    if (isNaN(d.getTime())) return "--:--";
-    return d.toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" });
-  } catch {
-    return "--:--";
-  }
+
+// Récupérer toutes les salles uniques
+const getUniqueRooms = (sessions: Session[]): string[] => {
+  const rooms = new Set<string>();
+  sessions.forEach((s) => rooms.add(s.roomName));
+  return Array.from(rooms);
 };
-const formatDate = (dateStr: string): string => {
-  const d = new Date(dateStr);
-  return d.toLocaleDateString("fr-FR", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
+
+// Extraire les dates uniques pour le filtre
+const getUniqueDates = (sessions: Session[]): string[] => {
+  const dates = new Set<string>();
+  sessions.forEach((s) => {
+    const date = new Date(s.startTime).toLocaleDateString("fr-FR", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+    dates.add(date);
+  });
+  return Array.from(dates).sort((a, b) => {
+    const da = new Date(a.split(" ").reverse().join(" ").replace(" ", " "));
+    const db = new Date(b.split(" ").reverse().join(" ").replace(" ", " "));
+    return da.getTime() - db.getTime();
   });
 };
-const getDateKey = (timestamp: string): string => {
-  return new Date(timestamp).toISOString().split("T")[0];
-};
-export default function PlanningBoard({ sessions = [], events = [] }: any) {
-  const [search, setSearch] = useState("");
-  const [selectedEvent, setSelectedEvent] = useState("all");
-  const [favorites, setFavorites] = useState<Set<number>>(() => new Set());
+
+// ============================================================
+// COMPOSANT PRINCIPAL
+// ============================================================
+
+export default function PlanningBoard({ sessions }: PlanningBoardProps) {
+  const { favorites, toggleFavorite, loadFavorites } = useFavorites();
+  const [selectedDate, setSelectedDate] = useState<string>("all");
+  const [error, setError] = useState<string | null>(null);
+
   useEffect(() => {
-    if (typeof window !== "undefined") {
-     const saved = localStorage.getItem("favoriteSessions");
-      if (saved) {
-      setFavorites(new Set(JSON.parse(saved)));
-      }
+    loadFavorites();
+  }, [loadFavorites]);
+
+  const filteredSessions = useMemo(() => {
+    if (selectedDate === "all") return sessions;
+    return sessions.filter((s) => {
+      const date = new Date(s.startTime).toLocaleDateString("fr-FR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+      });
+      return date === selectedDate;
+    });
+  }, [sessions, selectedDate]);
+
+  const grouped = groupByDateAndTime(filteredSessions);
+  const dates = Object.keys(grouped);
+  const rooms = getUniqueRooms(filteredSessions);
+  const allDates = useMemo(() => getUniqueDates(sessions), [sessions]);
+
+  const totalSessions = filteredSessions.length;
+  const totalRooms = rooms.length;
+  const totalDates = dates.length;
+
+  const handleToggleFavorite = (session: Session) => {
+    try {
+      toggleFavorite(session.id, session);
+    } catch (err) {
+      console.error("❌ Erreur toggleFavorite:", err);
+      setError("Impossible de modifier les favoris. Veuillez réessayer.");
     }
-  }, []);
-  const safeSessions = Array.isArray(sessions) ? sessions : [];
-  const safeEvents = Array.isArray(events) ? events : [];
-  if (safeSessions.length === 0) {
+  };
+
+  if (!sessions || sessions.length === 0) {
     return (
-      <section className="planning-multitrack">
-        <div className="planning-header">
-          <h1>Planning Multi-Track</h1>
-          <p>Aucune session trouvée.</p>
-        </div>
-      </section>
+      <div style={{ padding: "2rem", textAlign: "center" }}>
+        <h1>📋 Planning</h1>
+        <p style={{ color: "#6b7280" }}>Aucune session disponible pour le moment.</p>
+      </div>
     );
   }
-  const sessionsWithEventTitle = safeSessions.map((session: any) => ({
-    ...session,
-    eventTitle: safeEvents.find((e: any) => e.id === session.eventId)?.title || "Sans événement",
-  }));
-  const filteredSessions = useMemo(() => {
-    return sessionsWithEventTitle.filter((session: any) => {
-      const matchesSearch =
-        session.title.toLowerCase().includes(search.toLowerCase()) ||
-        session.roomName?.toLowerCase().includes(search.toLowerCase()) ||
-        session.speakers?.some((s: any) => s.fullName.toLowerCase().includes(search.toLowerCase()));
-      const matchesEvent = selectedEvent === "all" || String(session.eventId) === selectedEvent;
-      return matchesSearch && matchesEvent;
-    });
-  }, [sessionsWithEventTitle, search, selectedEvent]);
-  const groupedByDate = useMemo(() => {
-    const groups: Record<string, any[]> = {};
-    filteredSessions.forEach((session: any) => {
-      if (!session.startTime) return;
-      const dateKey = getDateKey(session.startTime);
-      if (!groups[dateKey]) groups[dateKey] = [];
-      groups[dateKey].push(session);
-    });
-    const sortedDates = Object.keys(groups).sort();
-    const result: { dateKey: string; sessions: any[] }[] = sortedDates.map(dateKey => ({
-      dateKey,
-      sessions: groups[dateKey],
-    }));
-    return result;
-  }, [filteredSessions]);
-  const toggleFavorite = (id: number) => {
-    setFavorites((prev) => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) newSet.delete(id);
-      else newSet.add(id);
-      localStorage.setItem("favoriteSessions", JSON.stringify([...newSet]));
-      return newSet;
-    });
-  };
+
   return (
-    <section className="planning-multitrack">
-      <div className="planning-header">
-        <h1>Planning Multi-Track</h1>
-        <p>Sessions organisées par date, horaires et salles</p>
+    <div style={{ padding: "1.5rem", maxWidth: "1400px", margin: "0 auto" }}>
+      <h1 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "1.5rem" }}>
+        <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: "0.5rem" }} />
+        Planning Multi-Track
+      </h1>
+
+      {/* Filtre par date */}
+      <div style={{ display: "flex", gap: "0.75rem", marginBottom: "1.5rem", flexWrap: "wrap", alignItems: "center" }}>
+        <span style={{ fontWeight: "500", color: "#1a202c" }}>
+          <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: "0.25rem" }} />
+          Filtrer par date :
+        </span>
+        <button
+          onClick={() => setSelectedDate("all")}
+          style={{
+            padding: "0.4rem 1rem",
+            borderRadius: "9999px",
+            border: selectedDate === "all" ? "2px solid #2563eb" : "1px solid #e5e7eb",
+            background: selectedDate === "all" ? "#dbeafe" : "white",
+            color: selectedDate === "all" ? "#1d4ed8" : "#4b5563",
+            cursor: "pointer",
+            fontWeight: selectedDate === "all" ? "600" : "400",
+            transition: "all 0.2s",
+            fontSize: "0.9rem",
+          }}
+        >
+          Toutes les dates
+        </button>
+        {allDates.map((date) => (
+          <button
+            key={date}
+            onClick={() => setSelectedDate(date)}
+            style={{
+              padding: "0.4rem 1rem",
+              borderRadius: "9999px",
+              border: selectedDate === date ? "2px solid #2563eb" : "1px solid #e5e7eb",
+              background: selectedDate === date ? "#dbeafe" : "white",
+              color: selectedDate === date ? "#1d4ed8" : "#4b5563",
+              cursor: "pointer",
+              fontWeight: selectedDate === date ? "600" : "400",
+              transition: "all 0.2s",
+              fontSize: "0.9rem",
+            }}
+          >
+            {date}
+          </button>
+        ))}
       </div>
-      <div className="search-filter-bar">
-        <div className="search-box">
-          <FontAwesomeIcon icon={faSearch} className="search-icon" />
-          <input
-            type="text"
-            placeholder="Rechercher une session..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-          {search && (
-            <button 
-              className="clear-search" 
-              onClick={() => setSearch("")}
-              aria-label="Effacer la recherche"
-            >
-              <FontAwesomeIcon icon={faTimes} />
-            </button>
-          )}
-        </div>
-        <div className="filter-box">
-          <FontAwesomeIcon icon={faFilter} className="filter-icon" />
-          <select value={selectedEvent} onChange={(e) => setSelectedEvent(e.target.value)}>
-            <option value="all">Tous les événements</option>
-            {safeEvents.map((event: any) => (
-              <option key={event.id} value={event.id}>
-               {event.title}
-             </option>
-            ))}
-          </select>
-        </div>
+
+      {/* Légende + compteur */}
+      <div style={{ display: "flex", gap: "1.5rem", marginBottom: "1rem", flexWrap: "wrap", alignItems: "center" }}>
+        <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <span style={{ background: "#ef4444", color: "white", padding: "0.15rem 0.6rem", borderRadius: "9999px", fontSize: "0.7rem", fontWeight: "bold" }}>
+            <FontAwesomeIcon icon={faCircle} style={{ fontSize: "0.5rem", marginRight: "0.25rem" }} />
+            LIVE
+          </span>
+          <span style={{ fontSize: "0.9rem", color: "#6b7280" }}>Session en cours</span>
+        </span>
+        <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          <FontAwesomeIcon icon={faHeart} style={{ color: "#ef4444" }} />
+          <span style={{ fontSize: "0.9rem", color: "#6b7280" }}>Ajouter aux favoris</span>
+        </span>
+        <span style={{ fontSize: "0.9rem", color: "#6b7280" }}>
+          {totalSessions} session{totalSessions > 1 ? "s" : ""} • {totalRooms} salle{totalRooms > 1 ? "s" : ""} • {totalDates} jour{totalDates > 1 ? "s" : ""}
+          <span style={{ marginLeft: "1rem", color: "#9ca3af" }}>
+            <FontAwesomeIcon icon={faHeart} style={{ color: "#ef4444", marginRight: "0.25rem" }} />
+            {favorites.length} favori{favorites.length > 1 ? "s" : ""}
+          </span>
+        </span>
       </div>
-      {groupedByDate.length === 0 ? (
-        <p>Aucune session correspondante.</p>
+
+      {/* Message d'erreur */}
+      {error && (
+        <div style={{
+          padding: "0.75rem 1rem",
+          background: "#fee2e2",
+          color: "#dc2626",
+          borderRadius: "8px",
+          marginBottom: "1rem",
+          border: "1px solid #fecaca",
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}>
+          <span>❌ {error}</span>
+          <button
+            onClick={() => setError(null)}
+            style={{
+              background: "none",
+              border: "none",
+              cursor: "pointer",
+              color: "#dc2626",
+              fontSize: "1.2rem",
+            }}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
+      {/* Grille multi-track */}
+      {dates.length === 0 ? (
+        <p style={{ textAlign: "center", color: "#6b7280", padding: "2rem" }}>
+          Aucune session pour la date sélectionnée.
+        </p>
       ) : (
-        groupedByDate.map(({ dateKey, sessions: dateSessions }) => {
-          const timeSlots = Array.from(
-            new Set(
-              dateSessions
-                .map((s: any) => formatHour(s.startTime))
-                .filter((t): t is string => t !== null)
-            )
-          ).sort((a, b) => a.localeCompare(b));
-          const rooms = Array.from(
-            new Set(dateSessions.map((s: any) => s.roomName).filter(Boolean))
-          ).sort();
-          const grid: Record<string, Record<string, any[]>> = {};
-          timeSlots.forEach((time) => {
-            grid[time] = {};
-            rooms.forEach((room) => {
-              grid[time][room] = [];
-            });
-          });
-          dateSessions.forEach((session: any) => {
-            const hour = formatHour(session.startTime);
-            if (hour && grid[hour] && Array.isArray(grid[hour][session.roomName])) {
-              grid[hour][session.roomName].push(session);
-            }
-          });
-          const orphanSessions = dateSessions.filter((s: any) => {
-            const hour = formatHour(s.startTime);
-            return !hour || !rooms.includes(s.roomName);
-          });
+        dates.map((date) => {
+          const times = Object.keys(grouped[date]);
+          const sessionsByTime = grouped[date];
+
           return (
-            <div key={dateKey} className="planning-date-group">
-              <h2 className="date-header">{formatDate(dateKey)}</h2>
-              <div className="overflow-x-auto">
-                <table className="planning-table">
+            <div key={date} style={{ marginBottom: "2.5rem" }}>
+              {/* En-tête de date */}
+              <h2
+                style={{
+                  fontSize: "1.3rem",
+                  fontWeight: "600",
+                  marginBottom: "0.75rem",
+                  padding: "0.5rem 1rem",
+                  background: "#f1f5f9",
+                  borderRadius: "8px",
+                  color: "#1e293b",
+                  borderLeft: "4px solid #2563eb",
+                }}
+              >
+                <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: "0.5rem" }} />
+                {date}
+              </h2>
+
+              <div style={{ overflowX: "auto", border: "1px solid #e5e7eb", borderRadius: "12px" }}>
+                <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "700px" }}>
+                  {/* En-tête : Salles */}
                   <thead>
-                    <tr>
-                      <th className="time-header">Horaire</th>
+                    <tr style={{ background: "#f8fafc" }}>
+                      <th style={{ padding: "0.75rem 1rem", borderBottom: "2px solid #e5e7eb", textAlign: "left", fontWeight: "600", minWidth: "100px" }}>
+                        <FontAwesomeIcon icon={faClock} style={{ marginRight: "0.5rem" }} />
+                        Horaire
+                      </th>
                       {rooms.map((room) => (
-                        <th key={room} className="room-header">{room}</th>
+                        <th
+                          key={room}
+                          style={{
+                            padding: "0.75rem 1rem",
+                            borderBottom: "2px solid #e5e7eb",
+                            textAlign: "left",
+                            fontWeight: "600",
+                            minWidth: "180px",
+                          }}
+                        >
+                          <FontAwesomeIcon icon={faDoorOpen} style={{ marginRight: "0.5rem" }} />
+                          {room}
+                        </th>
                       ))}
                     </tr>
                   </thead>
+
+                  {/* Corps : Sessions par horaire */}
                   <tbody>
-                    {timeSlots.map((time) => (
-                      <tr key={time}>
-                        <td className="time-cell">{time}</td>
-                        {rooms.map((room) => {
-                          const slotSessions = grid[time]?.[room] || [];
-                          return (
-                            <td key={room} className="session-cell">
-                              {slotSessions.map((session: any) => (
-                                <div className="session-card" key={session.id} style={{ marginBottom: slotSessions.length > 1 ? '10px' : '0' }}>
-                                  <div className="session-header">
-                                    <Link href={`/sessions/${session.id}`} className="session-title">
+                    {times.map((time, timeIndex) => {
+                      const sessionsAtTime = sessionsByTime[time];
+                      const roomSessionMap: Record<string, Session | null> = {};
+                      rooms.forEach((room) => {
+                        const session = sessionsAtTime.find((s) => s.roomName === room);
+                        roomSessionMap[room] = session || null;
+                      });
+
+                      const isEven = timeIndex % 2 === 0;
+
+                      return (
+                        <tr
+                          key={`${date}-${time}`}
+                          style={{
+                            borderBottom: "1px solid #e5e7eb",
+                            background: isEven ? "#ffffff" : "#fafafa",
+                          }}
+                        >
+                          {/* Colonne Horaire */}
+                          <td
+                            style={{
+                              padding: "0.75rem 1rem",
+                              fontWeight: "500",
+                              color: "#1a202c",
+                              verticalAlign: "middle",
+                              whiteSpace: "nowrap",
+                              background: isEven ? "#ffffff" : "#fafafa",
+                            }}
+                          >
+                            {time}
+                          </td>
+
+                          {/* Colonnes Salles */}
+                          {rooms.map((room) => {
+                            const session = roomSessionMap[room];
+                            return (
+                              <td
+                                key={`${date}-${time}-${room}`}
+                                style={{
+                                  padding: "0.5rem",
+                                  verticalAlign: "top",
+                                  background: session?.live ? "#fef2f2" : "transparent",
+                                }}
+                              >
+                                {session ? (
+                                  <div
+                                    style={{
+                                      padding: "0.75rem",
+                                      background: "white",
+                                      borderRadius: "8px",
+                                      border: session.live ? "2px solid #ef4444" : "1px solid #e5e7eb",
+                                      boxShadow: session.live ? "0 0 0 3px rgba(239, 68, 68, 0.15)" : "0 1px 3px rgba(0,0,0,0.04)",
+                                      transition: "box-shadow 0.2s",
+                                      position: "relative",
+                                    }}
+                                  >
+                                    {/* Badge Live */}
+                                    {session.live && (
+                                      <span
+                                        style={{
+                                          position: "absolute",
+                                          top: "-0.5rem",
+                                          right: "-0.5rem",
+                                          background: "#ef4444",
+                                          color: "white",
+                                          fontSize: "0.6rem",
+                                          fontWeight: "bold",
+                                          padding: "0.15rem 0.5rem",
+                                          borderRadius: "9999px",
+                                          textTransform: "uppercase",
+                                          letterSpacing: "0.5px",
+                                        }}
+                                      >
+                                        <FontAwesomeIcon icon={faCircle} style={{ fontSize: "0.5rem", marginRight: "0.25rem" }} />
+                                        LIVE
+                                      </span>
+                                    )}
+
+                                    {/* Titre + lien */}
+                                    <Link
+                                      href={`/sessions/${session.id}`}
+                                      style={{
+                                        textDecoration: "none",
+                                        color: "#1a202c",
+                                        fontWeight: "600",
+                                        fontSize: "0.9rem",
+                                        display: "block",
+                                        marginBottom: "0.25rem",
+                                        lineHeight: "1.3",
+                                      }}
+                                    >
                                       {session.title}
                                     </Link>
+
+                                    {/* Intervenants */}
+                                    {session.speakers && session.speakers.length > 0 && (
+                                      <div
+                                        style={{
+                                          fontSize: "0.75rem",
+                                          color: "#6b7280",
+                                          marginBottom: "0.25rem",
+                                        }}
+                                      >
+                                        <FontAwesomeIcon icon={faUser} style={{ marginRight: "0.25rem" }} />
+                                        {session.speakers.map((s) => s.fullName).join(", ")}
+                                      </div>
+                                    )}
+
+                                    {/* Événement */}
+                                    {session.eventTitle && (
+                                      <div
+                                        style={{
+                                          fontSize: "0.7rem",
+                                          color: "#9ca3af",
+                                          marginBottom: "0.5rem",
+                                        }}
+                                      >
+                                        <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: "0.25rem" }} />
+                                        {session.eventTitle}
+                                      </div>
+                                    )}
+
+                                    {/* Cœur Favori */}
                                     <button
-                                      className={`favorite-btn ${favorites.has(session.id) ? "active" : ""}`}
-                                      onClick={() => toggleFavorite(session.id)}
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        handleToggleFavorite(session);
+                                      }}
+                                      style={{
+                                        background: "none",
+                                        border: "none",
+                                        cursor: "pointer",
+                                        fontSize: "1.2rem",
+                                        padding: "0.1rem 0.25rem",
+                                        color: favorites.some(f => f.sessionId === session.id) ? "#ef4444" : "#d1d5db",
+                                        transition: "transform 0.2s",
+                                        display: "inline-flex",
+                                        alignItems: "center",
+                                      }}
+                                      onMouseEnter={(e) => {
+                                        e.currentTarget.style.transform = "scale(1.2)";
+                                      }}
+                                      onMouseLeave={(e) => {
+                                        e.currentTarget.style.transform = "scale(1)";
+                                      }}
+                                      aria-label={favorites.some(f => f.sessionId === session.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
                                     >
-                                      ♥
+                                      <FontAwesomeIcon
+                                        icon={favorites.some(f => f.sessionId === session.id) ? faHeart : faHeartRegular}
+                                        style={{ color: favorites.some(f => f.sessionId === session.id) ? "#ef4444" : "#d1d5db" }}
+                                      />
                                     </button>
                                   </div>
-                                  <div className="session-meta">
-                                    <span>🕒 {formatHour(session.startTime)} - {formatHour(session.endTime)}</span>
-                                    {session.live && <span className="live-badge">LIVE</span>}
-                                  </div>
-                                  {session.speakers && session.speakers.length > 0 && (
-                                    <div className="session-speakers">
-                                      👤 {session.speakers.map((s: any) => s.fullName).join(", ")}
-                                    </div>
-                                  )}
-                                  <p className="session-description">{session.description}</p>
-                                </div>
-                              ))}
-                              {slotSessions.length === 0 && (
-                                <div className="empty-session">Libre</div>
-                              )}
-                            </td>
-                          );
-                        })}
-                      </tr>
-                    ))}
+                                ) : (
+                                  // Case vide
+                                  <div
+                                    style={{
+                                      height: "100%",
+                                      minHeight: "60px",
+                                      background: "#f9fafb",
+                                      borderRadius: "8px",
+                                      border: "1px dashed #e5e7eb",
+                                    }}
+                                  />
+                                )}
+                              </td>
+                            );
+                          })}
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -226,6 +503,6 @@ export default function PlanningBoard({ sessions = [], events = [] }: any) {
           );
         })
       )}
-    </section>
+    </div>
   );
 }
