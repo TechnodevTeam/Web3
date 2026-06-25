@@ -168,7 +168,6 @@ export default function PlanningBoard({ sessions }: PlanningBoardProps) {
   return (
     <div style={{ padding: "1.5rem", maxWidth: "1400px", margin: "0 auto" }}>
       <h1 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "1.5rem" }}>
-        <FontAwesomeIcon icon={faCalendarAlt} style={{ marginRight: "0.5rem" }} />
         Planning Multi-Track
       </h1>
 
@@ -302,7 +301,7 @@ export default function PlanningBoard({ sessions }: PlanningBoardProps) {
                     <tr style={{ background: "#f8fafc" }}>
                       <th style={{ padding: "0.75rem 1rem", borderBottom: "2px solid #e5e7eb", textAlign: "left", fontWeight: "600", minWidth: "100px" }}>
                         <FontAwesomeIcon icon={faClock} style={{ marginRight: "0.5rem" }} />
-                        Horaire
+                        Horaire de début
                       </th>
                       {rooms.map((room) => (
                         <th
