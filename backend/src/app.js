@@ -7,25 +7,24 @@ const questionRoutes = require("./routes/question.routes");
 const sessionRoutes = require("./routes/session.routes");
 const speakerRoutes = require("./routes/speaker.routes");
 const { syncAllSequences } = require("./utils/syncSequences"); // ✅ IMPORTER
-
 const contentRangeMiddleware = require('./middleware/contentRange');
-
-dotenv.config();
-const app = express();
 
 app.use(cors({
   exposedHeaders: ['Content-Range']
 }));
 
+dotenv.config();
+const app = express();
+
 app.use(express.json());
+
+app.use('/api', contentRangeMiddleware);
 
 // Routes
 app.use("/api/events", eventRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/speakers", speakerRoutes);
-
-app.use('/api', contentRangeMiddleware);
 
 const PORT = process.env.PORT || 8080;
 
