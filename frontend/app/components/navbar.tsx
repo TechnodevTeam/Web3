@@ -101,7 +101,7 @@ export default function Navbar() {
         </Link>
 
         <Link 
-          href="http://localhost:3001/admin" 
+          href="http://localhost:3001/login" 
           onClick={closeMenu}
           className={isActive('/admin') ? 'active-link' : ''}
         >
