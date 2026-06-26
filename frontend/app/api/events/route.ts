@@ -1,21 +1,28 @@
+// frontend/app/api/events/route.ts
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: parseInt(process.env.DB_PORT || '5432'),
-  user: process.env.DB_USER || 'user1',
-  password: process.env.DB_PASSWORD || '01234',
-  database: process.env.DB_NAME || 'eventsync_db',
+  host: 'localhost',
+  port: 5432,
+  user: 'user1',
+  password: '01234',
+  database: 'eventsync_db',
 });
 
 export async function GET() {
   try {
-    const result = await pool.query(
-      `SELECT id, title, description, start_date, end_date, location 
-       FROM events 
-       ORDER BY start_date`
-    );
+    const result = await pool.query(`
+      SELECT 
+        id,
+        title,
+        description,
+        start_date AS "startDate",
+        end_date AS "endDate",
+        location
+      FROM events
+      ORDER BY start_date DESC
+    `);
     return NextResponse.json(result.rows);
   } catch (error) {
     console.error('Erreur GET events:', error);
@@ -26,20 +33,22 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { title, description, start_date, end_date, location } = body;
+    const { title, description, startDate, endDate, location } = body;
 
-    if (!title || !start_date || !end_date) {
+    if (!title) {
       return NextResponse.json(
-        { error: 'Titre, date de début et de fin requis' },
+        { error: 'Le titre est requis' },
         { status: 400 }
       );
     }
 
     const result = await pool.query(
-      `INSERT INTO events (title, description, start_date, end_date, location)
-       VALUES ($1, $2, $3, $4, $5)
-       RETURNING id, title, description, start_date, end_date, location`,
-      [title, description || null, start_date, end_date, location || null]
+      `
+      INSERT INTO events (title, description, start_date, end_date, location)
+      VALUES ($1, $2, $3, $4, $5)
+      RETURNING id, title, description, start_date AS "startDate", end_date AS "endDate", location
+      `,
+      [title, description || null, startDate || null, endDate || null, location || null]
     );
 
     return NextResponse.json(result.rows[0]);
