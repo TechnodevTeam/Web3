@@ -5,6 +5,6 @@ const router = express.Router();
 const { authMiddleware, adminMiddleware } = require('../middleware/auth.middleware')
 
 // Route pour upvoter une question
-router.patch("/:id/upvote", authMiddleware, questionController.upvoteQuestion);
+router.patch("/:id/upvote", authMiddleware, adminMiddleware, questionController.upvoteQuestion);
 
 module.exports = router;

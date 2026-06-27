@@ -4,8 +4,8 @@ const router = express.Router();
 const { authMiddleware, adminMiddleware } = require('../middleware/auth.middleware')
 
 // Routes publiques
-router.get("/", authMiddleware, speakerController.getAllSpeakers);
-router.get("/:id", authMiddleware, speakerController.getSpeakerById);
+router.get("/", speakerController.getAllSpeakers);
+router.get("/:id", speakerController.getSpeakerById);
 
 // Routes admin (protéger avec auth plus tard)
 router.post("/", authMiddleware, adminMiddleware, speakerController.createSpeaker);
