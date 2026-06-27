@@ -64,11 +64,21 @@ async function getAllSessions() {
 }
 
 async function createSession(data) {
-  return await sessionRepository.createSession(data);
+  const { speakerIds, ...sessionData } = data
+  const session = await sessionRepository.createSession(sessionData)
+  if (speakerIds && speakerIds.length > 0) {
+    await sessionRepository.setSpeakersForSession(session.id, speakerIds)
+  }
+  return session
 }
 
 async function updateSession(id, data) {
-  return await sessionRepository.updateSession(id, data);
+  const { speakerIds, ...sessionData } = data
+  const session = await sessionRepository.updateSession(id, sessionData)
+  if (speakerIds !== undefined) {
+    await sessionRepository.setSpeakersForSession(id, speakerIds)
+  }
+  return session
 }
 
 async function deleteSession(id) {
