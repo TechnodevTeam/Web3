@@ -9,6 +9,7 @@ const speakerRoutes = require("./routes/speaker.routes");
 const roomRoutes = require("./routes/room.routes");
 const authRoutes = require("./routes/auth.routes");
 const { syncAllSequences } = require("./utils/syncSequences");
+const { authMiddleware, adminMiddleware } = require('./middleware/auth.middleware')
 const contentRangeMiddleware = require("./middleware/contentRange");
 
 dotenv.config();
