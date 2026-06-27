@@ -179,20 +179,33 @@ async function findAllSessions() {
     SELECT
       sessions.id,
       sessions.event_id AS "eventId",
-      events.title AS "eventTitle",   -- Ajout du titre de l'événement
+      events.title AS "eventTitle",
       sessions.room_id AS "roomId",
       sessions.title,
       sessions.description,
       sessions.start_time AS "startTime",
       sessions.end_time AS "endTime",
+      sessions.capacity,
       rooms.name AS "roomName",
       CASE
         WHEN CURRENT_TIMESTAMP BETWEEN sessions.start_time AND sessions.end_time
         THEN true ELSE false
-      END AS live
+      END AS live,
+      COALESCE(
+        json_agg(
+          DISTINCT jsonb_build_object(
+            'id', speakers.id,
+            'fullName', speakers.full_name
+          )
+        ) FILTER (WHERE speakers.id IS NOT NULL),
+        '[]'
+      ) AS speakers
     FROM sessions
     INNER JOIN rooms ON rooms.id = sessions.room_id
-    INNER JOIN events ON events.id = sessions.event_id   -- Jointure ajoutée
+    INNER JOIN events ON events.id = sessions.event_id
+    LEFT JOIN session_speakers ON sessions.id = session_speakers.session_id
+    LEFT JOIN speakers ON session_speakers.speaker_id = speakers.id
+    GROUP BY sessions.id, rooms.name, events.title
     ORDER BY sessions.start_time
   `);
   return result.rows;
@@ -253,6 +266,28 @@ async function addAnswerToQuestion(questionId, answerContent) {
   return result.rows[0];
 }
 
+async function addSpeakerToSession(sessionId, speakerId) {
+  await db.query(
+    `INSERT INTO session_speakers (session_id, speaker_id)
+     VALUES ($1, $2) ON CONFLICT DO NOTHING`,
+    [sessionId, speakerId]
+  );
+}
+
+async function removeSpeakersFromSession(sessionId) {
+  await db.query(
+    `DELETE FROM session_speakers WHERE session_id = $1`,
+    [sessionId]
+  );
+}
+
+async function setSpeakersForSession(sessionId, speakerIds) {
+  await removeSpeakersFromSession(sessionId);
+  for (const speakerId of speakerIds) {
+    await addSpeakerToSession(sessionId, speakerId);
+  }
+}
+
 module.exports = {
   findSessionsByEventId,
   findSessionById,
@@ -261,4 +296,9 @@ module.exports = {
   createQuestion,
   upvoteQuestion,
   findAllSessions,
-};
+  createSession,
+  updateSession,
+  deleteSession,
+  addAnswerToQuestion,
+  setSpeakersForSession,  // ← ajoute
+}
