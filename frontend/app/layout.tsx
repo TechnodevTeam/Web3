@@ -67,6 +67,12 @@ export default function RootLayout({
             </div>
             <div className="footer-bottom">
               <p>© 2026 EventSync - Tous droits réservés</p>
+              <p style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>
+                Développé avec ❤️ par <strong>TechnodevTeam</strong> — Projet Web3
+              </p>
+              <p style={{ fontSize: "12px", color: "#9ca3af", marginTop: "2px" }}>
+                Mahefa (STD24173) &nbsp;·&nbsp; Antsa (STD24135) &nbsp;·&nbsp; Franco (STD24029) &nbsp;·&nbsp; Miaritsoa (STD24078)
+              </p>
             </div>
           </footer>
         )}
