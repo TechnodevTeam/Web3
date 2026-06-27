@@ -6,34 +6,39 @@ const eventRoutes = require("./routes/event.routes");
 const questionRoutes = require("./routes/question.routes");
 const sessionRoutes = require("./routes/session.routes");
 const speakerRoutes = require("./routes/speaker.routes");
-const { syncAllSequences } = require("./utils/syncSequences"); // ✅ IMPORTER
-const contentRangeMiddleware = require('./middleware/contentRange');
+const roomRoutes = require("./routes/room.routes");
+const authRoutes = require("./routes/auth.routes");
+const { syncAllSequences } = require("./utils/syncSequences");
+const contentRangeMiddleware = require("./middleware/contentRange");
 
+dotenv.config();
+
+// ✅ DÉCLARER app AVANT de l'utiliser
+const app = express();
+
+// ✅ CORS AVEC EXPOSITION DES EN-TÊTES
 app.use(cors({
   exposedHeaders: ['Content-Range']
 }));
 
-dotenv.config();
-const app = express();
-
 app.use(express.json());
 
+// ✅ Appliquer le middleware Content-Range SUR TOUTES LES ROUTES /api
 app.use('/api', contentRangeMiddleware);
 
-// Routes
+// ✅ Routes (après les middlewares)
 app.use("/api/events", eventRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/speakers", speakerRoutes);
+app.use('/api/rooms', roomRoutes)
+app.use('/api/auth', authRoutes)
 
 const PORT = process.env.PORT || 8080;
 
-// ✅ Démarrer le serveur après synchronisation des séquences
 async function startServer() {
   try {
-    // Synchroniser les séquences avant de démarrer
     await syncAllSequences();
-    
     app.listen(PORT, () => {
       console.log(`✅ Backend lancé sur http://localhost:${PORT}`);
       console.log(`📋 Speakers: http://localhost:${PORT}/api/speakers`);
@@ -41,7 +46,7 @@ async function startServer() {
       console.log(`📋 Sessions: http://localhost:${PORT}/api/sessions`);
     });
   } catch (error) {
-    console.error('❌ Erreur au démarrage:', error);
+    console.error("❌ Erreur au démarrage:", error);
     process.exit(1);
   }
 }
