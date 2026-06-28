@@ -12,6 +12,7 @@ const { syncAllSequences } = require("./utils/syncSequences");
 const { authMiddleware, adminMiddleware } = require('./middleware/auth.middleware')
 const contentRangeMiddleware = require("./middleware/contentRange");
 const statsRoutes = require('./routes/stats.routes')
+const userRoutes = require('./routes/user.routes')
 
 
 dotenv.config();
@@ -34,10 +35,10 @@ app.use("/api/events", eventRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/sessions", sessionRoutes);
 app.use("/api/speakers", speakerRoutes);
-app.use('/api/rooms', roomRoutes)
-app.use('/api/auth', authRoutes)
-app.use('/api/stats', statsRoutes)
-
+app.use('/api/rooms', roomRoutes);
+app.use('/api/auth', authRoutes);
+app.use('/api/stats', statsRoutes);
+app.use('/api/users', userRoutes);
 
 const PORT = process.env.PORT || 8080;
 
