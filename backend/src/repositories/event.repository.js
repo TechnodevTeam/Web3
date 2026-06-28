@@ -23,26 +23,58 @@ async function findEventById(id) {
     const result = await db.query(
       `
       SELECT
-        id,
-        title,
-        description,
-        start_date AS "startDate",
-        end_date AS "endDate",
-        location
+        events.id,
+        events.title,
+        events.description,
+        events.start_date AS "startDate",
+        events.end_date AS "endDate",
+        events.location,
+        COALESCE(
+          json_agg(
+            DISTINCT jsonb_build_object(
+              'id', sessions.id,
+              'title', sessions.title,
+              'description', sessions.description,
+              'startTime', sessions.start_time,
+              'endTime', sessions.end_time,
+              'roomName', rooms.name,
+              'capacity', sessions.capacity,
+              'live', CASE
+                WHEN CURRENT_TIMESTAMP BETWEEN sessions.start_time AND sessions.end_time
+                THEN true ELSE false
+              END,
+              'speakers', COALESCE(
+                (
+                  SELECT json_agg(
+                    jsonb_build_object(
+                      'id', sp.id,
+                      'fullName', sp.full_name
+                    )
+                  )
+                  FROM session_speakers ss
+                  INNER JOIN speakers sp ON ss.speaker_id = sp.id
+                  WHERE ss.session_id = sessions.id
+                ),
+                '[]'
+              )
+            )
+          ) FILTER (WHERE sessions.id IS NOT NULL),
+          '[]'
+        ) AS sessions
       FROM events
-      WHERE id = $1
-    `,
+      LEFT JOIN sessions ON sessions.event_id = events.id
+      LEFT JOIN rooms ON sessions.room_id = rooms.id
+      WHERE events.id = $1
+      GROUP BY events.id
+      `,
       [id]
     );
-    if (result.rows.length === 0) {
-      return null;
-    }
+    if (result.rows.length === 0) return null;
     return result.rows[0];
   } catch (error) {
-    return MOCK_EVENTS.find((e) => e.id === id) || null;
+    return null;
   }
 }
-
 
 async function createEvent({ title, description, startDate, endDate, location }) {
   const result = await db.query(
