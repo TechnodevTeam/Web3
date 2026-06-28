@@ -36,8 +36,19 @@ async function deleteQuestion(questionId) {
   return result.rows[0];
 }
 
+async function addAnswer(questionId, content) {
+  const result = await db.query(
+    `INSERT INTO question_answers (question_id, content)
+     VALUES ($1, $2)
+     RETURNING id, question_id AS "questionId", content, created_at AS "createdAt"`,
+    [questionId, content]
+  )
+  return result.rows[0]
+}
+
 module.exports = {
   upvoteQuestion,
   findAllQuestions,
   deleteQuestion,
-};
+  addAnswer,
+}

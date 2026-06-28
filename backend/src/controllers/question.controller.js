@@ -46,8 +46,27 @@ async function deleteQuestion(req, res) {
   }
 }
 
+async function answerQuestion(req, res) {
+  try {
+    const questionId = Number(req.params.id)
+    if (isNaN(questionId)) {
+      return res.status(400).json({ error: "ID invalide" })
+    }
+    const { content } = req.body
+    if (!content || content.trim() === '') {
+      return res.status(400).json({ error: "Le contenu de la réponse est requis" })
+    }
+    const answer = await questionService.answerQuestion(questionId, content.trim())
+    res.status(201).json(answer)
+  } catch (error) {
+    console.error("Erreur answerQuestion:", error)
+    res.status(500).json({ error: "Erreur serveur" })
+  }
+}
+
 module.exports = {
   upvoteQuestion,
   getAllQuestions,
   deleteQuestion,
+  answerQuestion,
 };

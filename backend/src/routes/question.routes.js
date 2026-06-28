@@ -9,5 +9,6 @@ router.patch("/:id/upvote", questionController.upvoteQuestion);
 // Routes protégées admin
 router.get("/", authMiddleware, adminMiddleware, questionController.getAllQuestions);
 router.delete("/:id", authMiddleware, adminMiddleware, questionController.deleteQuestion);
+router.post("/:id/answer", authMiddleware, adminMiddleware, questionController.answerQuestion);
 
 module.exports = router;

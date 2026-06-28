@@ -12,8 +12,13 @@ async function deleteQuestion(questionId) {
   return questionRepository.deleteQuestion(questionId);
 }
 
+async function answerQuestion(questionId, content) {
+  return questionRepository.addAnswer(questionId, content)
+}
+
 module.exports = {
   upvoteQuestion,
   getAllQuestions,
   deleteQuestion,
-};
+  answerQuestion,
+}
