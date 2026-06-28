@@ -30,18 +30,24 @@ export default function QuestionItem({
 
   useEffect(() => {
     if (question?.id) {
-      const saved = localStorage.getItem(`upvoted-${question.id}`);
-      if (saved) setAlreadyUpvoted(true);
+      const alreadyVoted = document.cookie.includes(`upvoted-${question.id}=true`)
+      if (alreadyVoted) setAlreadyUpvoted(true)
     }
-  }, [question?.id]);
+  }, [question?.id])
 
   async function handleUpvote() {
     if (alreadyUpvoted || loading || !question?.id) return;
     try {
       setLoading(true);
       const updated = await upvoteQuestion(question.id);
-      setUpvotes(updated.upvotes || updated.upvotes_count || upvotes + 1);
-      localStorage.setItem(`upvoted-${question.id}`, "true");
+
+      // ← utilise la valeur réelle retournée par l'API
+      setUpvotes(updated.upvotes);
+
+      // Cookie au lieu de localStorage
+      const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString()
+      document.cookie = `upvoted-${question.id}=true; expires=${expires}; path=/`
+
       setAlreadyUpvoted(true);
       if (onUpvote) onUpvote(question.id);
     } catch (error) {

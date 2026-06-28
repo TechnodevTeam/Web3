@@ -71,21 +71,21 @@ export default function SessionDetailPage() {
       try {
         // Récupérer la session
         const response = await fetch(`/api/sessions/${sessionId}`);
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || `Erreur HTTP ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         if (!data || !data.id) {
           throw new Error("Session non trouvée");
         }
-        
+
         setSession(data);
         setError(null);
-        
+
         // Récupérer les questions
         const questionsResponse = await fetch(`/api/sessions/${sessionId}/questions`);
         if (questionsResponse.ok) {
@@ -104,31 +104,22 @@ export default function SessionDetailPage() {
     fetchSession();
   }, [sessionId]);
 
-  
+
 
   const handleQuestionAdded = (newQuestion: any) => {
     setQuestions((prev) => [newQuestion, ...prev]);
   };
 
   const handleEditQuestion = (questionId: number, newContent: string) => {
-  setQuestions((prev) =>
-    prev.map((q) =>
-      q.id === questionId ? { ...q, content: newContent } : q
-    )
-  );
+    setQuestions((prev) =>
+      prev.map((q) =>
+        q.id === questionId ? { ...q, content: newContent } : q
+      )
+    );
   };
 
   const handleDeleteQuestion = (questionId: number) => {
-  setQuestions((prev) => prev.filter((q) => q.id !== questionId));
-  };
-
-  // Fonction pour mettre à jour les upvotes
-  const handleUpvote = (questionId: number) => {
-    setQuestions(prev =>
-      prev.map(q =>
-        q.id === questionId ? { ...q, upvotes: (q.upvotes || 0) + 1 } : q
-      )
-    );
+    setQuestions((prev) => prev.filter((q) => q.id !== questionId));
   };
 
   if (loading) {
@@ -158,10 +149,10 @@ export default function SessionDetailPage() {
         {session.title}
       </h1>
 
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center", 
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
         flexWrap: "wrap",
         marginBottom: "1rem",
         padding: "1rem",
@@ -171,7 +162,7 @@ export default function SessionDetailPage() {
       }}>
         <div>
           <p style={{ margin: "0.25rem 0", fontWeight: "500" }}>
-             {session.roomName} | {session.eventTitle}
+            {session.roomName} | {session.eventTitle}
           </p>
           <p style={{ margin: "0.25rem 0", color: "#6b7280" }}>
             <FontAwesomeIcon icon={faClock} />
@@ -179,10 +170,10 @@ export default function SessionDetailPage() {
           </p>
         </div>
         {session.live && (
-          <span style={{ 
-            background: "#ff4444", 
-            color: "white", 
-            padding: "0.5rem 1rem", 
+          <span style={{
+            background: "#ff4444",
+            color: "white",
+            padding: "0.5rem 1rem",
             borderRadius: "4px",
             fontSize: "0.9rem",
             fontWeight: "bold"
@@ -234,12 +225,12 @@ export default function SessionDetailPage() {
       {/* Section Questions */}
       <div>
         <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.75rem" }}>Questions</h2>
-        
+
         {session.live ? (
           <>
             {/* ✅ QuestionForm existant */}
             <QuestionForm sessionId={session.id} />
-            
+
             {/* ✅ Liste des questions avec QuestionItem existant */}
             {questions.length === 0 ? (
               <p style={{ color: "#6b7280", fontStyle: "italic" }}>
@@ -248,12 +239,11 @@ export default function SessionDetailPage() {
             ) : (
               <div style={{ marginTop: "1rem" }}>
                 {questions.map((question) => (
-                  <QuestionItem 
-                    key={question.id} 
-                    question={question} 
-                    onUpvote={handleUpvote}
+                  <QuestionItem
+                    key={question.id}
+                    question={question}
                     onEdit={handleEditQuestion}
-                    onDelete={handleDeleteQuestion} 
+                    onDelete={handleDeleteQuestion}
                   />
                 ))}
               </div>

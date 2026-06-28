@@ -91,21 +91,21 @@ export default function SessionDetailPage() {
     const fetchSession = async () => {
       try {
         const response = await fetch(`/api/sessions/${sessionId}`);
-        
+
         if (!response.ok) {
           const errorData = await response.json();
           throw new Error(errorData.error || `Erreur HTTP ${response.status}`);
         }
-        
+
         const data = await response.json();
-        
+
         if (!data || !data.id) {
           throw new Error("Session non trouvée");
         }
-        
+
         setSession(data);
         setError(null);
-        
+
         const questionsResponse = await fetch(`/api/sessions/${sessionId}/questions`);
         if (questionsResponse.ok) {
           const questionsData = await questionsResponse.json();
@@ -138,12 +138,10 @@ export default function SessionDetailPage() {
 
   // ✅ Fonction pour mettre à jour les upvotes
   const handleUpvote = (questionId: number) => {
-    setQuestions(prev =>
-      prev.map(q =>
-        q.id === questionId ? { ...q, upvotes: (q.upvotes || 0) + 1 } : q
-      )
-    );
-  };
+    setQuestions((prev: any[]) =>
+      [...prev].sort((a: any, b: any) => (b.upvotes || 0) - (a.upvotes || 0))
+    )
+  }
 
   if (loading) {
     return (
@@ -171,10 +169,10 @@ export default function SessionDetailPage() {
         {session.title}
       </h1>
 
-      <div style={{ 
-        display: "flex", 
-        justifyContent: "space-between", 
-        alignItems: "center", 
+      <div style={{
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
         flexWrap: "wrap",
         marginBottom: "1rem",
         padding: "1rem",
@@ -191,10 +189,10 @@ export default function SessionDetailPage() {
           </p>
         </div>
         {session.live && (
-          <span style={{ 
-            background: "#ff4444", 
-            color: "white", 
-            padding: "0.5rem 1rem", 
+          <span style={{
+            background: "#ff4444",
+            color: "white",
+            padding: "0.5rem 1rem",
             borderRadius: "4px",
             fontSize: "0.9rem",
             fontWeight: "bold"
@@ -236,8 +234,8 @@ export default function SessionDetailPage() {
                   e.currentTarget.style.backgroundColor = "#f3f4f6";
                 }}
               >
-                <FontAwesomeIcon 
-                  icon={getSpeakerGenderIcon(speaker.fullName)} 
+                <FontAwesomeIcon
+                  icon={getSpeakerGenderIcon(speaker.fullName)}
                   style={{ fontSize: "1.25rem", color: "#6b7280" }}
                 />
                 <span style={{ fontWeight: "500" }}>{speaker.fullName}</span>
@@ -250,11 +248,11 @@ export default function SessionDetailPage() {
       {/* Section Questions */}
       <div>
         <h2 style={{ fontSize: "1.25rem", fontWeight: "600", marginBottom: "0.75rem" }}>Questions</h2>
-        
+
         {session.live ? (
           <>
             <QuestionForm sessionId={session.id} />
-            
+
             {questions.length === 0 ? (
               <p style={{ color: "#6b7280", fontStyle: "italic" }}>
                 Aucune question pour le moment. Soyez le premier à poser une question !
@@ -262,9 +260,9 @@ export default function SessionDetailPage() {
             ) : (
               <div style={{ marginTop: "1rem" }}>
                 {questions.map((question) => (
-                  <QuestionItem 
-                    key={question.id} 
-                    question={question} 
+                  <QuestionItem
+                    key={question.id}
+                    question={question}
                     onUpvote={handleUpvote}
                   />
                 ))}

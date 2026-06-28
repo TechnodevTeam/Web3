@@ -40,14 +40,14 @@ export default function EventSessionsPage() {
     const fetchSessions = async () => {
       try {
         const response = await fetch(`/api/events/${eventId}/sessions`);
-        
+
         if (!response.ok) {
           throw new Error("Erreur chargement des sessions");
         }
-        
+
         const data = await response.json();
         setSessions(Array.isArray(data) ? data : []);
-        
+
         // Charger les questions pour les sessions live
         const questionsPromises = data.map(async (session: Session) => {
           if (session.live) {
@@ -63,14 +63,14 @@ export default function EventSessionsPage() {
           }
           return { sessionId: session.id, questions: [] };
         });
-        
+
         const questionsResults = await Promise.all(questionsPromises);
         const questionsMap: Record<number, any[]> = {};
         questionsResults.forEach(({ sessionId, questions }) => {
           questionsMap[sessionId] = questions;
         });
         setQuestions(questionsMap);
-        
+
       } catch (err) {
         console.error("Erreur:", err);
         setError("Impossible de charger les sessions");
@@ -91,19 +91,18 @@ export default function EventSessionsPage() {
   };
 
   const handleUpvote = (questionId: number) => {
-    setQuestions((prev) => {
-      const newQuestions = { ...prev };
+    setQuestions((prev: Record<number, any[]>) => {
+      const newQuestions = { ...prev }
       for (const sessionId in newQuestions) {
-        if (newQuestions[sessionId].some(q => q.id === questionId)) {
-          newQuestions[sessionId] = newQuestions[sessionId].map(q =>
-            q.id === questionId ? { ...q, upvotes: (q.upvotes || 0) + 1 } : q
-          );
-          break;
+        if (newQuestions[sessionId].some((q: any) => q.id === questionId)) {
+          newQuestions[sessionId] = [...newQuestions[sessionId]]
+            .sort((a: any, b: any) => (b.upvotes || 0) - (a.upvotes || 0))
+          break
         }
       }
-      return newQuestions;
-    });
-  };
+      return newQuestions
+    })
+  }
 
   if (loading) {
     return (
@@ -136,7 +135,7 @@ export default function EventSessionsPage() {
   return (
     <main style={{ padding: "2rem", fontFamily: "Arial, sans-serif", maxWidth: "1200px", margin: "0 auto" }}>
       <BackButton fallbackUrl="/events" title="" />
-      
+
       <h1 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "0.5rem", marginTop: "1rem" }}>
         Sessions de l'événement
       </h1>
@@ -156,24 +155,24 @@ export default function EventSessionsPage() {
               boxShadow: '0 1px 3px rgba(0,0,0,0.05)',
             }}
           >
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
               alignItems: 'flex-start',
               flexWrap: 'wrap',
               marginBottom: '0.75rem'
             }}>
-              <Link 
+              <Link
                 href={`/sessions/${session.id}`}
-                style={{ 
-                  textDecoration: 'none', 
+                style={{
+                  textDecoration: 'none',
                   color: 'inherit',
                   flex: 1
                 }}
               >
-                <h2 style={{ 
-                  fontSize: '1.25rem', 
-                  fontWeight: '600', 
+                <h2 style={{
+                  fontSize: '1.25rem',
+                  fontWeight: '600',
                   margin: 0,
                   color: '#1a202c'
                 }}>
@@ -181,10 +180,10 @@ export default function EventSessionsPage() {
                 </h2>
               </Link>
               {session.live && (
-                <span style={{ 
-                  background: '#ff4444', 
-                  color: 'white', 
-                  padding: '0.25rem 0.75rem', 
+                <span style={{
+                  background: '#ff4444',
+                  color: 'white',
+                  padding: '0.25rem 0.75rem',
                   borderRadius: '4px',
                   fontSize: '0.8rem',
                   fontWeight: 'bold',
@@ -199,9 +198,9 @@ export default function EventSessionsPage() {
               {session.description || "Aucune description"}
             </p>
 
-            <div style={{ 
-              display: 'grid', 
-              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
               gap: '0.5rem',
               fontSize: '0.875rem',
               color: '#6b7280',
@@ -241,15 +240,15 @@ export default function EventSessionsPage() {
                 <h3 style={{ fontSize: '1rem', fontWeight: '600', marginBottom: '0.5rem' }}>
                   Questions
                 </h3>
-                
+
                 {/* ✅ QuestionForm avec onQuestionAdded */}
-                <QuestionForm 
-                  sessionId={session.id} 
+                <QuestionForm
+                  sessionId={session.id}
                   onQuestionAdded={(newQuestion) => handleQuestionAdded(session.id, newQuestion)}
                 />
-                
-                <QuestionList 
-                  questions={questions[session.id] || []} 
+
+                <QuestionList
+                  questions={questions[session.id] || []}
                   onUpvote={handleUpvote}
                 />
               </div>

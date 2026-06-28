@@ -18,54 +18,24 @@ export default function QuestionList({
 }: Props) {
   const [localQuestions, setLocalQuestions] = useState<any[]>(questions);
 
-  // Mettre à jour quand les props changent
   useEffect(() => {
     setLocalQuestions(questions);
   }, [questions]);
 
-  async function handleUpvote(questionId: number) {
-    try {
-      const response = await fetch(`/api/questions/${questionId}/upvote`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.error || `Erreur HTTP ${response.status}`);
-      }
-
-      const updatedQuestion = await response.json();
-
-      setLocalQuestions((previous) =>
-        previous.map((question) =>
-          question.id === questionId
-            ? { ...question, upvotes: updatedQuestion.upvotes || question.upvotes + 1 }
-            : question
-        )
-      );
-
-      if (onUpvote) {
-        onUpvote(questionId);
-      }
-    } catch (error) {
-      console.error("Erreur upvote:", error);
-    }
+  function handleUpvote(questionId: number) {
+    setLocalQuestions((prev) =>
+      [...prev].sort((a: any, b: any) => (b.upvotes || 0) - (a.upvotes || 0))
+    );
+    if (onUpvote) onUpvote(questionId);
   }
 
-  // Gestion de la modification (transmise à QuestionItem)
   const handleEdit = (questionId: number, newContent: string) => {
     setLocalQuestions((prev) =>
-      prev.map((q) =>
-        q.id === questionId ? { ...q, content: newContent } : q
-      )
+      prev.map((q) => q.id === questionId ? { ...q, content: newContent } : q)
     );
     if (onEdit) onEdit(questionId, newContent);
   };
 
-  // Gestion de la suppression (transmise à QuestionItem)
   const handleDelete = (questionId: number) => {
     setLocalQuestions((prev) => prev.filter((q) => q.id !== questionId));
     if (onDelete) onDelete(questionId);
