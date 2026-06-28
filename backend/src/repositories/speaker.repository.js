@@ -18,7 +18,27 @@ async function findSpeakerById(speakerId) {
             'startTime', sessions.start_time,
             'endTime', sessions.end_time,
             'roomName', rooms.name,
-            'eventTitle', events.title
+            'eventTitle', events.title,
+            'live', CASE
+              WHEN CURRENT_TIMESTAMP BETWEEN sessions.start_time AND sessions.end_time
+              THEN true ELSE false
+            END,
+            'questions', COALESCE(
+              (
+                SELECT json_agg(
+                  jsonb_build_object(
+                    'id', q.id,
+                    'content', q.content,
+                    'authorName', q.author_name,
+                    'upvotes', q.upvotes,
+                    'createdAt', q.created_at
+                  ) ORDER BY q.upvotes DESC
+                )
+                FROM questions q
+                WHERE q.session_id = sessions.id
+              ),
+              '[]'
+            )
           )
         ) FILTER (WHERE sessions.id IS NOT NULL),
         '[]'
