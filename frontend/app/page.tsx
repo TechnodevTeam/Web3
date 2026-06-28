@@ -25,7 +25,7 @@ export default function HomePage() {
                         <Link href="/events" className="btn-primary">
                           Voir les événements
                         </Link>
-                        <Link href="/admin" className="btn-secondary">
+                        <Link href="http://localhost:5173/#/login" className="btn-secondary">
                           Espace admin
                         </Link>
                       </div>

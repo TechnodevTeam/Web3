@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 interface Speaker {
   id: number;
-  full_name: string;
+  fullName: string;
   photo_url: string | null;
   bio: string | null;
   external_links: string | null;
@@ -43,7 +43,7 @@ export default function SpeakersPage() {
   };
 
   const filtered = speakers.filter((s) =>
-    s.full_name.toLowerCase().includes(search.toLowerCase()) ||
+    s.fullName.toLowerCase().includes(search.toLowerCase()) ||
     (s.bio && s.bio.toLowerCase().includes(search.toLowerCase())) ||
     (s.role && s.role.toLowerCase().includes(search.toLowerCase()))
   );
@@ -127,12 +127,12 @@ export default function SpeakersPage() {
                 {speaker.photo_url ? (
                   <img
                     src={speaker.photo_url}
-                    alt={speaker.full_name}
+                    alt={speaker.fullName}
                     className="spk-photo"
                   />
                 ) : (
                   <div className="spk-photo-placeholder">
-                    {speaker.full_name.charAt(0).toUpperCase()}
+                    {speaker.fullName.charAt(0).toUpperCase()}
                   </div>
                 )}
 
@@ -146,7 +146,7 @@ export default function SpeakersPage() {
 
               {/* Infos */}
               <div className="spk-info">
-                <h3 className="spk-name">{speaker.full_name}</h3>
+                <h3 className="spk-name">{speaker.fullName}</h3>
 
                 {speaker.role && (
                   <p className="spk-role">
