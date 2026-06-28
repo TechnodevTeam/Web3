@@ -106,15 +106,27 @@ async function findQuestionsBySessionId(sessionId) {
   const result = await db.query(
     `
     SELECT
-      id,
-      session_id AS "sessionId",
-      content,
-      author_name AS "authorName",
-      upvotes,
-      created_at AS "createdAt"
+      questions.id,
+      questions.session_id AS "sessionId",
+      questions.content,
+      questions.author_name AS "authorName",
+      questions.upvotes,
+      questions.created_at AS "createdAt",
+      COALESCE(
+        json_agg(
+          jsonb_build_object(
+            'id', question_answers.id,
+            'content', question_answers.content,
+            'createdAt', question_answers.created_at
+          )
+        ) FILTER (WHERE question_answers.id IS NOT NULL),
+        '[]'
+      ) AS answers
     FROM questions
-    WHERE session_id = $1
-    ORDER BY upvotes DESC, created_at ASC
+    LEFT JOIN question_answers ON question_answers.question_id = questions.id
+    WHERE questions.session_id = $1
+    GROUP BY questions.id
+    ORDER BY questions.upvotes DESC, questions.created_at ASC
     `,
     [sessionId]
   );

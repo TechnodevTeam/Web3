@@ -364,6 +364,34 @@ export default function QuestionItem({
           </span>
         )}
       </div>
+
+      {question.answers && question.answers.length > 0 && (
+        <div style={{
+          marginTop: '0.75rem',
+          borderTop: '1px solid #f3f4f6',
+          paddingTop: '0.75rem',
+        }}>
+          <p style={{ fontSize: '0.8rem', fontWeight: '600', color: '#2563eb', margin: '0 0 0.5rem' }}>
+            Réponses de l'organisateur :
+          </p>
+          {question.answers.map((answer: any) => (
+            <div key={answer.id} style={{
+              backgroundColor: '#eff6ff',
+              border: '1px solid #bfdbfe',
+              borderRadius: '8px',
+              padding: '0.75rem',
+              marginBottom: '0.5rem',
+              fontSize: '0.9rem',
+              color: '#1e40af',
+            }}>
+              <p style={{ margin: '0 0 0.25rem' }}>{answer.content}</p>
+              <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
+                {answer.createdAt ? new Date(answer.createdAt).toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' }) : ''}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

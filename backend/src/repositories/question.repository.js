@@ -20,12 +20,24 @@ async function findAllQuestions() {
       questions.content,
       questions.author_name AS "authorName",
       questions.upvotes,
-      questions.created_at AS "createdAt"
+      questions.created_at AS "createdAt",
+      COALESCE(
+        json_agg(
+          jsonb_build_object(
+            'id', question_answers.id,
+            'content', question_answers.content,
+            'createdAt', question_answers.created_at
+          )
+        ) FILTER (WHERE question_answers.id IS NOT NULL),
+        '[]'
+      ) AS answers
     FROM questions
     INNER JOIN sessions ON sessions.id = questions.session_id
+    LEFT JOIN question_answers ON question_answers.question_id = questions.id
+    GROUP BY questions.id, sessions.title
     ORDER BY questions.created_at DESC
-  `);
-  return result.rows;
+  `)
+  return result.rows
 }
 
 async function deleteQuestion(questionId) {
