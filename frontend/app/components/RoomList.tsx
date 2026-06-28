@@ -67,7 +67,7 @@ export default function RoomList({
     <>
       <div className="search-filter-bar">
         <div className="search-box">
-            <FontAwesomeIcon icon={faSearch} className="search-icon" />
+          <FontAwesomeIcon icon={faSearch} className="search-icon" />
 
           <input
             type="text"
@@ -131,34 +131,31 @@ export default function RoomList({
                 </p>
               ) : (
                 <ul className="room-session-list">
-                  {room.sessions.map(
-                    (session: any) => (
-                      <li
-                        key={session.id}
-                        className="room-session-item"
-                      >
-                        <div>
-                          <strong>
-                            {session.title}
-                          </strong>
-                        </div>
-
-                        <span>
-                          <FontAwesomeIcon
-                            icon={faClock}
-                          />
-
-                          {formatHour(
-                            session.startTime
-                          )}{" "}
-                          -{" "}
-                          {formatHour(
-                            session.endTime
-                          )}
-                        </span>
-                      </li>
-                    )
-                  )}
+                  {room.sessions.map((session: any) => (
+                    <li key={session.id} className="room-session-item">
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                        <strong>{session.title}</strong>
+                        {session.live && (
+                          <span style={{
+                            backgroundColor: '#ef4444',
+                            color: 'white',
+                            fontSize: 11,
+                            fontWeight: 'bold',
+                            padding: '2px 8px',
+                            borderRadius: 12,
+                            textTransform: 'uppercase',
+                            letterSpacing: 1,
+                          }}>
+                            Live
+                          </span>
+                        )}
+                      </div>
+                      <span>
+                        <FontAwesomeIcon icon={faClock} />
+                        {formatHour(session.startTime)} - {formatHour(session.endTime)}
+                      </span>
+                    </li>
+                  ))}
                 </ul>
               )}
             </div>
