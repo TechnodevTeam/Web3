@@ -52,4 +52,4 @@ Projet réalisé dans le cadre du cours **Web3**
 | Mahefa | STD24173 |
 | Antsa | STD24135 |
 | Franco | STD24029 |
-| Miaritsoa | STD24078 |
+| Miarintsoa | STD24078 |
