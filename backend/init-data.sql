@@ -9,10 +9,6 @@ TRUNCATE TABLE
     users
 RESTART IDENTITY CASCADE;
 
-INSERT INTO admins (email, password)
-VALUES
-    ('admin@eventsync.com', 'admin123');
-
 INSERT INTO events (title, description, start_date, end_date, location)
 VALUES
     (
@@ -199,3 +195,7 @@ VALUES
         'Rado',
         1
     );
+
+INSERT INTO users (first_name, last_name, email, password, role) 
+VALUES ('Super', 'Admin', 'admin@eventpass.com', 'admin123', 'admin')
+ON CONFLICT (email) DO NOTHING;
