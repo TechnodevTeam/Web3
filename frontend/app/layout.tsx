@@ -70,9 +70,6 @@ export default function RootLayout({
               <p style={{ fontSize: "13px", color: "#6b7280", marginTop: "4px" }}>
                 Développé par <strong>TechnodevTeam</strong> — Projet Web3
               </p>
-              <p style={{ fontSize: "12px", color: "#9ca3af", marginTop: "2px" }}>
-                Mahefa (STD24173) &nbsp;·&nbsp; Antsa (STD24135) &nbsp;·&nbsp; Franco (STD24029) &nbsp;·&nbsp; Miaritsoa (STD24078)
-              </p>
             </div>
           </footer>
         )}
