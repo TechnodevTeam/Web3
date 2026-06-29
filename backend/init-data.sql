@@ -1,4 +1,5 @@
 TRUNCATE TABLE
+    question_answers,
     questions,
     session_speakers,
     sessions,
@@ -8,6 +9,10 @@ TRUNCATE TABLE
     admins,
     users
 RESTART IDENTITY CASCADE;
+
+INSERT INTO admins (email, password)
+VALUES
+    ('admin@eventpass.com', 'admin123');
 
 INSERT INTO events (title, description, start_date, end_date, location)
 VALUES

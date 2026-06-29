@@ -10,7 +10,7 @@ async function syncAllSequences() {
     "speakers",
     "users",
     "questions",
-    "answers",
+    "question_answers",
   ];
 
   for (const table of tables) {
