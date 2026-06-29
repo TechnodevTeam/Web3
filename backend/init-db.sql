@@ -70,9 +70,6 @@ CREATE TABLE IF NOT EXISTS users (
     created_at TIMESTAMP DEFAULT NOW()
 );
 
-CREATE TABLE IF NOT EXISTS question_answers (
-    id SERIAL PRIMARY KEY,
-    question_id INTEGER NOT NULL REFERENCES questions(id) ON DELETE CASCADE,
-    content TEXT NOT NULL,
-    created_at TIMESTAMP DEFAULT NOW()
-);
+INSERT INTO users (first_name, last_name, email, password, role) 
+VALUES ('Super', 'Admin', 'admin@eventpass.com', 'admin123', 'admin')
+ON CONFLICT (email) DO NOTHING;
