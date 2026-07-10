@@ -81,7 +81,6 @@ export async function POST(
       );
     }
 
-    // Vérifier si la session est live
     const sessionCheck = await pool.query(
       `SELECT CASE 
         WHEN CURRENT_TIMESTAMP BETWEEN start_time AND end_time 
