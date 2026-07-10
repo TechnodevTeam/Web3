@@ -1,4 +1,3 @@
-// frontend/app/sessions/[id]/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -123,7 +122,6 @@ export default function SessionDetailPage() {
     fetchSession();
   }, [sessionId]);
 
-  // ✅ Fonction pour rafraîchir les questions après ajout
   const handleQuestionAdded = async () => {
     try {
       const response = await fetch(`/api/sessions/${sessionId}/questions`);
@@ -136,7 +134,6 @@ export default function SessionDetailPage() {
     }
   };
 
-  // ✅ Fonction pour mettre à jour les upvotes
   const handleUpvote = (questionId: number) => {
     setQuestions((prev: any[]) =>
       [...prev].sort((a: any, b: any) => (b.upvotes || 0) - (a.upvotes || 0))
