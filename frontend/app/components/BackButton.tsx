@@ -1,4 +1,3 @@
-// frontend/components/BackButton.tsx
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -19,11 +18,9 @@ export default function BackButton({
   const router = useRouter();
 
   const handleBack = () => {
-    // Vérifier si on peut revenir en arrière
     if (window.history.length > 1) {
       router.back();
     } else {
-      // Sinon, rediriger vers la page de secours
       router.push(fallbackUrl);
     }
   };
