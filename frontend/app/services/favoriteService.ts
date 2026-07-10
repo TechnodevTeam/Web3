@@ -1,4 +1,3 @@
-// frontend/app/services/favoriteService.ts
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
@@ -21,13 +20,11 @@ export function useFavorites() {
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Charger les favoris depuis localStorage
   const loadFavorites = useCallback(() => {
     try {
       const stored = localStorage.getItem("favorites");
       if (stored) {
         const parsed = JSON.parse(stored);
-        // Supprimer les doublons
         const unique = parsed.filter(
           (fav: Favorite, index: number, self: Favorite[]) =>
             index === self.findIndex((f) => f.sessionId === fav.sessionId)
@@ -47,20 +44,17 @@ export function useFavorites() {
     }
   }, []);
 
-  // Sauvegarder dans localStorage
   const saveFavorites = useCallback((newFavorites: Favorite[]) => {
     localStorage.setItem("favorites", JSON.stringify(newFavorites));
     setFavorites(newFavorites);
   }, []);
 
-  // ✅ AJOUT : Ajouter un favori
   const addFavorite = useCallback((session: any) => {
     if (!session || !session.id) {
       console.error("❌ Session invalide pour l'ajout aux favoris");
       return;
     }
 
-    // Vérifier si déjà présent
     if (favorites.some((f) => f.sessionId === session.id)) {
       console.log("ℹ️ Session déjà dans les favoris:", session.id);
       return;
@@ -85,7 +79,6 @@ export function useFavorites() {
     console.log("✅ Favori ajouté:", session.id, newFavorite.title);
   }, [favorites, saveFavorites]);
 
-  // Retirer un favori
   const removeFavorite = useCallback((sessionId: number) => {
     const updated = favorites.filter((f) => f.sessionId !== sessionId);
     if (updated.length === favorites.length) {
@@ -96,7 +89,6 @@ export function useFavorites() {
     console.log("🗑️ Favori retiré:", sessionId);
   }, [favorites, saveFavorites]);
 
-  // Basculer l'état favori
   const toggleFavorite = useCallback((sessionId: number | string, session: any) => {
     const id = typeof sessionId === "string" ? parseInt(sessionId, 10) : sessionId;
     if (isFavorite(id)) {
@@ -106,19 +98,16 @@ export function useFavorites() {
     }
   }, [addFavorite, removeFavorite]);
 
-  // Vérifier si une session est favorite
   const isFavorite = useCallback((sessionId: number | string) => {
     const id = typeof sessionId === "string" ? parseInt(sessionId, 10) : sessionId;
     return favorites.some((f) => f.sessionId === id);
   }, [favorites]);
 
-  // Vider tous les favoris
   const clearAllFavorites = useCallback(() => {
     saveFavorites([]);
     console.log("🗑️ Tous les favoris supprimés");
   }, [saveFavorites]);
 
-  // Charger au montage
   useEffect(() => {
     loadFavorites();
   }, [loadFavorites]);
