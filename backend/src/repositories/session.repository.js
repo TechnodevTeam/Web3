@@ -312,5 +312,5 @@ module.exports = {
   updateSession,
   deleteSession,
   addAnswerToQuestion,
-  setSpeakersForSession,  // ← ajoute
+  setSpeakersForSession,
 }
