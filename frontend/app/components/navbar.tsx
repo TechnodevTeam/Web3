@@ -27,8 +27,7 @@ export default function Navbar() {
   function closeMenu() {
     setIsOpen(false);
   }
-
-  // Fonction pour vérifier si un lien est actif
+  
   const isActive = (href: string) => {
     if (href === '/') {
       return pathname === href;
