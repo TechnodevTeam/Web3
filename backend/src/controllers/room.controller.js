@@ -9,10 +9,8 @@ async function getAllRooms(req, res) {
   }
 }
 async function getSessionsByRoomId(req, res) {
-  // ... votre code existant
+  
 }
-
-// Nouveaux
 async function getRoomById(req, res) {
   try {
     const roomId = Number(req.params.id);
