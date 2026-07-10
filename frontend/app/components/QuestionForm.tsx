@@ -19,7 +19,6 @@ export default function QuestionForm({
   const [error, setError] = useState("");
   const [hasAlreadyAsked, setHasAlreadyAsked] = useState(false);
 
-  // Vérifier si l'utilisateur a déjà posé une question pour cette session
   useEffect(() => {
     const key = `asked-${sessionId}`;
     const asked = localStorage.getItem(key);
@@ -28,7 +27,6 @@ export default function QuestionForm({
     }
   }, [sessionId]);
 
-  // ✅ Réinitialiser le statut (pour les tests)
   const resetQuestionStatus = () => {
     const key = `asked-${sessionId}`;
     localStorage.removeItem(key);
