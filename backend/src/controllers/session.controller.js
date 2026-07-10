@@ -2,7 +2,7 @@ const sessionService = require("../services/session.service");
 
 async function getSessionsByEventId(req, res) {
   try {
-    const eventId = Number(req.params.eventId); // ✅ CORRECTION : eventId au lieu de id
+    const eventId = Number(req.params.eventId);
     if (Number.isNaN(eventId)) {
       return res.status(400).json({
         message: "L'id de l'événement doit être un nombre valide",
@@ -55,8 +55,6 @@ async function getQuestionsBySessionId(req, res) {
         message: "Session introuvable",
       });
     }
-    // ✅ CORRECTION : Vérifier si la session est live
-    // Utiliser la méthode isSessionLive du repository via sessionService
     const isLive = await sessionService.isSessionLive(sessionId);
     if (!isLive) {
       return res.status(403).json({
@@ -121,7 +119,6 @@ async function getAllSessions(req, res) {
   }
 }
 
-// ✅ AJOUT : Créer une session
 async function createSession(req, res) {
   try {
     const newSession = await sessionService.createSession(req.body);
@@ -132,7 +129,6 @@ async function createSession(req, res) {
   }
 }
 
-// ✅ AJOUT : Modifier une session
 async function updateSession(req, res) {
   try {
     const id = Number(req.params.id);
@@ -150,7 +146,6 @@ async function updateSession(req, res) {
   }
 }
 
-// ✅ AJOUT : Supprimer une session
 async function deleteSession(req, res) {
   try {
     const id = Number(req.params.id);
@@ -168,7 +163,6 @@ async function deleteSession(req, res) {
   }
 }
 
-// ✅ AJOUT : Ajouter une réponse à une question (optionnel)
 async function addAnswer(req, res) {
   try {
     const questionId = Number(req.params.id);
@@ -189,7 +183,6 @@ async function addAnswer(req, res) {
   }
 }
 
-// ✅ EXPORT : TOUTES les méthodes
 module.exports = {
   getSessionsByEventId,
   getSessionById,
@@ -200,5 +193,5 @@ module.exports = {
   createSession,
   updateSession,
   deleteSession,
-  addAnswer, // ✅ AJOUT : export de addAnswer
+  addAnswer, 
 };
