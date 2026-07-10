@@ -1,4 +1,3 @@
-// frontend/app/sessions/[id]/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -69,7 +68,7 @@ export default function SessionDetailPage() {
 
     const fetchSession = async () => {
       try {
-        // Récupérer la session
+       
         const response = await fetch(`/api/sessions/${sessionId}`);
 
         if (!response.ok) {
@@ -86,7 +85,6 @@ export default function SessionDetailPage() {
         setSession(data);
         setError(null);
 
-        // Récupérer les questions
         const questionsResponse = await fetch(`/api/sessions/${sessionId}/questions`);
         if (questionsResponse.ok) {
           const questionsData = await questionsResponse.json();
