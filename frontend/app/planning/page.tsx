@@ -1,4 +1,3 @@
-// frontend/app/planning/page.tsx
 import PlanningBoard from "../components/planningBoard";
 import { getAllSessions } from "../services/sessionService";
 
