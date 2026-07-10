@@ -1,4 +1,3 @@
-// app/speakers/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -224,8 +223,6 @@ const speakersCSS = `
     white-space: nowrap;
     align-self: center;
   }
-
-  /* Recherche */
   .spk-search-wrapper {
     position: relative;
     margin-bottom: 2rem;
@@ -269,7 +266,6 @@ const speakersCSS = `
   }
   .spk-search-clear:hover { background: #d1d5db; }
 
-  /* Loading */
   .spk-loading {
     text-align: center;
     padding: 4rem;
@@ -285,7 +281,6 @@ const speakersCSS = `
   }
   @keyframes spkSpin { to { transform: rotate(360deg); } }
 
-  /* Error / Empty */
   .spk-error, .spk-empty {
     text-align: center;
     padding: 4rem 2rem;
@@ -307,14 +302,12 @@ const speakersCSS = `
   }
   .spk-retry-btn:hover { background: #1d4ed8; }
 
-  /* Grid */
   .spk-grid {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 1.5rem;
   }
 
-  /* Card */
   .spk-card {
     display: flex;
     flex-direction: column;
@@ -333,7 +326,6 @@ const speakersCSS = `
     border-color: #bfdbfe;
   }
 
-  /* Photo */
   .spk-photo-wrapper {
     position: relative;
     width: 100%;
@@ -368,8 +360,6 @@ const speakersCSS = `
     font-weight: 700;
     box-shadow: 0 2px 8px rgba(37,99,235,0.4);
   }
-
-  /* Info */
   .spk-info {
     padding: 1.25rem;
     display: flex;
@@ -404,7 +394,6 @@ const speakersCSS = `
     flex: 1;
   }
 
-  /* Socials */
   .spk-socials {
     display: flex;
     flex-wrap: wrap;
@@ -423,7 +412,6 @@ const speakersCSS = `
   .spk-twitter  { background: #dbeafe; color: #0284c7; }
   .spk-web      { background: #d1fae5; color: #065f46; }
 
-  /* Footer card */
   .spk-card-footer {
     margin-top: auto;
     padding-top: 0.75rem;
