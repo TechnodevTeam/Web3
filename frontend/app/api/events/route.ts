@@ -1,4 +1,3 @@
-// frontend/app/api/events/route.ts
 import { NextResponse } from 'next/server';
 import { Pool } from 'pg';
 
