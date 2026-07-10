@@ -1,4 +1,3 @@
-// backend/src/app.js
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -17,20 +16,18 @@ const userRoutes = require('./routes/user.routes')
 
 dotenv.config();
 
-// ✅ DÉCLARER app AVANT de l'utiliser
 const app = express();
 
-// ✅ CORS AVEC EXPOSITION DES EN-TÊTES
+
 app.use(cors({
   exposedHeaders: ['Content-Range']
 }));
 
 app.use(express.json());
 
-// ✅ Appliquer le middleware Content-Range SUR TOUTES LES ROUTES /api
 app.use('/api', contentRangeMiddleware);
 
-// ✅ Routes (après les middlewares)
+
 app.use("/api/events", eventRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/sessions", sessionRoutes);
