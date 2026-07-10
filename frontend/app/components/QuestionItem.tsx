@@ -41,10 +41,8 @@ export default function QuestionItem({
       setLoading(true);
       const updated = await upvoteQuestion(question.id);
 
-      // ← utilise la valeur réelle retournée par l'API
       setUpvotes(updated.upvotes);
-
-      // Cookie au lieu de localStorage
+    
       const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toUTCString()
       document.cookie = `upvoted-${question.id}=true; expires=${expires}; path=/`
 
