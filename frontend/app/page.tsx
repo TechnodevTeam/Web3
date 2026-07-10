@@ -8,7 +8,7 @@ import {
   faCalendarCheck,
   faQuestionCircle,
 } from "@fortawesome/free-solid-svg-icons";
-import "./globals.css";  // ← SEUL AJOUT : l'import du CSS qui était dans le conflit
+import "./globals.css"; 
 
 export default function HomePage() {
   return (
