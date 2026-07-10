@@ -89,11 +89,10 @@ async function addAnswerToQuestion(questionId, answerContent) {
   return await sessionRepository.addAnswerToQuestion(questionId, answerContent);
 }
 
-// ✅ EXPORT : TOUTES les méthodes
 module.exports = {
   getSessionsByEventId,
   getSessionById,
-  isSessionLive, // ✅ AJOUT
+  isSessionLive,
   getQuestionsBySessionId,
   createQuestion,
   upvoteQuestion,
