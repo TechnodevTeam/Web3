@@ -72,7 +72,6 @@ async function findAllSpeakers() {
   return result.rows;
 }
 
-// Créer un nouveau speaker
 async function createSpeaker(data) {
   const { fullName, photoUrl, bio, externalLinks } = data;
   const result = await db.query(
@@ -86,7 +85,6 @@ async function createSpeaker(data) {
   return result.rows[0];
 }
 
-// Mettre à jour un speaker
 async function updateSpeaker(id, data) {
   const { fullName, photoUrl, bio, externalLinks } = data;
   const result = await db.query(
@@ -105,12 +103,11 @@ async function updateSpeaker(id, data) {
   return result.rows[0];
 }
 
-// ✅ CORRECTION : Supprimer un speaker
 async function deleteSpeaker(id) {
   const result = await db.query(
     `DELETE FROM speakers WHERE id = $1 RETURNING id`,
     [id]
-  ); // ← Ce ); était manquant !
+  );
   return result.rowCount > 0;
 }
 
