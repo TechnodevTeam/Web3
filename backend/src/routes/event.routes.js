@@ -8,7 +8,6 @@ router.get("/", eventController.getAllEvents);
 router.get("/:id", eventController.getEventById);
 router.get("/:id/sessions", sessionController.getSessionsByEventId);
 
-// Exemple dans event.routes.js
 router.post('/', authMiddleware, adminMiddleware, eventController.createEvent)
 router.put('/:id', authMiddleware, adminMiddleware, eventController.updateEvent)
 router.delete('/:id', authMiddleware, adminMiddleware, eventController.deleteEvent)
