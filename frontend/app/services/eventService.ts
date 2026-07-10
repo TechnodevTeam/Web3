@@ -43,7 +43,6 @@ export async function getEvents(): Promise<Event[]> {
 
 export async function getEventById(id: string): Promise<Event | null> {
   try {
-    // ← appelle directement le backend Express pour avoir les sessions
     const response = await fetch(`${BACKEND_URL}/events/${id}`, { cache: "no-store" });
     if (!response.ok) return null;
     return await response.json();
