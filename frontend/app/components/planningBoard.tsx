@@ -1,4 +1,3 @@
-// frontend/app/components/planningBoard.tsx
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
@@ -16,9 +15,7 @@ import {
 import { faHeart as faHeartRegular } from "@fortawesome/free-regular-svg-icons";
 import { useFavorites } from "../services/favoriteService";
 
-// ============================================================
-// TYPES
-// ============================================================
+
 interface Speaker {
   id: number;
   fullName: string;
@@ -42,11 +39,6 @@ interface PlanningBoardProps {
   sessions: Session[];
 }
 
-// ============================================================
-// UTILITAIRES
-// ============================================================
-
-// Grouper les sessions par date puis par horaire
 const groupByDateAndTime = (sessions: Session[]): Record<string, Record<string, Session[]>> => {
   const groups: Record<string, Record<string, Session[]>> = {};
   sessions.forEach((session) => {
@@ -64,7 +56,7 @@ const groupByDateAndTime = (sessions: Session[]): Record<string, Record<string, 
     if (!groups[dateKey][timeKey]) groups[dateKey][timeKey] = [];
     groups[dateKey][timeKey].push(session);
   });
-  // Trier les dates
+
   const sortedDates: Record<string, Record<string, Session[]>> = {};
   Object.keys(groups)
     .sort((a, b) => {
@@ -74,7 +66,7 @@ const groupByDateAndTime = (sessions: Session[]): Record<string, Record<string, 
     })
     .forEach((date) => {
       sortedDates[date] = groups[date];
-      // Trier les horaires pour chaque date
+   
       const sortedTimes: Record<string, Session[]> = {};
       Object.keys(sortedDates[date])
         .sort((a, b) => a.localeCompare(b))
@@ -86,14 +78,12 @@ const groupByDateAndTime = (sessions: Session[]): Record<string, Record<string, 
   return sortedDates;
 };
 
-// Récupérer toutes les salles uniques
 const getUniqueRooms = (sessions: Session[]): string[] => {
   const rooms = new Set<string>();
   sessions.forEach((s) => rooms.add(s.roomName));
   return Array.from(rooms);
 };
 
-// Extraire les dates uniques pour le filtre
 const getUniqueDates = (sessions: Session[]): string[] => {
   const dates = new Set<string>();
   sessions.forEach((s) => {
@@ -111,10 +101,6 @@ const getUniqueDates = (sessions: Session[]): string[] => {
     return da.getTime() - db.getTime();
   });
 };
-
-// ============================================================
-// COMPOSANT PRINCIPAL
-// ============================================================
 
 export default function PlanningBoard({ sessions }: PlanningBoardProps) {
   const { favorites, toggleFavorite, loadFavorites } = useFavorites();
