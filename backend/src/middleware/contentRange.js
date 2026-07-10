@@ -2,7 +2,6 @@ function contentRangeMiddleware(req, res, next) {
   const originalJson = res.json;
 
   res.json = function (data) {
-    // ✅ uniquement pour GET sans paramètre d'ID ET si data est un tableau
     if (
       req.method === 'GET' &&
       !req.params.id &&
