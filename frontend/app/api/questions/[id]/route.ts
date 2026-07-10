@@ -34,7 +34,6 @@ export async function PUT(
       );
     }
 
-    // Vérifier si la question a des réponses (table answers - optionnel)
     const result = await pool.query(
       `UPDATE questions SET content = $1 WHERE id = $2
        RETURNING id, content, author_name AS "authorName", upvotes, created_at AS "createdAt"`,
