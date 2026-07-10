@@ -1,4 +1,3 @@
-// app/favorites/page.tsx
 "use client";
 
 import Link from "next/link";
@@ -204,7 +203,6 @@ export default function FavoritesPage() {
         }
         .fav-btn-danger:hover { background: #fecaca; }
 
-        /* Loading */
         .fav-loading {
           text-align: center;
           padding: 4rem;
@@ -221,7 +219,6 @@ export default function FavoritesPage() {
         }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* Empty */
         .fav-empty {
           text-align: center;
           padding: 4rem 2rem;
@@ -234,14 +231,12 @@ export default function FavoritesPage() {
         .fav-empty h2 { font-size: 1.5rem; color: #111827; margin-bottom: 0.75rem; }
         .fav-empty p { color: #6b7280; margin-bottom: 1.75rem; line-height: 1.7; }
 
-        /* Grid */
         .fav-grid {
           display: grid;
           grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
           gap: 1.5rem;
         }
 
-        /* Card */
         .fav-card {
           position: relative;
           background: white;
