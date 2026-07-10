@@ -1,4 +1,3 @@
-// frontend/app/events/[id]/sessions/page.tsx
 "use client";
 
 import { useEffect, useState } from "react";
@@ -48,7 +47,6 @@ export default function EventSessionsPage() {
         const data = await response.json();
         setSessions(Array.isArray(data) ? data : []);
 
-        // Charger les questions pour les sessions live
         const questionsPromises = data.map(async (session: Session) => {
           if (session.live) {
             try {
@@ -81,8 +79,6 @@ export default function EventSessionsPage() {
 
     fetchSessions();
   }, [eventId]);
-
-  // ✅ Fonction pour ajouter une question immédiatement
   const handleQuestionAdded = (sessionId: number, newQuestion: any) => {
     setQuestions((prev) => ({
       ...prev,
