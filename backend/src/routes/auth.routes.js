@@ -2,8 +2,7 @@ const express = require('express')
 const router = express.Router()
 const bcrypt = require('bcrypt')
 const jwt = require('jsonwebtoken')
-const pool = require('../db') // adapte selon ton fichier de config DB
-
+const pool = require('../db')
 router.post('/login', async (req, res) => {
   const { email, password } = req.body
 
@@ -15,9 +14,8 @@ router.post('/login', async (req, res) => {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect' })
     }
 
-    // Comparaison mot de passe (texte clair pour l'instant, bcrypt ensuite)
     const validPassword = await bcrypt.compare(password, user.password)
-    // Plus tard : const validPassword = await bcrypt.compare(password, user.password)
+    
 
     if (!validPassword) {
       return res.status(401).json({ message: 'Email ou mot de passe incorrect' })
