@@ -38,12 +38,10 @@ export async function POST(request: Request) {
 
     const user = result.rows[0];
 
-    // Vérifier le mot de passe (si hashé)
     let isValid = false;
     if (user.password.startsWith('$2b$') || user.password.startsWith('$2a$')) {
       isValid = await bcrypt.compare(password, user.password);
     } else {
-      // Si non hashé (en clair) - temporaire pour dev
       isValid = user.password === password;
     }
 
