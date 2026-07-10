@@ -1,4 +1,3 @@
-// backend/scripts/fixSequences.js
 const { syncAllSequences } = require('../src/utils/syncSequences');
 
 console.log('🔄 Réparation des séquences...');
