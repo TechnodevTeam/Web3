@@ -15,8 +15,6 @@ async function createSpeaker(data) {
 async function updateSpeaker(id, data) {
   return await speakerRepository.updateSpeaker(id, data);
 }
-
-// ✅ CORRECTION : Cette fonction était mal placée
 async function deleteSpeaker(id) {
   return await speakerRepository.deleteSpeaker(id);
 }
