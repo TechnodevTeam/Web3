@@ -1,4 +1,3 @@
-// frontend/app/services/questionService.ts
 const getBaseUrl = () => {
   if (typeof window !== "undefined") return "";
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
@@ -64,7 +63,6 @@ export async function upvoteQuestion(questionId: number) {
   }
 }
 
-// ✅ AJOUT : Modifier une question
 export async function updateQuestion(questionId: number, content: string) {
   try {
     const response = await fetch(
@@ -90,7 +88,6 @@ export async function updateQuestion(questionId: number, content: string) {
   }
 }
 
-// ✅ AJOUT : Supprimer une question
 export async function deleteQuestion(questionId: number) {
   try {
     const response = await fetch(
